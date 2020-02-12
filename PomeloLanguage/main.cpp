@@ -8,8 +8,16 @@
 
 #include <iostream>
 
+#include "PLLexParser.hpp"
+
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
+    
+    PLLexParser *lexParser = new PLLexParser;
+    if (lexParser->getNextToken().empty) {
+        std::cout << "empty";
+    }
+    
     return 0;
 }

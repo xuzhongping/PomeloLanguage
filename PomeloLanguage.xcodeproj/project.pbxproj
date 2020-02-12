@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		EDD71DCE23F2FDF600191639 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDD71DCD23F2FDF600191639 /* main.cpp */; };
+		EDD722E923F457EB00191639 /* PLVM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDD722E723F457EB00191639 /* PLVM.cpp */; };
+		EDD722ED23F45A4000191639 /* PLLexParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDD722EB23F45A4000191639 /* PLLexParser.cpp */; };
+		EDD722F123F45C6100191639 /* PLObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EDD722EF23F45C6100191639 /* PLObject.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +28,12 @@
 /* Begin PBXFileReference section */
 		EDD71DCA23F2FDF600191639 /* PomeloLanguage */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PomeloLanguage; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDD71DCD23F2FDF600191639 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		EDD722E723F457EB00191639 /* PLVM.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PLVM.cpp; sourceTree = "<group>"; };
+		EDD722E823F457EB00191639 /* PLVM.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PLVM.hpp; sourceTree = "<group>"; };
+		EDD722EB23F45A4000191639 /* PLLexParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PLLexParser.cpp; sourceTree = "<group>"; };
+		EDD722EC23F45A4000191639 /* PLLexParser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PLLexParser.hpp; sourceTree = "<group>"; };
+		EDD722EF23F45C6100191639 /* PLObject.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PLObject.cpp; sourceTree = "<group>"; };
+		EDD722F023F45C6100191639 /* PLObject.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PLObject.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,9 +66,39 @@
 		EDD71DCC23F2FDF600191639 /* PomeloLanguage */ = {
 			isa = PBXGroup;
 			children = (
+				EDD722EE23F45C4100191639 /* Object */,
+				EDD722EA23F45A1500191639 /* LexParser */,
+				EDD722E623F457BB00191639 /* vm */,
 				EDD71DCD23F2FDF600191639 /* main.cpp */,
 			);
 			path = PomeloLanguage;
+			sourceTree = "<group>";
+		};
+		EDD722E623F457BB00191639 /* vm */ = {
+			isa = PBXGroup;
+			children = (
+				EDD722E723F457EB00191639 /* PLVM.cpp */,
+				EDD722E823F457EB00191639 /* PLVM.hpp */,
+			);
+			path = vm;
+			sourceTree = "<group>";
+		};
+		EDD722EA23F45A1500191639 /* LexParser */ = {
+			isa = PBXGroup;
+			children = (
+				EDD722EB23F45A4000191639 /* PLLexParser.cpp */,
+				EDD722EC23F45A4000191639 /* PLLexParser.hpp */,
+			);
+			path = LexParser;
+			sourceTree = "<group>";
+		};
+		EDD722EE23F45C4100191639 /* Object */ = {
+			isa = PBXGroup;
+			children = (
+				EDD722EF23F45C6100191639 /* PLObject.cpp */,
+				EDD722F023F45C6100191639 /* PLObject.hpp */,
+			);
+			path = Object;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -120,6 +159,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDD71DCE23F2FDF600191639 /* main.cpp in Sources */,
+				EDD722F123F45C6100191639 /* PLObject.cpp in Sources */,
+				EDD722E923F457EB00191639 /* PLVM.cpp in Sources */,
+				EDD722ED23F45A4000191639 /* PLLexParser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
