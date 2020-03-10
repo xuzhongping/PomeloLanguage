@@ -7,7 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ED1AC1922417D98B0041B317 /* Virtual.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1AC1912417D98B0041B317 /* Virtual.swift */; };
+		ED1AC1952417DBD10041B317 /* Unicode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1AC1942417DBD10041B317 /* Unicode.swift */; };
 		EDD3835023F52864004D2B6D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD3834F23F52864004D2B6D /* main.swift */; };
+		EDDA075824000F6E00304C64 /* LexParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDA075724000F6E00304C64 /* LexParser.swift */; };
+		EDDA075E24001B5C00304C64 /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDA075D24001B5C00304C64 /* Object.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +27,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		ED1AC1912417D98B0041B317 /* Virtual.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
+		ED1AC1942417DBD10041B317 /* Unicode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unicode.swift; sourceTree = "<group>"; };
 		EDD3834C23F52864004D2B6D /* PomeloLanguage */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PomeloLanguage; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDD3834F23F52864004D2B6D /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		EDDA075724000F6E00304C64 /* LexParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexParser.swift; sourceTree = "<group>"; };
+		EDDA075D24001B5C00304C64 /* Object.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Object.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +46,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		ED1AC1932417DBA90041B317 /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				ED1AC1942417DBD10041B317 /* Unicode.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
 		EDD3834323F52864004D2B6D = {
 			isa = PBXGroup;
 			children = (
@@ -57,9 +73,37 @@
 		EDD3834E23F52864004D2B6D /* PomeloLanguage */ = {
 			isa = PBXGroup;
 			children = (
+				ED1AC1932417DBA90041B317 /* Util */,
+				EDDA075C24001AE300304C64 /* Object */,
+				EDDA07592400116C00304C64 /* Virtual */,
+				EDDA075624000F2E00304C64 /* LexParser */,
 				EDD3834F23F52864004D2B6D /* main.swift */,
 			);
 			path = PomeloLanguage;
+			sourceTree = "<group>";
+		};
+		EDDA075624000F2E00304C64 /* LexParser */ = {
+			isa = PBXGroup;
+			children = (
+				EDDA075724000F6E00304C64 /* LexParser.swift */,
+			);
+			path = LexParser;
+			sourceTree = "<group>";
+		};
+		EDDA07592400116C00304C64 /* Virtual */ = {
+			isa = PBXGroup;
+			children = (
+				ED1AC1912417D98B0041B317 /* Virtual.swift */,
+			);
+			path = Virtual;
+			sourceTree = "<group>";
+		};
+		EDDA075C24001AE300304C64 /* Object */ = {
+			isa = PBXGroup;
+			children = (
+				EDDA075D24001B5C00304C64 /* Object.swift */,
+			);
+			path = Object;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -120,7 +164,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDDA075824000F6E00304C64 /* LexParser.swift in Sources */,
 				EDD3835023F52864004D2B6D /* main.swift in Sources */,
+				EDDA075E24001B5C00304C64 /* Object.swift in Sources */,
+				ED1AC1952417DBD10041B317 /* Unicode.swift in Sources */,
+				ED1AC1922417D98B0041B317 /* Virtual.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
