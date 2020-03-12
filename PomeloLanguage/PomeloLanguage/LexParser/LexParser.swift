@@ -76,6 +76,8 @@ class Token {
         
         case eof
     }
+    
+
     var type: TokenType = .unknown
     var string: String?
     var line: Int = 0
@@ -88,14 +90,39 @@ class LexParser {
         case create
     }
 
-    
-    
     enum LexStatus {
         case begin
         case runing
         case end
     }
     
+    struct Keyword{
+        var string: String
+        var length: Int
+        var type: Token.TokenType
+    }
+    
+    static var keyboardsTable: [Keyword] = [
+        Keyword(string: "var",      length: 3, type: .var_),
+        Keyword(string: "fun",      length: 3, type: .func_),
+        Keyword(string: "if",       length: 2, type: .if_),
+        Keyword(string: "else",     length: 4, type: .else_),
+        Keyword(string: "true",     length: 3, type: .true_),
+        Keyword(string: "false",    length: 5, type: .false_),
+        Keyword(string: "while",    length: 5, type: .while_),
+        Keyword(string: "for",      length: 3, type: .for_),
+        Keyword(string: "break",    length: 5, type: .break_),
+        Keyword(string: "continue", length: 8, type: .continue_),
+        Keyword(string: "return",   length: 6, type: .return_),
+        Keyword(string: "nil",      length: 3, type: .nil_),
+        Keyword(string: "class",    length: 5, type: .class_),
+        Keyword(string: "is",       length: 2, type: .is_),
+        Keyword(string: "static",   length: 6, type: .static_),
+        Keyword(string: "this",     length: 4, type: .var_),
+        Keyword(string: "super",    length: 5, type: .super_),
+        Keyword(string: "import",   length: 6, type: .import_)
+    ]
+
     
     var file: String?
     
@@ -255,7 +282,7 @@ class LexParser {
             self.status = .end
             return nil
         }
-        getNextChar()
+        seekNext()
         return token
     }
 }
@@ -264,13 +291,17 @@ extension LexParser {
     private func lookAheadChar() -> Character {
         return code.at(index: position + 1)
     }
-    private func getNextChar() {
-        position += 1
+    private func seekNext() {
+        seek(offset: 1)
+    }
+    
+    private func seek(offset: Int) {
+        position += offset
     }
     
     private func matchNextChar(expected: Character) -> Bool {
         if lookAheadChar() == expected {
-            getNextChar()
+            seekNext()
             return true
         }
         return false
@@ -281,14 +312,14 @@ extension LexParser {
             if char.isNewline {
                 line += 1
             }
-            getNextChar()
+            seekNext()
         }
     }
     private func skipAline() {
         while let char = char,char != "\0" {
             if char.isNewline {
                 line += 1
-                getNextChar()
+                seekNext()
                 break
             }
         }
@@ -298,12 +329,33 @@ extension LexParser {
 extension LexParser {
     private func parseString(token: Token) {
         token.type = .string
-        getNextChar()
+        seekNext()
     }
     
     private func parseId(token: Token) {
-        token.type = .string
-        getNextChar()
+        if isKeyword(token: token) {
+            seekNext()
+            return
+        }
+        var tempString = ""
+        while let char = self.char,char.isCased {
+            tempString.append(char)
+            seekNext()
+        }
+        token.string = tempString
+        token.type = .id
+        seekNext()
+    }
+    private func isKeyword(token: Token) -> Bool {
+        for keyboard in LexParser.keyboardsTable {
+            let subString = code.subString(range: NSRange(location: position, length: keyboard.length))
+            if subString == keyboard.string {
+                token.type = keyboard.type
+                seek(offset: keyboard.length)
+                return true
+            }
+        }
+        return false
     }
 }
 
@@ -311,6 +363,11 @@ extension String {
     public func at(index: Int) -> Character {
         let i = self.index(self.startIndex, offsetBy: index)
         return self[i]
+    }
+    public func subString(range: NSRange) -> String {
+        let startIndex = self.index(self.startIndex, offsetBy: range.location)
+        let endIndex = self.index(startIndex, offsetBy: range.length)
+        return String(self[startIndex..<endIndex])
     }
 }
 
