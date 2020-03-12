@@ -12,6 +12,7 @@
 		EDD3835023F52864004D2B6D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD3834F23F52864004D2B6D /* main.swift */; };
 		EDDA075824000F6E00304C64 /* LexParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDA075724000F6E00304C64 /* LexParser.swift */; };
 		EDDA075E24001B5C00304C64 /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDA075D24001B5C00304C64 /* Object.swift */; };
+		EDED4A8C241A8AAB00DEB70B /* pomelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDED4A8B241A8AAB00DEB70B /* pomelo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,6 +34,7 @@
 		EDD3834F23F52864004D2B6D /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		EDDA075724000F6E00304C64 /* LexParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexParser.swift; sourceTree = "<group>"; };
 		EDDA075D24001B5C00304C64 /* Object.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Object.swift; sourceTree = "<group>"; };
+		EDED4A8B241A8AAB00DEB70B /* pomelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pomelo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +80,7 @@
 				EDDA07592400116C00304C64 /* Virtual */,
 				EDDA075624000F2E00304C64 /* LexParser */,
 				EDD3834F23F52864004D2B6D /* main.swift */,
+				EDED4A8B241A8AAB00DEB70B /* pomelo.swift */,
 			);
 			path = PomeloLanguage;
 			sourceTree = "<group>";
@@ -169,6 +172,7 @@
 				EDDA075E24001B5C00304C64 /* Object.swift in Sources */,
 				ED1AC1952417DBD10041B317 /* Unicode.swift in Sources */,
 				ED1AC1922417D98B0041B317 /* Virtual.swift in Sources */,
+				EDED4A8C241A8AAB00DEB70B /* pomelo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

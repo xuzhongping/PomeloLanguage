@@ -9,6 +9,6 @@
 import Cocoa
 
 class Virtual {
-    var allocatedBytes: Int64 = 0
+    var allocatedBytes: Int = 0
     var lexParser: LexParser?
 }

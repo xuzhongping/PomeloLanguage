@@ -62,6 +62,6 @@ class Method {
 class Class {
     var objHeader: ObjectHeader?
     var superClass: Class?
-    var fieldNum: Int32 = 0
+    var fieldNum: Int = 0
     var method: [Method]?
 }

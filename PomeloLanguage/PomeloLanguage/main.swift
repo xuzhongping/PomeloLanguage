@@ -8,5 +8,5 @@
 
 import Foundation
 
-print("Hello, World!")
+try Pomelo.run(file: "/Users/junghsu/Desktop/Dev/sparrow/src/c2/f/sample.sp")
 

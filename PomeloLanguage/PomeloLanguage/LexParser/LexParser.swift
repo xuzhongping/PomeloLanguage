@@ -8,8 +8,7 @@
 
 import Foundation
 
-class LexParser {
-
+class Token {
     enum TokenType {
         case unknown
         case num
@@ -77,32 +76,49 @@ class LexParser {
         
         case eof
     }
+    var type: TokenType = .unknown
+    var string: String?
+    var line: Int = 0
+}
+
+class LexParser {
     
-    struct Token {
-        var type: TokenType = .unknown
-        var string: String?
-        var line: Int = -1
+    enum LexParserError: Error {
+        case unknown
+        case create
     }
+
+    
+    
+    enum LexStatus {
+        case begin
+        case runing
+        case end
+    }
+    
     
     var file: String?
     
     var code: String
     
-    var position: Int64 = 0
+    var position: Int = 0
+        
+    var char: Character? {
+        get {
+            guard position < code.count else {
+                return nil
+            }
+            return code.at(index: position)
+        }
+    }
     
-    var next: Int64 = 0
-    
-    var char: Character?
-    
-    var curToken: Token?
-    
-    var preToken: Token?
+    var status: LexStatus = .begin
     
     var expectationRightParenNum: Int = 0
     
     var virtual: Virtual
     
-    var line: Int64 = 0
+    var line: Int = 0
     
     
     init(virtual: Virtual, code: String) {
@@ -120,37 +136,136 @@ class LexParser {
         self.init(virtual: virtual, code: code)
     }
     
-    public func getNextToken() -> Token? {
+    public func getNextToken() throws -> Token? {
+        self.status = .runing
         skipBlanks()
-        preToken = curToken
-        var token = Token()
-        token.type = .unknown
-        while let char = char,char != "\0" {
-            switch char {
-            case ",":
-                token.type = .comma
-            case ":":
-                token.type = .colon
-            case "(":
-//                token.type = .comma
-            case ")":
-//                token.type = .comma
-            default:
-                
-            }
+        guard let char = char,char != "\0" else {
+            self.status = .end
+            return nil
         }
+        
+        let token = Token()
+        token.type = .unknown
+        switch char {
+        case ",":
+            token.type = .comma
+            token.string = ","
+        case ":":
+            token.type = .colon
+        case "(":
+            token.type = .leftParen
+            expectationRightParenNum += 1
+        case ")":
+            if expectationRightParenNum > 0 {
+                expectationRightParenNum -= 1
+                if expectationRightParenNum == 0 {
+                    parseString(token: token)
+                    break;
+                }
+            }
+            token.type = .rightParen
+        case "[":
+            token.type = .leftBracket
+        case "]":
+            token.type = .rightBracket
+        case "{":
+            token.type = .leftBrace
+        case "}":
+            token.type = .rightBrace
+        case ".":
+            if matchNextChar(expected: ".") {
+                token.type = .dotDouble
+            } else {
+                token.type = .dot
+            }
+        case "=":
+            if matchNextChar(expected: "=") {
+                token.type = .equal
+            } else {
+                token.type = .assign
+            }
+        case "+":
+            token.type = .add
+        case "-":
+            token.type = .sub
+        case "*":
+            token.type = .mul
+        case "/":
+            if matchNextChar(expected: "/") || matchNextChar(expected: "*") {
+                skipBlanks()
+            } else {
+                token.type = .div
+            }
+        case "%":
+            token.type = .mod
+        case "&":
+            if matchNextChar(expected: "&") {
+                token.type = .logicAnd
+            } else {
+                token.type = .bitAnd
+            }
+        case "|":
+            if matchNextChar(expected: "|") {
+                token.type = .logicOr
+            } else {
+                token.type = .bitOr
+            }
+        case "~":
+            token.type = .bitNot
+        case "?":
+            token.type = .question
+        case ">":
+            if matchNextChar(expected: "=") {
+                token.type = .greateEqual
+            } else if matchNextChar(expected: "<") {
+                token.type = .bitShiftLeft
+            } else {
+                token.type = .greate
+            }
+        case "<":
+            if matchNextChar(expected: "=") {
+                token.type = .lessEqual
+            } else if matchNextChar(expected: "<") {
+                token.type = .bitShiftRight
+            } else {
+                token.type = .less
+            }
+        case "!":
+            if matchNextChar(expected: "=") {
+                token.type = .notEqual
+            } else {
+                token.type = .logicNot
+            }
+        case "\"":
+            parseString(token: token)
+            return token
+        default:
+            if char.isCased || char == "_" {
+                parseId(token: token)
+                return token
+            }
+            if char == "#" && matchNextChar(expected: "!") {
+                skipAline()
+                return nil
+            }
+            throw LexParserError.unknown
+        }
+
+        guard char != "\0"  else {
+            self.status = .end
+            return nil
+        }
+        getNextChar()
+        return token
     }
 }
 
 extension LexParser {
     private func lookAheadChar() -> Character {
-        let index = code.index(code.startIndex, offsetBy: Int(next))
-        return code[index]
+        return code.at(index: position + 1)
     }
     private func getNextChar() {
-        let index = code.index(code.startIndex, offsetBy: Int(next))
-        char = code[index]
-        next += 1
+        position += 1
     }
     
     private func matchNextChar(expected: Character) -> Bool {
@@ -162,13 +277,40 @@ extension LexParser {
     }
     
     private func skipBlanks() {
-        guard let char = char else { return }
-        while char.isWhitespace {
+        while let char = self.char, char.isWhitespace {
             if char.isNewline {
                 line += 1
             }
             getNextChar()
         }
+    }
+    private func skipAline() {
+        while let char = char,char != "\0" {
+            if char.isNewline {
+                line += 1
+                getNextChar()
+                break
+            }
+        }
+    }
+}
+
+extension LexParser {
+    private func parseString(token: Token) {
+        token.type = .string
+        getNextChar()
+    }
+    
+    private func parseId(token: Token) {
+        token.type = .string
+        getNextChar()
+    }
+}
+
+extension String {
+    public func at(index: Int) -> Character {
+        let i = self.index(self.startIndex, offsetBy: index)
+        return self[i]
     }
 }
 
