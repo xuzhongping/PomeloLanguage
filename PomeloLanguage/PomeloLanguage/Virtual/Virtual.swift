@@ -11,4 +11,5 @@ import Cocoa
 class Virtual {
     var allocatedBytes: Int = 0
     var lexParser: LexParser?
+    var allObjectHeader: Header?
 }

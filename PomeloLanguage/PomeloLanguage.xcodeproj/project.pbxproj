@@ -12,6 +12,10 @@
 		EDD3835023F52864004D2B6D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD3834F23F52864004D2B6D /* main.swift */; };
 		EDDA075824000F6E00304C64 /* LexParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDA075724000F6E00304C64 /* LexParser.swift */; };
 		EDDA075E24001B5C00304C64 /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDA075D24001B5C00304C64 /* Object.swift */; };
+		EDDD3A20241C89F6002CD570 /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A1F241C89F6002CD570 /* Extension.swift */; };
+		EDDD3A22241C91A5002CD570 /* Header.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A21241C91A5002CD570 /* Header.swift */; };
+		EDDD3A24241C9834002CD570 /* Class.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A23241C9834002CD570 /* Class.swift */; };
+		EDDD3A26241CA353002CD570 /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A25241CA353002CD570 /* Function.swift */; };
 		EDED4A8C241A8AAB00DEB70B /* pomelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDED4A8B241A8AAB00DEB70B /* pomelo.swift */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +38,10 @@
 		EDD3834F23F52864004D2B6D /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		EDDA075724000F6E00304C64 /* LexParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexParser.swift; sourceTree = "<group>"; };
 		EDDA075D24001B5C00304C64 /* Object.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Object.swift; sourceTree = "<group>"; };
+		EDDD3A1F241C89F6002CD570 /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
+		EDDD3A21241C91A5002CD570 /* Header.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Header.swift; sourceTree = "<group>"; };
+		EDDD3A23241C9834002CD570 /* Class.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Class.swift; sourceTree = "<group>"; };
+		EDDD3A25241CA353002CD570 /* Function.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Function.swift; sourceTree = "<group>"; };
 		EDED4A8B241A8AAB00DEB70B /* pomelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pomelo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -51,6 +59,7 @@
 		ED1AC1932417DBA90041B317 /* Util */ = {
 			isa = PBXGroup;
 			children = (
+				EDDD3A1F241C89F6002CD570 /* Extension.swift */,
 				ED1AC1942417DBD10041B317 /* Unicode.swift */,
 			);
 			path = Util;
@@ -105,6 +114,9 @@
 			isa = PBXGroup;
 			children = (
 				EDDA075D24001B5C00304C64 /* Object.swift */,
+				EDDD3A21241C91A5002CD570 /* Header.swift */,
+				EDDD3A23241C9834002CD570 /* Class.swift */,
+				EDDD3A25241CA353002CD570 /* Function.swift */,
 			);
 			path = Object;
 			sourceTree = "<group>";
@@ -167,12 +179,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDDD3A22241C91A5002CD570 /* Header.swift in Sources */,
 				EDDA075824000F6E00304C64 /* LexParser.swift in Sources */,
+				EDDD3A20241C89F6002CD570 /* Extension.swift in Sources */,
+				EDDD3A24241C9834002CD570 /* Class.swift in Sources */,
 				EDD3835023F52864004D2B6D /* main.swift in Sources */,
 				EDDA075E24001B5C00304C64 /* Object.swift in Sources */,
 				ED1AC1952417DBD10041B317 /* Unicode.swift in Sources */,
 				ED1AC1922417D98B0041B317 /* Virtual.swift in Sources */,
 				EDED4A8C241A8AAB00DEB70B /* pomelo.swift in Sources */,
+				EDDD3A26241CA353002CD570 /* Function.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -85,24 +85,24 @@ class Token {
 
 class LexParser {
     
-    enum LexParserError: Error {
+    public enum LexParserError: Error {
         case unknown
         case create
     }
 
-    enum LexStatus {
+    public enum LexStatus {
         case begin
         case runing
         case end
     }
     
-    struct Keyword{
+    private struct Keyword{
         var string: String
         var length: Int
         var type: Token.TokenType
     }
     
-    static var keyboardsTable: [Keyword] = [
+    private static var keyboardsTable: [Keyword] = [
         Keyword(string: "var",      length: 3, type: .var_),
         Keyword(string: "fun",      length: 3, type: .func_),
         Keyword(string: "if",       length: 2, type: .if_),
@@ -123,29 +123,26 @@ class LexParser {
         Keyword(string: "import",   length: 6, type: .import_)
     ]
 
+    public var status: LexStatus = .begin
     
-    var file: String?
+    private  var file: String?
     
-    var code: String
+    private var code: String
     
-    var position: Int = 0
+    private var position: Int = 0
         
-    var char: Character? {
+    private var seekCharacter: Character? {
         get {
-            guard position < code.count else {
-                return nil
-            }
             return code.at(index: position)
         }
     }
     
-    var status: LexStatus = .begin
     
-    var expectationRightParenNum: Int = 0
+    private var expectationRightParenNum: Int = 0
     
-    var virtual: Virtual
+    private var virtual: Virtual
     
-    var line: Int = 0
+    private var line: Int = 0
     
     
     init(virtual: Virtual, code: String) {
@@ -163,17 +160,17 @@ class LexParser {
         self.init(virtual: virtual, code: code)
     }
     
-    public func getNextToken() throws -> Token? {
-        self.status = .runing
+    public func nextToken() throws -> Token? {
+        status = .runing
         skipBlanks()
-        guard let char = char,char != "\0" else {
-            self.status = .end
+        guard let character = seekCharacter,character != "\0" else {
+            status = .end
             return nil
         }
         
         let token = Token()
         token.type = .unknown
-        switch char {
+        switch character {
         case ",":
             token.type = .comma
             token.string = ","
@@ -200,13 +197,13 @@ class LexParser {
         case "}":
             token.type = .rightBrace
         case ".":
-            if matchNextChar(expected: ".") {
+            if matchNextCharacter(expected: ".") {
                 token.type = .dotDouble
             } else {
                 token.type = .dot
             }
         case "=":
-            if matchNextChar(expected: "=") {
+            if matchNextCharacter(expected: "=") {
                 token.type = .equal
             } else {
                 token.type = .assign
@@ -218,7 +215,7 @@ class LexParser {
         case "*":
             token.type = .mul
         case "/":
-            if matchNextChar(expected: "/") || matchNextChar(expected: "*") {
+            if matchNextCharacter(expected: "/") || matchNextCharacter(expected: "*") {
                 skipBlanks()
             } else {
                 token.type = .div
@@ -226,13 +223,13 @@ class LexParser {
         case "%":
             token.type = .mod
         case "&":
-            if matchNextChar(expected: "&") {
+            if matchNextCharacter(expected: "&") {
                 token.type = .logicAnd
             } else {
                 token.type = .bitAnd
             }
         case "|":
-            if matchNextChar(expected: "|") {
+            if matchNextCharacter(expected: "|") {
                 token.type = .logicOr
             } else {
                 token.type = .bitOr
@@ -242,23 +239,23 @@ class LexParser {
         case "?":
             token.type = .question
         case ">":
-            if matchNextChar(expected: "=") {
+            if matchNextCharacter(expected: "=") {
                 token.type = .greateEqual
-            } else if matchNextChar(expected: "<") {
+            } else if matchNextCharacter(expected: "<") {
                 token.type = .bitShiftLeft
             } else {
                 token.type = .greate
             }
         case "<":
-            if matchNextChar(expected: "=") {
+            if matchNextCharacter(expected: "=") {
                 token.type = .lessEqual
-            } else if matchNextChar(expected: "<") {
+            } else if matchNextCharacter(expected: "<") {
                 token.type = .bitShiftRight
             } else {
                 token.type = .less
             }
         case "!":
-            if matchNextChar(expected: "=") {
+            if matchNextCharacter(expected: "=") {
                 token.type = .notEqual
             } else {
                 token.type = .logicNot
@@ -267,28 +264,24 @@ class LexParser {
             parseString(token: token)
             return token
         default:
-            if char.isCased || char == "_" {
+            if character.isCased || character == "_" {
                 parseId(token: token)
                 return token
             }
-            if char == "#" && matchNextChar(expected: "!") {
+            if character == "#" && matchNextCharacter(expected: "!") {
                 skipAline()
                 return nil
             }
             throw LexParserError.unknown
         }
 
-        guard char != "\0"  else {
-            self.status = .end
-            return nil
-        }
         seekNext()
         return token
     }
 }
 
 extension LexParser {
-    private func lookAheadChar() -> Character {
+    private func lookNextCharacter() -> Character? {
         return code.at(index: position + 1)
     }
     private func seekNext() {
@@ -299,8 +292,8 @@ extension LexParser {
         position += offset
     }
     
-    private func matchNextChar(expected: Character) -> Bool {
-        if lookAheadChar() == expected {
+    private func matchNextCharacter(expected: Character) -> Bool {
+        if lookNextCharacter() == expected {
             seekNext()
             return true
         }
@@ -308,16 +301,16 @@ extension LexParser {
     }
     
     private func skipBlanks() {
-        while let char = self.char, char.isWhitespace {
-            if char.isNewline {
+        while let character = seekCharacter, character.isWhitespace {
+            if character.isNewline {
                 line += 1
             }
             seekNext()
         }
     }
     private func skipAline() {
-        while let char = char,char != "\0" {
-            if char.isNewline {
+        while let character = seekCharacter,character != "\0" {
+            if character.isNewline {
                 line += 1
                 seekNext()
                 break
@@ -338,8 +331,8 @@ extension LexParser {
             return
         }
         var tempString = ""
-        while let char = self.char,char.isCased {
-            tempString.append(char)
+        while let character = self.seekCharacter,character.isCased {
+            tempString.append(character)
             seekNext()
         }
         token.string = tempString
@@ -359,15 +352,5 @@ extension LexParser {
     }
 }
 
-extension String {
-    public func at(index: Int) -> Character {
-        let i = self.index(self.startIndex, offsetBy: index)
-        return self[i]
-    }
-    public func subString(range: NSRange) -> String {
-        let startIndex = self.index(self.startIndex, offsetBy: range.location)
-        let endIndex = self.index(startIndex, offsetBy: range.length)
-        return String(self[startIndex..<endIndex])
-    }
-}
+
 

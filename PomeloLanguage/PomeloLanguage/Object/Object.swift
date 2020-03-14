@@ -8,60 +8,31 @@
 
 import Foundation
 
-class ObjectHeader {
-    enum ObjectType {
-        case none
-        case class_
-        case list
-        case map
-        case module
-        case range
-        case string
-        case upvalue
-        case function
-        case closure
-        case instance
-        case thread
-    }
-    
-    var type: ObjectType = .none
-    var dark: Bool = false
-    var cls: Class
-    var next: ObjectHeader?
-    
-    init(cls: Class) {
-        self.cls = cls
+
+/// 所有对象都需要遵守此协议
+public protocol ObjectProtocol {
+    var header: Header{set get}
+}
+
+/// 模块对象
+class ModuleObject: ObjectProtocol {
+    var header: Header
+    var ivarTable: [String: Any]
+    var name: String
+    init(name: String, virtual: Virtual) {
+        self.header = Header(virtual: virtual, type: .module, cls: nil) // module为元信息对象，不属于任何一个类
+        self.name = name
+        self.ivarTable = [:]
     }
 }
 
-class Value {
-    enum ValueType {
-        case none
-        case null
-        case false_
-        case true_
-        case num
-        case obj
+
+/// 普通实例对象
+class instanceObject: ObjectProtocol {
+    var header: Header
+    var ivarTable: [String: Any]
+    init(cls: Class, virtual: Virtual) {
+        self.header = Header(virtual: virtual, type: .instance, cls: cls)
+        self.ivarTable = [:]
     }
-    var type: ValueType = .none
-    var num: Double = 0
-    var obj: ObjectHeader?
-}
-
-class Method {
-    enum MethodType {
-        case none
-        case native
-        case script
-        case call
-    }
-    var type: MethodType = .none
-}
-
-
-class Class {
-    var objHeader: ObjectHeader?
-    var superClass: Class?
-    var fieldNum: Int = 0
-    var method: [Method]?
 }

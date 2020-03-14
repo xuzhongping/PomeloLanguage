@@ -16,7 +16,7 @@ class Pomelo {
             throw LexParser.LexParserError.create
         }
         while lexParser.status != .end {
-            guard let token = try lexParser.getNextToken() else {
+            guard let token = try lexParser.nextToken() else {
                 break
             }
             print("\(token.type):\(token.string ?? "")")
