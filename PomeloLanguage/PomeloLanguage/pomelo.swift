@@ -19,7 +19,7 @@ class Pomelo {
             guard let token = try lexParser.nextToken() else {
                 break
             }
-            print("\(token.type):\(token.string ?? "")")
+            print("\(token.type):\(token.value ?? "")")
         }
     }
 }

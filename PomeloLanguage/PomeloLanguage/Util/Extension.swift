@@ -25,3 +25,9 @@ extension String {
         return String(self[startIndex..<endIndex])
     }
 }
+
+extension Character {
+    public func isDigit() -> Bool {
+        return (self >= "0" && self <= "9")
+    }
+}
