@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C0F65797241CDB6600B81226 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F65796241CDB6600B81226 /* List.swift */; };
+		C0F65799241CDE1A00B81226 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F65798241CDE1A00B81226 /* Range.swift */; };
+		C0F6579B241CDFA000B81226 /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6579A241CDFA000B81226 /* Map.swift */; };
 		ED1AC1922417D98B0041B317 /* Virtual.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1AC1912417D98B0041B317 /* Virtual.swift */; };
 		ED1AC1952417DBD10041B317 /* Unicode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1AC1942417DBD10041B317 /* Unicode.swift */; };
 		EDD3835023F52864004D2B6D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD3834F23F52864004D2B6D /* main.swift */; };
@@ -32,6 +35,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C0F65796241CDB6600B81226 /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
+		C0F65798241CDE1A00B81226 /* Range.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Range.swift; sourceTree = "<group>"; };
+		C0F6579A241CDFA000B81226 /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
 		ED1AC1912417D98B0041B317 /* Virtual.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
 		ED1AC1942417DBD10041B317 /* Unicode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unicode.swift; sourceTree = "<group>"; };
 		EDD3834C23F52864004D2B6D /* PomeloLanguage */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PomeloLanguage; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -117,6 +123,9 @@
 				EDDD3A21241C91A5002CD570 /* Header.swift */,
 				EDDD3A23241C9834002CD570 /* Class.swift */,
 				EDDD3A25241CA353002CD570 /* Function.swift */,
+				C0F65796241CDB6600B81226 /* List.swift */,
+				C0F65798241CDE1A00B81226 /* Range.swift */,
+				C0F6579A241CDFA000B81226 /* Map.swift */,
 			);
 			path = Object;
 			sourceTree = "<group>";
@@ -181,10 +190,13 @@
 			files = (
 				EDDD3A22241C91A5002CD570 /* Header.swift in Sources */,
 				EDDA075824000F6E00304C64 /* LexParser.swift in Sources */,
+				C0F6579B241CDFA000B81226 /* Map.swift in Sources */,
 				EDDD3A20241C89F6002CD570 /* Extension.swift in Sources */,
+				C0F65799241CDE1A00B81226 /* Range.swift in Sources */,
 				EDDD3A24241C9834002CD570 /* Class.swift in Sources */,
 				EDD3835023F52864004D2B6D /* main.swift in Sources */,
 				EDDA075E24001B5C00304C64 /* Object.swift in Sources */,
+				C0F65797241CDB6600B81226 /* List.swift in Sources */,
 				ED1AC1952417DBD10041B317 /* Unicode.swift in Sources */,
 				ED1AC1922417D98B0041B317 /* Virtual.swift in Sources */,
 				EDED4A8C241A8AAB00DEB70B /* pomelo.swift in Sources */,
@@ -312,7 +324,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 94Z9LKE2W7;
+				DEVELOPMENT_TEAM = 3AQW5P79KC;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
@@ -323,7 +335,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 94Z9LKE2W7;
+				DEVELOPMENT_TEAM = 3AQW5P79KC;
 				ENABLE_HARDENED_RUNTIME = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;

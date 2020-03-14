@@ -30,4 +30,7 @@ extension Character {
     public func isDigit() -> Bool {
         return (self >= "0" && self <= "9")
     }
+    public func isEof() -> Bool {
+        return self == "\0"
+    }
 }

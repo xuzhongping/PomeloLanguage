@@ -8,5 +8,5 @@
 
 import Foundation
 
-try Pomelo.run(file: "/Users/junghsu/Desktop/Dev/sparrow/src/c2/f/sample.sp")
+try Pomelo.run(file: "/Users/xuzhongping/Desktop/work/MyGithub/PomeloLanguage/PomeloLanguage/sample.sp")
 

@@ -126,7 +126,7 @@ class LexParser {
         Keyword(string: "import",   length: 6, type: .import_)
     ]
 
-    public var status: LexStatus = .begin
+    public var status: LexStatus
     
     private  var file: String?
     
@@ -140,7 +140,7 @@ class LexParser {
         }
     }
     
-    public var curToken: Token?
+    private var curToken: Token?
     
     private var expectationRightParenNum: Int = 0
     
@@ -148,10 +148,10 @@ class LexParser {
     
     private var line: Int = 0
     
-    
     init(virtual: Virtual, code: String) {
         self.virtual = virtual
         self.code = code
+        self.status = .begin
     }
     
     convenience init?(virtual: Virtual, file: String) {
@@ -169,120 +169,126 @@ class LexParser {
         curToken = nil
         skipBlanks()
         
-        guard let character = seekCharacter,character != "\0" else {
+        guard let char = seekCharacter else {
             status = .end
             return nil
         }
         
-        curToken = Token()
-        curToken?.type = .unknown
-        switch character {
+        if char.isEof() {
+            status = .end
+            return nil
+        }
+        
+        let token = Token()
+        curToken = token
+        token.type = .unknown
+        switch char {
         case ",":
-            curToken?.type = .comma
-            curToken?.value = ","
+            token.type = .comma
+            token.value = ","
         case ":":
-            curToken?.type = .colon
+            token.type = .colon
         case "(":
-            curToken?.type = .leftParen
+            token.type = .leftParen
             expectationRightParenNum += 1
         case ")":
-            guard expectationRightParenNum <= 0 else {
-                curToken?.type = .rightParen
+            if expectationRightParenNum > 0 {
+                token.type = .rightParen
                 break
             }
             expectationRightParenNum -= 1
-            guard expectationRightParenNum != 0 else {
-                curToken?.type = .rightParen
+            if expectationRightParenNum == 0 {
+                token.type = .rightParen
                 break
             }
             try parseString()
             return curToken
         case "[":
-            curToken?.type = .leftBracket
+            token.type = .leftBracket
         case "]":
-            curToken?.type = .rightBracket
+            token.type = .rightBracket
         case "{":
-            curToken?.type = .leftBrace
+            token.type = .leftBrace
         case "}":
-            curToken?.type = .rightBrace
+            token.type = .rightBrace
         case ".":
             if matchNextCharacter(expected: ".") {
-                curToken?.type = .dotDouble
+                token.type = .dotDouble
             } else {
-                curToken?.type = .dot
+                token.type = .dot
             }
         case "=":
             if matchNextCharacter(expected: "=") {
-                curToken?.type = .equal
+                token.type = .equal
             } else {
-                curToken?.type = .assign
+                token.type = .assign
             }
         case "+":
-            curToken?.type = .add
+            token.type = .add
         case "-":
-            curToken?.type = .sub
+            token.type = .sub
         case "*":
-            curToken?.type = .mul
+            token.type = .mul
         case "/":
             if matchNextCharacter(expected: "/") || matchNextCharacter(expected: "*") {
                 skipBlanks()
                 return nil
             } else {
-                curToken?.type = .div
+                token.type = .div
             }
         case "%":
-            curToken?.type = .mod
+            token.type = .mod
         case "&":
             if matchNextCharacter(expected: "&") {
-                curToken?.type = .logicAnd
+                token.type = .logicAnd
             } else {
-                curToken?.type = .bitAnd
+                token.type = .bitAnd
             }
         case "|":
             if matchNextCharacter(expected: "|") {
-                curToken?.type = .logicOr
+                token.type = .logicOr
             } else {
-                curToken?.type = .bitOr
+                token.type = .bitOr
             }
         case "~":
-            curToken?.type = .bitNot
+            token.type = .bitNot
         case "?":
-            curToken?.type = .question
+            token.type = .question
         case ">":
             if matchNextCharacter(expected: "=") {
-                curToken?.type = .greateEqual
+                token.type = .greateEqual
             } else if matchNextCharacter(expected: "<") {
-                curToken?.type = .bitShiftLeft
+                token.type = .bitShiftLeft
             } else {
-                curToken?.type = .greate
+                token.type = .greate
             }
         case "<":
             if matchNextCharacter(expected: "=") {
-                curToken?.type = .lessEqual
+                token.type = .lessEqual
             } else if matchNextCharacter(expected: "<") {
-                curToken?.type = .bitShiftRight
+                token.type = .bitShiftRight
             } else {
-                curToken?.type = .less
+                token.type = .less
             }
         case "!":
             if matchNextCharacter(expected: "=") {
-                curToken?.type = .notEqual
+                token.type = .notEqual
             } else {
-                curToken?.type = .logicNot
+                token.type = .logicNot
             }
         case "\"":
             try parseString()
             return curToken
         default:
-            if character.isCased || character == "_" {
+            if char.isCased || char == "_" {
                 parseId()
                 return curToken
             }
-            if character == "#" && matchNextCharacter(expected: "!") {
+            if char == "#" && matchNextCharacter(expected: "!") {
                 skipAline()
                 return nil
             }
-            if character.isWholeNumber {
+            if char.isWholeNumber {
                 parseNum()
                 return curToken
             }
@@ -291,6 +297,10 @@ class LexParser {
         seekNext()
         return curToken
     }
+}
+
+extension LexParser {
+//    private func parse
 }
 
 
