@@ -27,13 +27,15 @@ class Class {
     
     /// 域的个数存储在类中
     var fieldCount: Int = 0
-    var method: [Method]
+    
+    /// key: 方法签名 value: 方法实现
+    var method: [String: Method]
     var name: String
     
     init(header: Header, superClass: Class, name: String) {
         self.header = header
         self.superClass = superClass
         self.name = name
-        self.method = []
+        self.method = [:]
     }
 }

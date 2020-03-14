@@ -65,10 +65,10 @@ class ClosureObject: ObjectProtocol {
 class CallFrame {
     var ip: uint64
     var closure: ClosureObject
-    var stack: [Any]
+    var stack: Int
     init(virtual: Virtual, closure: ClosureObject) {
         self.closure = closure
-        self.stack = []
+        self.stack = 0
         self.ip = 0
     }
 }

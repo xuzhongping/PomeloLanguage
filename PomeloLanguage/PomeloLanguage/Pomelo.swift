@@ -22,4 +22,8 @@ class Pomelo {
             print("\(token.type):\(token.value ?? "")")
         }
     }
+    
+//    public static func executeModule(virtual: Virtual, moduleName: String, moduleCode: String) ->  {
+//        
+//    }
 }

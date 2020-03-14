@@ -19,7 +19,10 @@
 		EDDD3A22241C91A5002CD570 /* Header.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A21241C91A5002CD570 /* Header.swift */; };
 		EDDD3A24241C9834002CD570 /* Class.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A23241C9834002CD570 /* Class.swift */; };
 		EDDD3A26241CA353002CD570 /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A25241CA353002CD570 /* Function.swift */; };
-		EDED4A8C241A8AAB00DEB70B /* pomelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDED4A8B241A8AAB00DEB70B /* pomelo.swift */; };
+		EDDD3A28241CE6DA002CD570 /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A27241CE6DA002CD570 /* Thread.swift */; };
+		EDDD3A2A241D0024002CD570 /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A29241D0024002CD570 /* Core.swift */; };
+		EDDD3A2D241D0C13002CD570 /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDD3A2C241D0C13002CD570 /* Compiler.swift */; };
+		EDED4A8C241A8AAB00DEB70B /* Pomelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDED4A8B241A8AAB00DEB70B /* Pomelo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -48,7 +51,10 @@
 		EDDD3A21241C91A5002CD570 /* Header.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Header.swift; sourceTree = "<group>"; };
 		EDDD3A23241C9834002CD570 /* Class.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Class.swift; sourceTree = "<group>"; };
 		EDDD3A25241CA353002CD570 /* Function.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Function.swift; sourceTree = "<group>"; };
-		EDED4A8B241A8AAB00DEB70B /* pomelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pomelo.swift; sourceTree = "<group>"; };
+		EDDD3A27241CE6DA002CD570 /* Thread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Thread.swift; sourceTree = "<group>"; };
+		EDDD3A29241D0024002CD570 /* Core.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
+		EDDD3A2C241D0C13002CD570 /* Compiler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
+		EDED4A8B241A8AAB00DEB70B /* Pomelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pomelo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,12 +96,13 @@
 		EDD3834E23F52864004D2B6D /* PomeloLanguage */ = {
 			isa = PBXGroup;
 			children = (
+				EDDD3A2B241D0BCC002CD570 /* Compiler */,
 				ED1AC1932417DBA90041B317 /* Util */,
 				EDDA075C24001AE300304C64 /* Object */,
 				EDDA07592400116C00304C64 /* Virtual */,
 				EDDA075624000F2E00304C64 /* LexParser */,
 				EDD3834F23F52864004D2B6D /* main.swift */,
-				EDED4A8B241A8AAB00DEB70B /* pomelo.swift */,
+				EDED4A8B241A8AAB00DEB70B /* Pomelo.swift */,
 			);
 			path = PomeloLanguage;
 			sourceTree = "<group>";
@@ -112,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				ED1AC1912417D98B0041B317 /* Virtual.swift */,
+				EDDD3A29241D0024002CD570 /* Core.swift */,
 			);
 			path = Virtual;
 			sourceTree = "<group>";
@@ -126,8 +134,17 @@
 				C0F65796241CDB6600B81226 /* List.swift */,
 				C0F65798241CDE1A00B81226 /* Range.swift */,
 				C0F6579A241CDFA000B81226 /* Map.swift */,
+				EDDD3A27241CE6DA002CD570 /* Thread.swift */,
 			);
 			path = Object;
+			sourceTree = "<group>";
+		};
+		EDDD3A2B241D0BCC002CD570 /* Compiler */ = {
+			isa = PBXGroup;
+			children = (
+				EDDD3A2C241D0C13002CD570 /* Compiler.swift */,
+			);
+			path = Compiler;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -191,15 +208,18 @@
 				EDDD3A22241C91A5002CD570 /* Header.swift in Sources */,
 				EDDA075824000F6E00304C64 /* LexParser.swift in Sources */,
 				C0F6579B241CDFA000B81226 /* Map.swift in Sources */,
+				EDDD3A2A241D0024002CD570 /* Core.swift in Sources */,
+				EDDD3A2D241D0C13002CD570 /* Compiler.swift in Sources */,
 				EDDD3A20241C89F6002CD570 /* Extension.swift in Sources */,
 				C0F65799241CDE1A00B81226 /* Range.swift in Sources */,
+				EDDD3A28241CE6DA002CD570 /* Thread.swift in Sources */,
 				EDDD3A24241C9834002CD570 /* Class.swift in Sources */,
 				EDD3835023F52864004D2B6D /* main.swift in Sources */,
 				EDDA075E24001B5C00304C64 /* Object.swift in Sources */,
 				C0F65797241CDB6600B81226 /* List.swift in Sources */,
 				ED1AC1952417DBD10041B317 /* Unicode.swift in Sources */,
 				ED1AC1922417D98B0041B317 /* Virtual.swift in Sources */,
-				EDED4A8C241A8AAB00DEB70B /* pomelo.swift in Sources */,
+				EDED4A8C241A8AAB00DEB70B /* Pomelo.swift in Sources */,
 				EDDD3A26241CA353002CD570 /* Function.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

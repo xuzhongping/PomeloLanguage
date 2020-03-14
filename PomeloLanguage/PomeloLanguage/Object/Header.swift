@@ -40,7 +40,7 @@ public class Header {
     }
 }
 
-class Value {
+public class Value {
     enum ValueType {
         case none
         case null

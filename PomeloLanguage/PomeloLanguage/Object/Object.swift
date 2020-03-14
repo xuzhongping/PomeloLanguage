@@ -15,14 +15,22 @@ public protocol ObjectProtocol {
 }
 
 /// 模块对象
-class ModuleObject: ObjectProtocol {
-    var header: Header
-    var ivarTable: [String: Any]
+public class ModuleObject: ObjectProtocol {
+    public var header: Header
+    var ivarTable: [String: Value]
     var name: String
     init(name: String, virtual: Virtual) {
         self.header = Header(virtual: virtual, type: .module, cls: nil) // module为元信息对象，不属于任何一个类
         self.name = name
         self.ivarTable = [:]
+    }
+    
+    public func defineModuleVar(virtual: Virtual, name: String, value: Value) -> Bool {
+        guard let _ = ivarTable[name] else {
+            ivarTable[name] = value
+            return true
+        }
+        return false
     }
 }
 
