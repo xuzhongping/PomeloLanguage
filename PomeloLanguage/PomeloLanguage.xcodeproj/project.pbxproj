@@ -10,6 +10,7 @@
 		C0F65797241CDB6600B81226 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F65796241CDB6600B81226 /* List.swift */; };
 		C0F65799241CDE1A00B81226 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F65798241CDE1A00B81226 /* Range.swift */; };
 		C0F6579B241CDFA000B81226 /* Map.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6579A241CDFA000B81226 /* Map.swift */; };
+		C0F6579D241E445800B81226 /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6579C241E445800B81226 /* Value.swift */; };
 		ED1AC1922417D98B0041B317 /* Virtual.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1AC1912417D98B0041B317 /* Virtual.swift */; };
 		ED1AC1952417DBD10041B317 /* Unicode.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1AC1942417DBD10041B317 /* Unicode.swift */; };
 		EDD3835023F52864004D2B6D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD3834F23F52864004D2B6D /* main.swift */; };
@@ -41,6 +42,7 @@
 		C0F65796241CDB6600B81226 /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
 		C0F65798241CDE1A00B81226 /* Range.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Range.swift; sourceTree = "<group>"; };
 		C0F6579A241CDFA000B81226 /* Map.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Map.swift; sourceTree = "<group>"; };
+		C0F6579C241E445800B81226 /* Value.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
 		ED1AC1912417D98B0041B317 /* Virtual.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
 		ED1AC1942417DBD10041B317 /* Unicode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Unicode.swift; sourceTree = "<group>"; };
 		EDD3834C23F52864004D2B6D /* PomeloLanguage */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PomeloLanguage; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -135,6 +137,7 @@
 				C0F65798241CDE1A00B81226 /* Range.swift */,
 				C0F6579A241CDFA000B81226 /* Map.swift */,
 				EDDD3A27241CE6DA002CD570 /* Thread.swift */,
+				C0F6579C241E445800B81226 /* Value.swift */,
 			);
 			path = Object;
 			sourceTree = "<group>";
@@ -210,6 +213,7 @@
 				C0F6579B241CDFA000B81226 /* Map.swift in Sources */,
 				EDDD3A2A241D0024002CD570 /* Core.swift in Sources */,
 				EDDD3A2D241D0C13002CD570 /* Compiler.swift in Sources */,
+				C0F6579D241E445800B81226 /* Value.swift in Sources */,
 				EDDD3A20241C89F6002CD570 /* Extension.swift in Sources */,
 				C0F65799241CDE1A00B81226 /* Range.swift in Sources */,
 				EDDD3A28241CE6DA002CD570 /* Thread.swift in Sources */,

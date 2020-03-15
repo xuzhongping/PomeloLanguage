@@ -146,7 +146,7 @@ public func bindPrimMethod(fn: Any, methodName: String, cls: Class) {
 }
 
 private func primObjectEqual(virtual: Virtual, args: inout [Value]) {
-    let equal = args[0].value == args[1].value
+//    let equal = args[0].value == args[1].value
     
 }
 
