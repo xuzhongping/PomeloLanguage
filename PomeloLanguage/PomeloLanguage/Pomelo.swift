@@ -8,6 +8,10 @@
 
 import Cocoa
 
+public enum PomeloError: Error {
+    case unknow
+}
+
 class Pomelo {
     public static func run(file: String) throws {
         let virtual = Virtual()

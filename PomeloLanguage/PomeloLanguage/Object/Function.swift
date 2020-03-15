@@ -10,8 +10,8 @@ import Cocoa
 
 
 /// 指令流对象
-class FnObject: ObjectProtocol {
-    var header: Header
+public class FnObject: ObjectProtocol {
+    public var header: Header
     var instrStream: [Byte]
     var constantsTable: [String: Any]
     var module: ModuleObject
@@ -50,8 +50,8 @@ class UpvalueObject: ObjectProtocol {
 
 
 /// 闭包对象
-class ClosureObject: ObjectProtocol {
-    var header: Header
+public class ClosureObject: ObjectProtocol {
+    public var header: Header
     var fn: FnObject
     var upvalues: [UpvalueObject]
     init(virtual: Virtual, fn: FnObject) {

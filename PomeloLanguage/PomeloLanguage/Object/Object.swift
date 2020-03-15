@@ -17,21 +17,21 @@ public protocol ObjectProtocol {
 /// 模块对象
 public class ModuleObject: ObjectProtocol {
     public var header: Header
+    
+    /// 被引用，但是未定义的变量名集合
+    var undefinedIvarNames: Set<String>
+    
+    /// 已被定义过的变量表
     var ivarTable: [String: Value]
+    
     var name: String
     init(name: String, virtual: Virtual) {
         self.header = Header(virtual: virtual, type: .module, cls: nil) // module为元信息对象，不属于任何一个类
         self.name = name
         self.ivarTable = [:]
+        self.undefinedIvarNames = Set<String>()
     }
     
-    public func defineModuleVar(virtual: Virtual, name: String, value: Value) -> Bool {
-        guard let _ = ivarTable[name] else {
-            ivarTable[name] = value
-            return true
-        }
-        return false
-    }
 }
 
 

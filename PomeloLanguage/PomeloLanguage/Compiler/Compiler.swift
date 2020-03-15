@@ -8,13 +8,13 @@
 
 import Cocoa
 
-private let maxLocalVarNum = 128
-private let maxUpvalueNum = 128
-private let maxIdLength = 128
-private let maxMethodNameLength = maxIdLength
-private let maxArgNum = 16
-private let maxSignLenth = maxMethodNameLength + maxArgNum * 2 + 1
-private let maxFieldNum = 128
+public let maxLocalVarNum = 128
+public let maxUpvalueNum = 128
+public let maxIdLength = 128
+public let maxMethodNameLength = maxIdLength
+public let maxArgNum = 16
+public let maxSignLenth = maxMethodNameLength + maxArgNum * 2 + 1
+public let maxFieldNum = 128
 
 public class Upvalue {
     var isEnclosingLocalVar: Bool
@@ -130,10 +130,12 @@ class CompilerUnit {
         self.scopeDepth = 0
         self.stackSlotNum = 0
     }
-    
-    
 }
 
+/// 编译Module(一个Pomelo脚本文件)
+public func compileModule(virtual: Virtual, module: ModuleObject, code: String) -> FnObject {
+    return FnObject(virtual: virtual, module: module, maxStackSize: 100)
+}
 
 
 

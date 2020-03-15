@@ -8,9 +8,10 @@
 
 import Cocoa
 
-class ThreadObject: ObjectProtocol {
-    static let initialFrameNum = 0
-    var header: Header
+public let InitialFrameNum = 0
+
+public class ThreadObject: ObjectProtocol {
+    public var header: Header
     var stack: Int
     var esp: Int
     var stackCapacity: UInt64
@@ -27,7 +28,7 @@ class ThreadObject: ObjectProtocol {
         //TODO: 设置ThreadClass
         self.header = Header(virtual: virtual, type: .thread, cls: nil)
         frames = []
-        frameCapacity = ThreadObject.initialFrameNum
+        frameCapacity = InitialFrameNum
         stack = 0
         stackCapacity = closure.fn.maxStackSize + 1
         esp = 0
@@ -41,7 +42,7 @@ class ThreadObject: ObjectProtocol {
         frame.stack = stack
         frame.closure = closure
         //TODO:FIX
-        frame.ip = closure.fn.instrStream.first!
+        frame.ip = uint64(closure.fn.instrStream.first!)
     }
     
     public func resetThread(closure: ClosureObject) {

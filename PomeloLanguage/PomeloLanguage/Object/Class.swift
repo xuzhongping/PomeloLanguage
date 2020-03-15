@@ -8,7 +8,7 @@
 
 import Cocoa
 
-struct Method {
+public struct Method {
     enum MethodType {
         case none
         case native
@@ -19,23 +19,24 @@ struct Method {
     var imp: Any
 }
 
-class Class {
+public class Class {
     
     /// 指向metaClass
     var header: Header
-    var superClass: Class
+    var superClass: Class?
     
     /// 域的个数存储在类中
-    var fieldCount: Int = 0
+    var fieldNum: Int = 0
     
     /// key: 方法签名 value: 方法实现
-    var method: [String: Method]
+    var methods: [String: Method]
     var name: String
     
-    init(header: Header, superClass: Class, name: String) {
+    init(header: Header, superClass: Class?, name: String) {
         self.header = header
         self.superClass = superClass
         self.name = name
-        self.method = [:]
+        self.methods = [:]
     }
+
 }

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-typealias Byte = UInt64
+typealias Byte = UInt8
 class Unicode {
     public static func getByteOfEncodeUtf8(value: Int) -> Int {
         assert(value > 0)
