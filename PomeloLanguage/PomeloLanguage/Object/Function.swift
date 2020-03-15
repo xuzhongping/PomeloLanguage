@@ -8,12 +8,38 @@
 
 import Cocoa
 
+/// 方法对象
+public struct Method {
+    enum MethodType {
+        case none
+        case native
+        case script
+        case call
+    }
+    
+    public typealias NativeFnObject = (_ virtual: Virtual, _ args:inout [Value]) -> Bool
+    
+    var type: MethodType
+    var nativeImp: NativeFnObject?
+    var scriptImp: ClosureObject?
+    init(type: MethodType) {
+        self.type = type
+    }
+    init(nativeImp: @escaping NativeFnObject) {
+        self.init(type: .native)
+        self.nativeImp = nativeImp
+    }
+    init(scriptImp: ClosureObject) {
+        self.init(type: .script)
+        self.scriptImp = scriptImp
+    }
+}
 
 /// 指令流对象
 public class FnObject: ObjectProtocol {
     public var header: Header
     var instrStream: [Byte]
-    var constantsTable: [String: Any]
+    var constantsTable: SymbolTable<String, Any>
     var module: ModuleObject
     var maxStackSize: uint64
     var upvalueCount: uint64
@@ -37,8 +63,8 @@ public class FnObject: ObjectProtocol {
 /// upvalue对象
 class UpvalueObject: ObjectProtocol {
     var header: Header
-    var localIvarTable: [String: Any]
-    var closedIvarTable: [String: Any]
+    var localIvarTable: SymbolTable<String, Any>
+    var closedIvarTable: SymbolTable<String, Any>
     var next: UpvalueObject?
     init(virtual: Virtual, localIvarTable: [String: Any]) {
         self.header = Header(virtual: virtual, type: .upValue, cls: nil)

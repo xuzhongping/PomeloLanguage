@@ -8,8 +8,8 @@
 
 import Cocoa
 
-class ListObject: ObjectProtocol {
-    var header: Header
+public class ListObject: ObjectProtocol {
+    public var header: Header
     var container: [Any]
     init(virtual: Virtual) {
         //TODO: 设置ListClass

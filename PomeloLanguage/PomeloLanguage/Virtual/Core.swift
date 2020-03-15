@@ -22,8 +22,20 @@ public func buildCore(virtual: Virtual) {
     /// 创建Object类
     virtual.objectClass = defineClass(virtual: virtual, module: coreModule, name: "Object")
     
+    /// 绑定原生方法
+//    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "!", imp: nativeObjectEqual)
+    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "==(_)", imp: nativeObjectEqual(virtual:args:))
+    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "!=(_)", imp: nativeObjectNotEqual(virtual:args:))
+    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "is(_)", imp: nativeObjectIs(virtual:args:))
+    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "className(_)", imp: nativeObjectGetClassName(virtual:args:))
+    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "class(_)", imp: nativeObjectGetClass(virtual:args:))
+    
     /// 创建Class类
     virtual.classOfClass = defineClass(virtual: virtual, module: coreModule, name: "Class")
+    
+    /// 绑定原生方法
+    bindNativeMethod(virtual: virtual, cls: virtual.classOfClass, selector: "name", imp: nativeClassGetName(virtual:args:))
+    bindNativeMethod(virtual: virtual, cls: virtual.classOfClass, selector: "superClass", imp: nativeClassGetSuperClass(virtual:args:))
     
     /// 绑定基类
     bindSuperClass(virtual: virtual, cls: virtual.classOfClass, superCls: virtual.objectClass)
@@ -45,7 +57,7 @@ public func buildCore(virtual: Virtual) {
 
 public func defineModuleVar(virtual: Virtual,module: ModuleObject, name: String, value: Value) throws {
     guard name.count <= maxIdLength else {
-        throw PomeloError.unknow
+        throw BuildError.unknown
     }
     
     /// 如果被提前引用，这次是实际定义，就从提前引用表删除，下面会定义
@@ -58,7 +70,7 @@ public func defineModuleVar(virtual: Virtual,module: ModuleObject, name: String,
         module.ivarTable[name] = value
         return
     }
-    throw PomeloError.unknow
+    throw BuildError.unknown
 }
 
 
@@ -104,49 +116,10 @@ public func executeModule(virtual: Virtual, name: String, code: String) -> Virtu
 
 
 // MARK: Class
-/// 创建一个裸类
-public func createRawClass(virtual: Virtual, name: String, fieldNum: Int) -> Class {
-    /// 裸类没有所属类
-    let rawClassHeader = Header(virtual: virtual, type: .class_, cls: nil)
-    /// 裸类没有父类
-    let rawClass = Class(header: rawClassHeader, superClass: nil, name: name)
-    return rawClass
-}
 
-public func defineClass(virtual: Virtual, module: ModuleObject, name: String) -> Class {
-    let cls = createRawClass(virtual: virtual, name: name, fieldNum: 0)
-    try! defineModuleVar(virtual: virtual, module: module, name: name, value: Value(type: .obj, value: cls))
-    return cls
-}
 
-public func bindMethod(virtual: Virtual, cls: Class,selector: String, method: Method) {
-    cls.methods[selector] = method
-}
 
-public func bindSuperClass(virtual: Virtual, cls: Class, superCls: Class) {
-    cls.superClass = superCls
-    
-    /// 继承成员变量数
-    cls.fieldNum += superCls.fieldNum
-    
-    /// 继承方法
-    for (selector, method) in superCls.methods {
-        bindMethod(virtual: virtual, cls: cls, selector: selector, method: method)
-    }
-}
-
-public func bindMetaClass(virtual: Virtual, cls: Class, metaCls: Class) {
-    cls.header.cls = metaCls
-}
 
 // MARK: PremMethod
 
-public func bindPrimMethod(fn: Any, methodName: String, cls: Class) {
-    
-}
-
-private func primObjectEqual(virtual: Virtual, args: inout [Value]) {
-//    let equal = args[0].value == args[1].value
-    
-}
 

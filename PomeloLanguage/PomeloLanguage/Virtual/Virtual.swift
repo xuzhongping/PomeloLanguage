@@ -19,17 +19,17 @@ public class Virtual {
     var lexParser: LexParser?
     var allObjectHeader: Header?
     
-    var classOfClass: Class!
-    var objectClass: Class!
-    var stringClass: Class!
-    var mapClass: Class!
-    var rangeClass: Class!
-    var listClass: Class!
-    var nullClass: Class!
-    var boolClass: Class!
-    var numClass: Class!
-    var fnClass: Class!
-    var threadClass: Class!
+    var classOfClass: ClassObject!
+    var objectClass: ClassObject!
+    var stringClass: ClassObject!
+    var mapClass: ClassObject!
+    var rangeClass: ClassObject!
+    var listClass: ClassObject!
+    var nullClass: ClassObject!
+    var boolClass: ClassObject!
+    var numClass: ClassObject!
+    var fnClass: ClassObject!
+    var threadClass: ClassObject!
     
     /// 所有模块
     public var allModules: [String: ModuleObject]

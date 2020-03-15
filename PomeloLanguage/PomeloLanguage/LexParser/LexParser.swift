@@ -8,8 +8,8 @@
 
 import Foundation
 
-class Token {
-    enum TokenType {
+public class Token {
+     enum TokenType {
         case unknown
         case num
         case string
@@ -83,16 +83,7 @@ class Token {
     var line: Int = 0
 }
 
-class LexParser {
-    
-    public enum LexParserError: Error {
-        case unknown
-        case create
-        case parseString
-        case parseNumber
-        case parseId
-    }
-
+public class LexParser {
     public enum LexStatus {
         case begin
         case runing

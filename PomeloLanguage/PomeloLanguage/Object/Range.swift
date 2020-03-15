@@ -8,8 +8,8 @@
 
 import Cocoa
 
-class Range: ObjectProtocol {
-    var header: Header
+public class RangeObject: ObjectProtocol {
+    public var header: Header
     var from: Int
     var to: Int
     init(virtual: Virtual, from: Int, to: Int) {

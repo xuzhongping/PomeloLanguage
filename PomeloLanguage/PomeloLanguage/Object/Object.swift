@@ -19,17 +19,17 @@ public class ModuleObject: ObjectProtocol {
     public var header: Header
     
     /// 被引用，但是未定义的变量名集合
-    var undefinedIvarNames: Set<String>
+    var undefinedIvarNames: SymbolSet<String>
     
     /// 已被定义过的变量表
-    var ivarTable: [String: Value]
+    var ivarTable: SymbolTable<String, Value>
     
     var name: String
     init(name: String, virtual: Virtual) {
         self.header = Header(virtual: virtual, type: .module, cls: nil) // module为元信息对象，不属于任何一个类
         self.name = name
         self.ivarTable = [:]
-        self.undefinedIvarNames = Set<String>()
+        self.undefinedIvarNames = SymbolSet<String>()
     }
     
 }
@@ -39,7 +39,7 @@ public class ModuleObject: ObjectProtocol {
 class instanceObject: ObjectProtocol {
     var header: Header
     var ivarTable: [String: Any]
-    init(cls: Class, virtual: Virtual) {
+    init(cls: ClassObject, virtual: Virtual) {
         self.header = Header(virtual: virtual, type: .instance, cls: cls)
         self.ivarTable = [:]
     }

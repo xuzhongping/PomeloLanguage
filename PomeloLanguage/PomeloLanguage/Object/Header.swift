@@ -26,11 +26,11 @@ public class Header {
     }
     
     var type: ObjectType
-    var cls: Class?
+    var cls: ClassObject?
     var next: Header? //TODO: header链表需要记录
     var dark: Bool
     
-    init(virtual: Virtual, type: ObjectType, cls: Class?) {
+    init(virtual: Virtual, type: ObjectType, cls: ClassObject?) {
         self.type = type
         self.cls = cls
         self.dark = false
