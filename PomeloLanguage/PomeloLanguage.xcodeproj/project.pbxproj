@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		C08ECA9F241FC40B0011DDC9 /* Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08ECA9E241FC40A0011DDC9 /* Module.swift */; };
 		C08ECAA1241FC5140011DDC9 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08ECAA0241FC5140011DDC9 /* Constant.swift */; };
+		C08ECAA3241FCFB80011DDC9 /* OpCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08ECAA2241FCFB80011DDC9 /* OpCode.swift */; };
 		C0F65797241CDB6600B81226 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F65796241CDB6600B81226 /* List.swift */; };
 		C0F65799241CDE1A00B81226 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F65798241CDE1A00B81226 /* Range.swift */; };
 		C0F6579B241CDFA000B81226 /* MapObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6579A241CDFA000B81226 /* MapObject.swift */; };
@@ -47,6 +48,7 @@
 /* Begin PBXFileReference section */
 		C08ECA9E241FC40A0011DDC9 /* Module.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Module.swift; sourceTree = "<group>"; };
 		C08ECAA0241FC5140011DDC9 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
+		C08ECAA2241FCFB80011DDC9 /* OpCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpCode.swift; sourceTree = "<group>"; };
 		C0F65796241CDB6600B81226 /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
 		C0F65798241CDE1A00B81226 /* Range.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Range.swift; sourceTree = "<group>"; };
 		C0F6579A241CDFA000B81226 /* MapObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapObject.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				EDDD3A29241D0024002CD570 /* Core.swift */,
 				EDDD3A47241E7887002CD570 /* NativeFn.swift */,
 				EDDD3A49241E78CE002CD570 /* Symbol.swift */,
+				C08ECAA2241FCFB80011DDC9 /* OpCode.swift */,
 			);
 			path = Virtual;
 			sourceTree = "<group>";
@@ -227,6 +230,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EDDD3A22241C91A5002CD570 /* Header.swift in Sources */,
+				C08ECAA3241FCFB80011DDC9 /* OpCode.swift in Sources */,
 				EDDA075824000F6E00304C64 /* LexParser.swift in Sources */,
 				EDDD3A48241E7887002CD570 /* NativeFn.swift in Sources */,
 				C0F6579B241CDFA000B81226 /* MapObject.swift in Sources */,
