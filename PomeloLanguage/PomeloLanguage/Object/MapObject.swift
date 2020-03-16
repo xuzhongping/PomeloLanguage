@@ -8,7 +8,7 @@
 
 import Cocoa
 
-public class MapObject: ObjectProtocol {
+public class MapObject: NSObject, ObjectProtocol {
     public var header: Header
     var contaniner: [String: Any]
     init(virtual: Virtual) {

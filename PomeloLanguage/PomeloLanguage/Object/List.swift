@@ -8,7 +8,7 @@
 
 import Cocoa
 
-public class ListObject: ObjectProtocol {
+public class ListObject: NSObject, ObjectProtocol {
     public var header: Header
     var container: [Any]
     init(virtual: Virtual) {

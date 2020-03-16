@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class Token {
+public class Token: NSObject {
      enum TokenType {
         case unknown
         case num
@@ -83,7 +83,7 @@ public class Token {
     var line: Int = 0
 }
 
-public class LexParser {
+public class LexParser: NSObject {
     public enum LexStatus {
         case begin
         case runing

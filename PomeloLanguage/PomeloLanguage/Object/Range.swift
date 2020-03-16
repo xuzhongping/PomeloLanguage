@@ -8,7 +8,7 @@
 
 import Cocoa
 
-public class RangeObject: ObjectProtocol {
+public class RangeObject: NSObject, ObjectProtocol {
     public var header: Header
     var from: Int
     var to: Int

@@ -10,9 +10,11 @@ import Cocoa
 
 
 
-public class ClassObject: ObjectProtocol {
+public class ClassObject: NSObject, ObjectProtocol {
     /// 指向metaClass
     public var header: Header
+    
+    /// 基类
     var superClass: ClassObject?
     
     /// 域的个数存储在类中
@@ -28,13 +30,6 @@ public class ClassObject: ObjectProtocol {
         self.methods = [:]
     }
 }
-
-extension ClassObject: Equatable {
-    public static func == (lhs: ClassObject, rhs: ClassObject) -> Bool {
-        return lhs.name == rhs.name
-    }
-}
-
 
 /// 创建一个裸类
 public func createRawClass(virtual: Virtual, name: String, fieldNum: Int) -> ClassObject {

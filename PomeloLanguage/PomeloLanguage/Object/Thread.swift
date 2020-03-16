@@ -10,7 +10,7 @@ import Cocoa
 
 public let InitialFrameNum = 0
 
-public class ThreadObject: ObjectProtocol {
+public class ThreadObject: NSObject, ObjectProtocol {
     public var header: Header
     var stack: Int
     var esp: Int
@@ -34,6 +34,7 @@ public class ThreadObject: ObjectProtocol {
         esp = 0
         usedFrameNum = 0
         openUpvalue = []
+        super.init()
         resetThread(closure: closure)
     }
     

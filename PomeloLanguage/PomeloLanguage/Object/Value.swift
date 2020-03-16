@@ -8,7 +8,7 @@
 
 import Cocoa
 
-public class Value {
+public class Value: NSObject {
     enum ValueType {
         case null
         case true_
@@ -76,7 +76,7 @@ public class Value {
     }
 }
 
-extension Value: Equatable {
+extension Value {
     public static func == (lhs: Value, rhs: Value) -> Bool {
         return lhs.equal(other: rhs)
     }

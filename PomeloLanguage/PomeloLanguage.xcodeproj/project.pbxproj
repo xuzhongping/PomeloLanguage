@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C08ECA9F241FC40B0011DDC9 /* Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08ECA9E241FC40A0011DDC9 /* Module.swift */; };
+		C08ECAA1241FC5140011DDC9 /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = C08ECAA0241FC5140011DDC9 /* Constant.swift */; };
 		C0F65797241CDB6600B81226 /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F65796241CDB6600B81226 /* List.swift */; };
 		C0F65799241CDE1A00B81226 /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F65798241CDE1A00B81226 /* Range.swift */; };
 		C0F6579B241CDFA000B81226 /* MapObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0F6579A241CDFA000B81226 /* MapObject.swift */; };
@@ -43,6 +45,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C08ECA9E241FC40A0011DDC9 /* Module.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Module.swift; sourceTree = "<group>"; };
+		C08ECAA0241FC5140011DDC9 /* Constant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		C0F65796241CDB6600B81226 /* List.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
 		C0F65798241CDE1A00B81226 /* Range.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Range.swift; sourceTree = "<group>"; };
 		C0F6579A241CDFA000B81226 /* MapObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapObject.swift; sourceTree = "<group>"; };
@@ -85,6 +89,7 @@
 				ED1AC1942417DBD10041B317 /* Unicode.swift */,
 				EDDD3A4B241E8652002CD570 /* Error.swift */,
 				EDDD3A4D241E90D5002CD570 /* Alias.swift */,
+				C08ECAA0241FC5140011DDC9 /* Constant.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -144,6 +149,7 @@
 				EDDA075D24001B5C00304C64 /* Object.swift */,
 				EDDD3A21241C91A5002CD570 /* Header.swift */,
 				EDDD3A23241C9834002CD570 /* ClassObject.swift */,
+				C08ECA9E241FC40A0011DDC9 /* Module.swift */,
 				EDDD3A25241CA353002CD570 /* Function.swift */,
 				C0F65796241CDB6600B81226 /* List.swift */,
 				C0F65798241CDE1A00B81226 /* Range.swift */,
@@ -229,6 +235,8 @@
 				EDDD3A2D241D0C13002CD570 /* Compiler.swift in Sources */,
 				C0F6579D241E445800B81226 /* Value.swift in Sources */,
 				EDDD3A4C241E8652002CD570 /* Error.swift in Sources */,
+				C08ECA9F241FC40B0011DDC9 /* Module.swift in Sources */,
+				C08ECAA1241FC5140011DDC9 /* Constant.swift in Sources */,
 				EDDD3A20241C89F6002CD570 /* Extension.swift in Sources */,
 				C0F65799241CDE1A00B81226 /* Range.swift in Sources */,
 				EDDD3A28241CE6DA002CD570 /* Thread.swift in Sources */,

@@ -8,7 +8,7 @@
 
 import Cocoa
 
-public class Header {
+public class Header: NSObject {
     
     enum ObjectType {
         case none

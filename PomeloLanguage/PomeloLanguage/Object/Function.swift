@@ -36,7 +36,7 @@ public struct Method {
 }
 
 /// 指令流对象
-public class FnObject: ObjectProtocol {
+public class FnObject: NSObject, ObjectProtocol {
     public var header: Header
     var instrStream: [Byte]
     var constantsTable: SymbolTable<String, Any>
@@ -61,7 +61,7 @@ public class FnObject: ObjectProtocol {
 
 
 /// upvalue对象
-class UpvalueObject: ObjectProtocol {
+class UpvalueObject: NSObject, ObjectProtocol {
     var header: Header
     var localIvarTable: SymbolTable<String, Any>
     var closedIvarTable: SymbolTable<String, Any>
@@ -76,7 +76,7 @@ class UpvalueObject: ObjectProtocol {
 
 
 /// 闭包对象
-public class ClosureObject: ObjectProtocol {
+public class ClosureObject: NSObject, ObjectProtocol {
     public var header: Header
     var fn: FnObject
     var upvalues: [UpvalueObject]
