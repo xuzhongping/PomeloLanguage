@@ -16,9 +16,9 @@ public class ModuleObject: NSObject, ObjectProtocol {
     var undefinedIvarNames: SymbolSet<String>
     
     /// 已被定义过的变量表
-    var ivarTable: SymbolTable<String, Value>
+    public var ivarTable: SymbolTable<String, Value>
     
-    var name: String
+    var name: String?
     init(name: String, virtual: Virtual) {
         self.header = Header(virtual: virtual, type: .module, cls: nil) // module为元信息对象，不属于任何一个类
         self.name = name
@@ -66,7 +66,7 @@ public func getCoreModule(virtual: Virtual) -> ModuleObject? {
 ///   - virtual: 虚拟机
 ///   - name: 模块名
 ///   - code: 源码
-public func loadModule(virtual: Virtual, name: String, code: String) -> ThreadObject? {
+public func loadModule(virtual: Virtual, name: String, code: String) throws -> ThreadObject? {
     var module = getModule(virtual: virtual, name: name)
     if module == nil {
         module = ModuleObject(name: name, virtual: virtual)
@@ -80,7 +80,7 @@ public func loadModule(virtual: Virtual, name: String, code: String) -> ThreadOb
         }
     }
     if let module = module {
-        let fnObj = compileModule(virtual: virtual, module: module, code: code)
+        let fnObj = try compileModule(virtual: virtual, module: module, code: code)
         let closureObj = ClosureObject(virtual: virtual, fn: fnObj)
         return ThreadObject(virtual: virtual, closure: closureObj)
     }
@@ -88,7 +88,7 @@ public func loadModule(virtual: Virtual, name: String, code: String) -> ThreadOb
 }
 
 public func executeModule(virtual: Virtual, name: String, code: String) -> Virtual.result {
-    let _ = loadModule(virtual: virtual, name: name, code: code)
+    let _ = try? loadModule(virtual: virtual, name: name, code: code)
     return .success
 }
 

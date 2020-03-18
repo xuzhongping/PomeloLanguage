@@ -12,14 +12,14 @@ class Pomelo {
     public static func run(file: String) throws {
         let virtual = Virtual()
 
-        guard let lexParser = LexParser(virtual: virtual, file: file) else {
-            throw LexParser.LexParserError.create
-        }
-        while lexParser.status != .end {
-            guard let token = try lexParser.nextToken() else {
-                break
-            }
-            print("\(token.type):\(token.value ?? "")")
-        }
+//        guard let lexParser = LexParser(virtual: virtual, file: file) else {
+//            throw LexParser.LexParserError.create
+//        }
+//        while lexParser.status != .end {
+//            guard let token = try lexParser.nextToken() else {
+//                break
+//            }
+//            print("\(token.type):\(token.value ?? "")")
+//        }
     }
 }

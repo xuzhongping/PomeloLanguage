@@ -135,24 +135,31 @@ public class LexParser: NSObject {
     
     private var expectationRightParenNum: Int = 0
     
-    private var virtual: Virtual
+    public var virtual: Virtual
     
     private var line: Int = 0
     
-    init(virtual: Virtual, code: String) {
+    /// 当前正在编译的模块
+    public var curModule: ModuleObject
+    
+    /// 当前编译单元
+    public var curCompileUnit: CompilerUnit?
+    
+    init(virtual: Virtual, moduleName: String, module: ModuleObject, code: String) {
         self.virtual = virtual
+        self.curModule = module
         self.code = code
         self.status = .begin
     }
     
-    convenience init?(virtual: Virtual, file: String) {
+    convenience init?(virtual: Virtual, moduleName: String, module: ModuleObject, file: String) {
         guard let handle = FileHandle(forReadingAtPath: file) else {
             return nil
         }
         guard let code = String(data: handle.readDataToEndOfFile(), encoding: .utf8) else {
             return nil
         }
-        self.init(virtual: virtual, code: code)
+        self.init(virtual: virtual, moduleName: moduleName, module: module, code: code)
     }
     
     public func nextToken() throws -> Token?{

@@ -50,6 +50,8 @@ public func buildCore(virtual: Virtual) {
     bindMetaClass(virtual: virtual, cls: objectMetaClass, metaCls: virtual.classOfClass)
     
     bindMetaClass(virtual: virtual, cls: virtual.classOfClass, metaCls: virtual.classOfClass)
+    
+    executeModule(virtual: virtual, name: ModuleNameCore, code: "")
 }
 
 
