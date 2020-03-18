@@ -166,4 +166,11 @@ extension Value {
        }
        return object as? ThreadObject
     }
+    
+    public func isObject<T: ObjectProtocol>(virtual: Virtual) -> T? {
+        guard type == .obj else {
+            return nil
+        }
+        return object as? T
+    }
 }

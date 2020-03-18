@@ -17,3 +17,7 @@ public typealias SymbolSet = Set
 public typealias Symbol = String
 
 public typealias Selector = String
+
+public typealias Byte = UInt8
+
+public typealias Buffer = Array

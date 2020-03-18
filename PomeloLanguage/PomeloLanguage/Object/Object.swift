@@ -15,10 +15,6 @@ public protocol ObjectProtocol {
 }
 
 
-
-
-
-
 /// 普通实例对象
 class instanceObject: NSObject, ObjectProtocol {
     var header: Header
