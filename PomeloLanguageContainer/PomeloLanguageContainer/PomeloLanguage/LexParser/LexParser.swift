@@ -9,7 +9,7 @@
 import Foundation
 
 public class Token: NSObject {
-     enum TokenType {
+    public enum TokenType {
         case unknown
         case num
         case string
@@ -133,7 +133,7 @@ public class LexParser: NSObject {
     
     public var preToken: Token?
     
-    private var curToken: Token?
+    public var curToken: Token?
     
     private var expectationRightParenNum: Int = 0
     
@@ -163,7 +163,7 @@ public class LexParser: NSObject {
         }
         self.init(virtual: virtual, moduleName: moduleName, module: module, code: code)
     }
-    
+    @discardableResult
     public func nextToken() throws -> Token?{
         status = .runing
         curToken = nil

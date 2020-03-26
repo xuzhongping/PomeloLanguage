@@ -126,7 +126,7 @@ class ClassBookKeep {
 
 /// 符号绑定规则
 public struct SymbolBindRule {
-    public enum BindPower {
+    public enum BindPower: Int {
         case none
         case lowest
         case assign
@@ -146,7 +146,7 @@ public struct SymbolBindRule {
         case call
         case highest
     }
-    public static var rulues: [SymbolBindRule] = []
+    public static var rulues: [Token.TokenType: SymbolBindRule] = [:]
     
     /// 指示符函数指针
     public typealias DenotationFn = (_ unit: CompilerUnit, _ canAssign: Bool) -> ()
@@ -237,7 +237,7 @@ public class CompilerUnit: NSObject {
         super.init()
         lexParser.curCompileUnit = self
     }
-    
+    @discardableResult
     public func writeByte(byte: Byte) -> Int{
         #if DEBUG
         //TODO: 写入行号
@@ -247,9 +247,9 @@ public class CompilerUnit: NSObject {
     }
     
     /// 写入操作码
-    public func writeOpCode(code: OP_CODE_ENUM) {
+    public func writeOpCode(code: OP_CODE) {
         writeByte(byte: code.rawValue)
-        stackSlotNum += OP_CODE_LIST[Int(code.rawValue)].effect
+        stackSlotNum += OP_CODE_SLOTS_USED[Int(code.rawValue)]
     }
     
     /// 写入1字节的操作数
@@ -264,13 +264,13 @@ public class CompilerUnit: NSObject {
     }
     
     /// 写入操作数为1字节的指令
-    public func writeOpCodeByteOperand(code: OP_CODE_ENUM, operand: Int) -> Int {
+    public func writeOpCodeByteOperand(code: OP_CODE, operand: Int) -> Int {
         writeOpCode(code: code)
         return writeByteOperand(operand: operand)
     }
     
     /// 写入操作数为2字节的指令
-    public func writeOpCodeShortOperand(code: OP_CODE_ENUM, operand: Int) {
+    public func writeOpCodeShortOperand(code: OP_CODE, operand: Int) {
         writeOpCode(code: code)
         writeShortOperand(operand: operand)
     }
@@ -322,5 +322,79 @@ public func compileModule(virtual: Virtual, module: ModuleObject, code: String) 
 }
 
 
+/// 语法分析核心
+public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) throws {
+    guard let curToken = unit.curLexParser.curToken else {
+        return
+    }
+    guard let nud = SymbolBindRule.rulues[curToken.type]?.nud else {
+        throw BuildError.unknown
+    }
+    try! unit.curLexParser.nextToken()
+
+    let canAssign = rbp.rawValue < SymbolBindRule.BindPower.assign.rawValue
+    nud(unit,canAssign)
+
+    while true {
+        guard let token = unit.curLexParser.curToken else {
+            break
+        }
+        guard let lbp = SymbolBindRule.rulues[token.type]?.lbp else {
+            break
+        }
+        guard rbp.rawValue < lbp.rawValue else {
+            break
+        }
+        guard let led = SymbolBindRule.rulues[token.type]?.led else {
+            break
+        }
+        try! unit.curLexParser.nextToken()
+        led(unit, canAssign)
+    }
+}
+
+public func emitCallBySignature(unit: CompilerUnit, signature: Signature, opCode: OP_CODE) {
+    let symbol = signature.toString()
+    let index = ensureSymbolExist(
+            virtual: unit.curLexParser.virtual,
+            table: &unit.curLexParser.virtual.allMethodNames,
+            symbol: symbol)
+    unit.writeOpCodeShortOperand(code: opCode, operand: index)
+    if opCode == .SUPER0 {
+        unit.writeShortOperand(operand: unit.addConstant(constant: Value(type: .null)))
+    }
+}
+
+public func emitCall(unit: CompilerUnit, argsNum: Int, name: String) {
+    let index = ensureSymbolExist(virtual: unit.curLexParser.virtual, table: &unit.curLexParser.virtual.allMethodNames, symbol: name)
+    if let opCode = OP_CODE(rawValue: OP_CODE.CALL0.rawValue + Byte(argsNum)) {
+        unit.writeOpCodeShortOperand(code:opCode , operand: index)
+    }
+}
+
+public func infixOperator(unit: CompilerUnit, canAssign: Bool) {
+    guard let curToken = unit.curLexParser.curToken else {
+        return
+    }
+    guard let rule = SymbolBindRule.rulues[curToken.type] else {
+        return
+    }
+    let rbp = rule.lbp
+    try! expression(unit: unit, rbp: rbp)
+    
+    let signature = Signature(type: .method, name: rule.symbol ?? "", argNum: 1)
+    emitCallBySignature(unit: unit, signature: signature, opCode: OP_CODE.CALL0)
+}
+
+public func unaryOperator(unit: CompilerUnit, canAssign: Bool) {
+    guard let curToken = unit.curLexParser.curToken else {
+        return
+    }
+    guard let rule = SymbolBindRule.rulues[curToken.type] else {
+        return
+    }
+    try! expression(unit: unit, rbp: SymbolBindRule.BindPower.unary)
+    emitCall(unit: unit, argsNum: 0, name: rule.symbol ?? "")
+}
 
 
