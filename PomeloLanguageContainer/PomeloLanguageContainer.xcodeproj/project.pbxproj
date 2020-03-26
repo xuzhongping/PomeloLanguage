@@ -1,0 +1,728 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		C02D91D2242CFDF50072B13A /* TestSignature.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02D91D1242CFDF40072B13A /* TestSignature.swift */; };
+		C03794B7242CFCF500A5F27F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794B6242CFCF500A5F27F /* AppDelegate.swift */; };
+		C03794B9242CFCF500A5F27F /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794B8242CFCF500A5F27F /* ViewController.swift */; };
+		C03794BB242CFCF700A5F27F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C03794BA242CFCF700A5F27F /* Assets.xcassets */; };
+		C03794BE242CFCF700A5F27F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C03794BC242CFCF700A5F27F /* Main.storyboard */; };
+		C03794CA242CFCF700A5F27F /* PomeloLanguageContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794C9242CFCF700A5F27F /* PomeloLanguageContainerTests.swift */; };
+		C03794D5242CFCF700A5F27F /* PomeloLanguageContainerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794D4242CFCF700A5F27F /* PomeloLanguageContainerUITests.swift */; };
+		C03794FE242CFD2100A5F27F /* ClassObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794E3242CFD2000A5F27F /* ClassObject.swift */; };
+		C03794FF242CFD2100A5F27F /* MapObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794E4242CFD2000A5F27F /* MapObject.swift */; };
+		C0379500242CFD2100A5F27F /* Range.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794E5242CFD2000A5F27F /* Range.swift */; };
+		C0379501242CFD2100A5F27F /* Thread.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794E6242CFD2000A5F27F /* Thread.swift */; };
+		C0379502242CFD2100A5F27F /* List.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794E7242CFD2000A5F27F /* List.swift */; };
+		C0379503242CFD2100A5F27F /* Header.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794E8242CFD2000A5F27F /* Header.swift */; };
+		C0379504242CFD2100A5F27F /* Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794E9242CFD2000A5F27F /* Module.swift */; };
+		C0379505242CFD2100A5F27F /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EA242CFD2000A5F27F /* Object.swift */; };
+		C0379506242CFD2100A5F27F /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EB242CFD2000A5F27F /* Function.swift */; };
+		C0379507242CFD2100A5F27F /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EC242CFD2000A5F27F /* Value.swift */; };
+		C0379508242CFD2100A5F27F /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EE242CFD2000A5F27F /* Compiler.swift */; };
+		C0379509242CFD2100A5F27F /* Pomelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EF242CFD2000A5F27F /* Pomelo.swift */; };
+		C037950A242CFD2100A5F27F /* OpCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F1242CFD2000A5F27F /* OpCode.swift */; };
+		C037950B242CFD2100A5F27F /* Virtual.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F2242CFD2000A5F27F /* Virtual.swift */; };
+		C037950C242CFD2100A5F27F /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F3242CFD2000A5F27F /* Core.swift */; };
+		C037950D242CFD2100A5F27F /* NativeFn.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F4242CFD2000A5F27F /* NativeFn.swift */; };
+		C037950E242CFD2100A5F27F /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F5242CFD2000A5F27F /* Symbol.swift */; };
+		C037950F242CFD2100A5F27F /* LexParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F7242CFD2000A5F27F /* LexParser.swift */; };
+		C0379510242CFD2100A5F27F /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F9242CFD2100A5F27F /* Constant.swift */; };
+		C0379511242CFD2100A5F27F /* Unicode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FA242CFD2100A5F27F /* Unicode.swift */; };
+		C0379512242CFD2100A5F27F /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FB242CFD2100A5F27F /* Error.swift */; };
+		C0379513242CFD2100A5F27F /* Alias.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FC242CFD2100A5F27F /* Alias.swift */; };
+		C0379514242CFD2100A5F27F /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FD242CFD2100A5F27F /* Extension.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C03794C6242CFCF700A5F27F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C03794AB242CFCF500A5F27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C03794B2242CFCF500A5F27F;
+			remoteInfo = PomeloLanguageContainer;
+		};
+		C03794D1242CFCF700A5F27F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C03794AB242CFCF500A5F27F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C03794B2242CFCF500A5F27F;
+			remoteInfo = PomeloLanguageContainer;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		C02D91D1242CFDF40072B13A /* TestSignature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSignature.swift; sourceTree = "<group>"; };
+		C03794B3242CFCF500A5F27F /* PomeloLanguageContainer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PomeloLanguageContainer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C03794B6242CFCF500A5F27F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		C03794B8242CFCF500A5F27F /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		C03794BA242CFCF700A5F27F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C03794BD242CFCF700A5F27F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C03794BF242CFCF700A5F27F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C03794C0242CFCF700A5F27F /* PomeloLanguageContainer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PomeloLanguageContainer.entitlements; sourceTree = "<group>"; };
+		C03794C5242CFCF700A5F27F /* PomeloLanguageContainerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PomeloLanguageContainerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C03794C9242CFCF700A5F27F /* PomeloLanguageContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomeloLanguageContainerTests.swift; sourceTree = "<group>"; };
+		C03794CB242CFCF700A5F27F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C03794D0242CFCF700A5F27F /* PomeloLanguageContainerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PomeloLanguageContainerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C03794D4242CFCF700A5F27F /* PomeloLanguageContainerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomeloLanguageContainerUITests.swift; sourceTree = "<group>"; };
+		C03794D6242CFCF700A5F27F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C03794E3242CFD2000A5F27F /* ClassObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClassObject.swift; sourceTree = "<group>"; };
+		C03794E4242CFD2000A5F27F /* MapObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapObject.swift; sourceTree = "<group>"; };
+		C03794E5242CFD2000A5F27F /* Range.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Range.swift; sourceTree = "<group>"; };
+		C03794E6242CFD2000A5F27F /* Thread.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Thread.swift; sourceTree = "<group>"; };
+		C03794E7242CFD2000A5F27F /* List.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = List.swift; sourceTree = "<group>"; };
+		C03794E8242CFD2000A5F27F /* Header.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Header.swift; sourceTree = "<group>"; };
+		C03794E9242CFD2000A5F27F /* Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Module.swift; sourceTree = "<group>"; };
+		C03794EA242CFD2000A5F27F /* Object.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Object.swift; sourceTree = "<group>"; };
+		C03794EB242CFD2000A5F27F /* Function.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Function.swift; sourceTree = "<group>"; };
+		C03794EC242CFD2000A5F27F /* Value.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
+		C03794EE242CFD2000A5F27F /* Compiler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
+		C03794EF242CFD2000A5F27F /* Pomelo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pomelo.swift; sourceTree = "<group>"; };
+		C03794F1242CFD2000A5F27F /* OpCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpCode.swift; sourceTree = "<group>"; };
+		C03794F2242CFD2000A5F27F /* Virtual.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
+		C03794F3242CFD2000A5F27F /* Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
+		C03794F4242CFD2000A5F27F /* NativeFn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativeFn.swift; sourceTree = "<group>"; };
+		C03794F5242CFD2000A5F27F /* Symbol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
+		C03794F7242CFD2000A5F27F /* LexParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LexParser.swift; sourceTree = "<group>"; };
+		C03794F9242CFD2100A5F27F /* Constant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
+		C03794FA242CFD2100A5F27F /* Unicode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Unicode.swift; sourceTree = "<group>"; };
+		C03794FB242CFD2100A5F27F /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
+		C03794FC242CFD2100A5F27F /* Alias.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alias.swift; sourceTree = "<group>"; };
+		C03794FD242CFD2100A5F27F /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C03794B0242CFCF500A5F27F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C03794C2242CFCF700A5F27F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C03794CD242CFCF700A5F27F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C03794AA242CFCF500A5F27F = {
+			isa = PBXGroup;
+			children = (
+				C03794B5242CFCF500A5F27F /* PomeloLanguageContainer */,
+				C03794C8242CFCF700A5F27F /* PomeloLanguageContainerTests */,
+				C03794D3242CFCF700A5F27F /* PomeloLanguageContainerUITests */,
+				C03794B4242CFCF500A5F27F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C03794B4242CFCF500A5F27F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C03794B3242CFCF500A5F27F /* PomeloLanguageContainer.app */,
+				C03794C5242CFCF700A5F27F /* PomeloLanguageContainerTests.xctest */,
+				C03794D0242CFCF700A5F27F /* PomeloLanguageContainerUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C03794B5242CFCF500A5F27F /* PomeloLanguageContainer */ = {
+			isa = PBXGroup;
+			children = (
+				C0379515242CFD2C00A5F27F /* PomeloLanguage */,
+				C03794B6242CFCF500A5F27F /* AppDelegate.swift */,
+				C03794B8242CFCF500A5F27F /* ViewController.swift */,
+				C03794BA242CFCF700A5F27F /* Assets.xcassets */,
+				C03794BC242CFCF700A5F27F /* Main.storyboard */,
+				C03794BF242CFCF700A5F27F /* Info.plist */,
+				C03794C0242CFCF700A5F27F /* PomeloLanguageContainer.entitlements */,
+			);
+			path = PomeloLanguageContainer;
+			sourceTree = "<group>";
+		};
+		C03794C8242CFCF700A5F27F /* PomeloLanguageContainerTests */ = {
+			isa = PBXGroup;
+			children = (
+				C03794C9242CFCF700A5F27F /* PomeloLanguageContainerTests.swift */,
+				C02D91D1242CFDF40072B13A /* TestSignature.swift */,
+				C03794CB242CFCF700A5F27F /* Info.plist */,
+			);
+			path = PomeloLanguageContainerTests;
+			sourceTree = "<group>";
+		};
+		C03794D3242CFCF700A5F27F /* PomeloLanguageContainerUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C03794D4242CFCF700A5F27F /* PomeloLanguageContainerUITests.swift */,
+				C03794D6242CFCF700A5F27F /* Info.plist */,
+			);
+			path = PomeloLanguageContainerUITests;
+			sourceTree = "<group>";
+		};
+		C03794E2242CFD2000A5F27F /* Object */ = {
+			isa = PBXGroup;
+			children = (
+				C03794E3242CFD2000A5F27F /* ClassObject.swift */,
+				C03794E4242CFD2000A5F27F /* MapObject.swift */,
+				C03794E5242CFD2000A5F27F /* Range.swift */,
+				C03794E6242CFD2000A5F27F /* Thread.swift */,
+				C03794E7242CFD2000A5F27F /* List.swift */,
+				C03794E8242CFD2000A5F27F /* Header.swift */,
+				C03794E9242CFD2000A5F27F /* Module.swift */,
+				C03794EA242CFD2000A5F27F /* Object.swift */,
+				C03794EB242CFD2000A5F27F /* Function.swift */,
+				C03794EC242CFD2000A5F27F /* Value.swift */,
+			);
+			path = Object;
+			sourceTree = "<group>";
+		};
+		C03794ED242CFD2000A5F27F /* Compiler */ = {
+			isa = PBXGroup;
+			children = (
+				C03794EE242CFD2000A5F27F /* Compiler.swift */,
+			);
+			path = Compiler;
+			sourceTree = "<group>";
+		};
+		C03794F0242CFD2000A5F27F /* Virtual */ = {
+			isa = PBXGroup;
+			children = (
+				C03794F1242CFD2000A5F27F /* OpCode.swift */,
+				C03794F2242CFD2000A5F27F /* Virtual.swift */,
+				C03794F3242CFD2000A5F27F /* Core.swift */,
+				C03794F4242CFD2000A5F27F /* NativeFn.swift */,
+				C03794F5242CFD2000A5F27F /* Symbol.swift */,
+			);
+			path = Virtual;
+			sourceTree = "<group>";
+		};
+		C03794F6242CFD2000A5F27F /* LexParser */ = {
+			isa = PBXGroup;
+			children = (
+				C03794F7242CFD2000A5F27F /* LexParser.swift */,
+			);
+			path = LexParser;
+			sourceTree = "<group>";
+		};
+		C03794F8242CFD2100A5F27F /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				C03794F9242CFD2100A5F27F /* Constant.swift */,
+				C03794FA242CFD2100A5F27F /* Unicode.swift */,
+				C03794FB242CFD2100A5F27F /* Error.swift */,
+				C03794FC242CFD2100A5F27F /* Alias.swift */,
+				C03794FD242CFD2100A5F27F /* Extension.swift */,
+			);
+			path = Util;
+			sourceTree = "<group>";
+		};
+		C0379515242CFD2C00A5F27F /* PomeloLanguage */ = {
+			isa = PBXGroup;
+			children = (
+				C03794ED242CFD2000A5F27F /* Compiler */,
+				C03794F6242CFD2000A5F27F /* LexParser */,
+				C03794E2242CFD2000A5F27F /* Object */,
+				C03794EF242CFD2000A5F27F /* Pomelo.swift */,
+				C03794F8242CFD2100A5F27F /* Util */,
+				C03794F0242CFD2000A5F27F /* Virtual */,
+			);
+			path = PomeloLanguage;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C03794B2242CFCF500A5F27F /* PomeloLanguageContainer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C03794D9242CFCF700A5F27F /* Build configuration list for PBXNativeTarget "PomeloLanguageContainer" */;
+			buildPhases = (
+				C03794AF242CFCF500A5F27F /* Sources */,
+				C03794B0242CFCF500A5F27F /* Frameworks */,
+				C03794B1242CFCF500A5F27F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PomeloLanguageContainer;
+			productName = PomeloLanguageContainer;
+			productReference = C03794B3242CFCF500A5F27F /* PomeloLanguageContainer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		C03794C4242CFCF700A5F27F /* PomeloLanguageContainerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C03794DC242CFCF700A5F27F /* Build configuration list for PBXNativeTarget "PomeloLanguageContainerTests" */;
+			buildPhases = (
+				C03794C1242CFCF700A5F27F /* Sources */,
+				C03794C2242CFCF700A5F27F /* Frameworks */,
+				C03794C3242CFCF700A5F27F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C03794C7242CFCF700A5F27F /* PBXTargetDependency */,
+			);
+			name = PomeloLanguageContainerTests;
+			productName = PomeloLanguageContainerTests;
+			productReference = C03794C5242CFCF700A5F27F /* PomeloLanguageContainerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		C03794CF242CFCF700A5F27F /* PomeloLanguageContainerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C03794DF242CFCF700A5F27F /* Build configuration list for PBXNativeTarget "PomeloLanguageContainerUITests" */;
+			buildPhases = (
+				C03794CC242CFCF700A5F27F /* Sources */,
+				C03794CD242CFCF700A5F27F /* Frameworks */,
+				C03794CE242CFCF700A5F27F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C03794D2242CFCF700A5F27F /* PBXTargetDependency */,
+			);
+			name = PomeloLanguageContainerUITests;
+			productName = PomeloLanguageContainerUITests;
+			productReference = C03794D0242CFCF700A5F27F /* PomeloLanguageContainerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C03794AB242CFCF500A5F27F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1130;
+				LastUpgradeCheck = 1130;
+				ORGANIZATIONNAME = xuzhongping;
+				TargetAttributes = {
+					C03794B2242CFCF500A5F27F = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
+					C03794C4242CFCF700A5F27F = {
+						CreatedOnToolsVersion = 11.3.1;
+						TestTargetID = C03794B2242CFCF500A5F27F;
+					};
+					C03794CF242CFCF700A5F27F = {
+						CreatedOnToolsVersion = 11.3.1;
+						TestTargetID = C03794B2242CFCF500A5F27F;
+					};
+				};
+			};
+			buildConfigurationList = C03794AE242CFCF500A5F27F /* Build configuration list for PBXProject "PomeloLanguageContainer" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = C03794AA242CFCF500A5F27F;
+			productRefGroup = C03794B4242CFCF500A5F27F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C03794B2242CFCF500A5F27F /* PomeloLanguageContainer */,
+				C03794C4242CFCF700A5F27F /* PomeloLanguageContainerTests */,
+				C03794CF242CFCF700A5F27F /* PomeloLanguageContainerUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C03794B1242CFCF500A5F27F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C03794BB242CFCF700A5F27F /* Assets.xcassets in Resources */,
+				C03794BE242CFCF700A5F27F /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C03794C3242CFCF700A5F27F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C03794CE242CFCF700A5F27F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C03794AF242CFCF500A5F27F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0379505242CFD2100A5F27F /* Object.swift in Sources */,
+				C0379503242CFD2100A5F27F /* Header.swift in Sources */,
+				C0379512242CFD2100A5F27F /* Error.swift in Sources */,
+				C037950D242CFD2100A5F27F /* NativeFn.swift in Sources */,
+				C03794FE242CFD2100A5F27F /* ClassObject.swift in Sources */,
+				C0379504242CFD2100A5F27F /* Module.swift in Sources */,
+				C037950E242CFD2100A5F27F /* Symbol.swift in Sources */,
+				C0379508242CFD2100A5F27F /* Compiler.swift in Sources */,
+				C0379509242CFD2100A5F27F /* Pomelo.swift in Sources */,
+				C0379501242CFD2100A5F27F /* Thread.swift in Sources */,
+				C0379514242CFD2100A5F27F /* Extension.swift in Sources */,
+				C0379502242CFD2100A5F27F /* List.swift in Sources */,
+				C03794B9242CFCF500A5F27F /* ViewController.swift in Sources */,
+				C03794B7242CFCF500A5F27F /* AppDelegate.swift in Sources */,
+				C03794FF242CFD2100A5F27F /* MapObject.swift in Sources */,
+				C0379500242CFD2100A5F27F /* Range.swift in Sources */,
+				C0379510242CFD2100A5F27F /* Constant.swift in Sources */,
+				C0379513242CFD2100A5F27F /* Alias.swift in Sources */,
+				C0379511242CFD2100A5F27F /* Unicode.swift in Sources */,
+				C0379506242CFD2100A5F27F /* Function.swift in Sources */,
+				C037950C242CFD2100A5F27F /* Core.swift in Sources */,
+				C037950F242CFD2100A5F27F /* LexParser.swift in Sources */,
+				C037950A242CFD2100A5F27F /* OpCode.swift in Sources */,
+				C0379507242CFD2100A5F27F /* Value.swift in Sources */,
+				C037950B242CFD2100A5F27F /* Virtual.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C03794C1242CFCF700A5F27F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C02D91D2242CFDF50072B13A /* TestSignature.swift in Sources */,
+				C03794CA242CFCF700A5F27F /* PomeloLanguageContainerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C03794CC242CFCF700A5F27F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C03794D5242CFCF700A5F27F /* PomeloLanguageContainerUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C03794C7242CFCF700A5F27F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C03794B2242CFCF500A5F27F /* PomeloLanguageContainer */;
+			targetProxy = C03794C6242CFCF700A5F27F /* PBXContainerItemProxy */;
+		};
+		C03794D2242CFCF700A5F27F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C03794B2242CFCF500A5F27F /* PomeloLanguageContainer */;
+			targetProxy = C03794D1242CFCF700A5F27F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		C03794BC242CFCF700A5F27F /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C03794BD242CFCF700A5F27F /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		C03794D7242CFCF700A5F27F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		C03794D8242CFCF700A5F27F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		C03794DA242CFCF700A5F27F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PomeloLanguageContainer/PomeloLanguageContainer.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 3AQW5P79KC;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = PomeloLanguageContainer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		C03794DB242CFCF700A5F27F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = PomeloLanguageContainer/PomeloLanguageContainer.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 3AQW5P79KC;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = PomeloLanguageContainer/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainer;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		C03794DD242CFCF700A5F27F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 3AQW5P79KC;
+				INFOPLIST_FILE = PomeloLanguageContainerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PomeloLanguageContainer.app/Contents/MacOS/PomeloLanguageContainer";
+			};
+			name = Debug;
+		};
+		C03794DE242CFCF700A5F27F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 3AQW5P79KC;
+				INFOPLIST_FILE = PomeloLanguageContainerTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PomeloLanguageContainer.app/Contents/MacOS/PomeloLanguageContainer";
+			};
+			name = Release;
+		};
+		C03794E0242CFCF700A5F27F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 3AQW5P79KC;
+				INFOPLIST_FILE = PomeloLanguageContainerUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = PomeloLanguageContainer;
+			};
+			name = Debug;
+		};
+		C03794E1242CFCF700A5F27F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 3AQW5P79KC;
+				INFOPLIST_FILE = PomeloLanguageContainerUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainerUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_TARGET_NAME = PomeloLanguageContainer;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C03794AE242CFCF500A5F27F /* Build configuration list for PBXProject "PomeloLanguageContainer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C03794D7242CFCF700A5F27F /* Debug */,
+				C03794D8242CFCF700A5F27F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C03794D9242CFCF700A5F27F /* Build configuration list for PBXNativeTarget "PomeloLanguageContainer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C03794DA242CFCF700A5F27F /* Debug */,
+				C03794DB242CFCF700A5F27F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C03794DC242CFCF700A5F27F /* Build configuration list for PBXNativeTarget "PomeloLanguageContainerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C03794DD242CFCF700A5F27F /* Debug */,
+				C03794DE242CFCF700A5F27F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C03794DF242CFCF700A5F27F /* Build configuration list for PBXNativeTarget "PomeloLanguageContainerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C03794E0242CFCF700A5F27F /* Debug */,
+				C03794E1242CFCF700A5F27F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C03794AB242CFCF500A5F27F /* Project object */;
+}
