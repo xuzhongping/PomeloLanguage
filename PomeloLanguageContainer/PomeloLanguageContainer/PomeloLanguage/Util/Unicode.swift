@@ -78,7 +78,7 @@ class Unicode {
             return Int(buf[position])
         }
         var value = 0
-        var remainingBytes = 0;
+        var remainingBytes = 0
         if buf[position] & 0xe0 == 0xc0 {
             value = Int(buf[position] & 0x1f)
             remainingBytes = 1

@@ -119,6 +119,18 @@ public class LexParser: NSObject {
 
     public var status: LexStatus
     
+    public var preToken: Token?
+    
+    public var curToken: Token?
+    
+    public var virtual: Virtual
+    
+    /// 当前正在编译的模块
+    public var curModule: ModuleObject
+    
+    /// 当前编译单元
+    public var curCompileUnit: CompilerUnit?
+    
     private  var file: String?
     
     private var code: String
@@ -131,21 +143,10 @@ public class LexParser: NSObject {
         }
     }
     
-    public var preToken: Token?
-    
-    public var curToken: Token?
-    
     private var expectationRightParenNum: Int = 0
-    
-    public var virtual: Virtual
     
     private var line: Int = 0
     
-    /// 当前正在编译的模块
-    public var curModule: ModuleObject
-    
-    /// 当前编译单元
-    public var curCompileUnit: CompilerUnit?
     
     init(virtual: Virtual, moduleName: String, module: ModuleObject, code: String) {
         self.virtual = virtual
@@ -166,6 +167,8 @@ public class LexParser: NSObject {
     @discardableResult
     public func nextToken() throws -> Token?{
         status = .runing
+        
+        preToken = curToken
         curToken = nil
         skipBlanks()
         
@@ -300,7 +303,7 @@ public class LexParser: NSObject {
 }
 
 extension LexParser {
-//    private func parse
+
 }
 
 
@@ -340,6 +343,21 @@ extension LexParser {
                 break
             }
         }
+    }
+    
+    public func consumeCurToken(expected: Token.TokenType, message: String) throws {
+        guard curToken?.type == expected else {
+            throw BuildError.general(message: message)
+        }
+        try nextToken()
+    }
+    
+    public func matchCurToken(expected: Token.TokenType) -> Bool {
+        guard curToken?.type == expected else {
+            return false
+        }
+        try! nextToken()
+        return true
     }
 }
 

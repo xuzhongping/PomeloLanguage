@@ -12,8 +12,8 @@ public let InitialFrameNum = 0
 
 public class ThreadObject: NSObject, ObjectProtocol {
     public var header: Header
-    var stack: Int
-    var esp: Int
+    var stack: [Value]
+    var esp: Index
     var stackCapacity: UInt64
     
     var frames: [CallFrame]
@@ -29,7 +29,7 @@ public class ThreadObject: NSObject, ObjectProtocol {
         self.header = Header(virtual: virtual, type: .thread, cls: nil)
         frames = []
         frameCapacity = InitialFrameNum
-        stack = 0
+        stack = []
         stackCapacity = closure.fn.maxStackSize + 1
         esp = 0
         usedFrameNum = 0
@@ -38,19 +38,19 @@ public class ThreadObject: NSObject, ObjectProtocol {
         resetThread(closure: closure)
     }
     
-    public func prepareFrame(closure: ClosureObject, stack: Int) {
+    public func prepareFrame(closure: ClosureObject, stack: inout [Value]) {
         let frame = frames[usedFrameNum + 1]
         frame.stack = stack
         frame.closure = closure
         //TODO:FIX
-        frame.ip = uint64(closure.fn.instrStream.first!)
+        frame.ip = 0
     }
     
     public func resetThread(closure: ClosureObject) {
-        esp = stack
+        esp = 0
         openUpvalue = []
         caller = nil
         errorObject = nil
-        prepareFrame(closure: closure, stack: stack)
+        prepareFrame(closure: closure, stack: &stack)
     }
 }

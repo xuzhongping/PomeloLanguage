@@ -38,7 +38,7 @@ public struct Method {
 /// 指令流对象
 public class FnObject: NSObject, ObjectProtocol {
     public var header: Header
-    var instrStream: Buffer<Byte>
+    var instrStream: [Byte]
     var constantsList: [Value]
     var module: ModuleObject
     var maxStackSize: uint64
@@ -63,13 +63,13 @@ public class FnObject: NSObject, ObjectProtocol {
 /// upvalue对象
 class UpvalueObject: NSObject, ObjectProtocol {
     var header: Header
-    var localIvarTable: SymbolTable<String, Any>
-    var closedIvarTable: SymbolTable<String, Any>
+    var localVars: [Value]
+    var closedVars: [Value]
     var next: UpvalueObject?
-    init(virtual: Virtual, localIvarTable: [String: Any]) {
+    init(virtual: Virtual) {
         self.header = Header(virtual: virtual, type: .upValue, cls: nil)
-        self.localIvarTable = localIvarTable
-        self.closedIvarTable = [:]
+        self.localVars = []
+        self.closedVars = []
         self.next = nil
     }
 }
@@ -91,10 +91,10 @@ public class ClosureObject: NSObject, ObjectProtocol {
 class CallFrame {
     var ip: uint64
     var closure: ClosureObject
-    var stack: Int
+    var stack: [Value]
     init(virtual: Virtual, closure: ClosureObject) {
         self.closure = closure
-        self.stack = 0
+        self.stack = []
         self.ip = 0
     }
 }

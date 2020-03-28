@@ -21,6 +21,7 @@ public extension LexParser {
 
 public enum BuildError: Error {
     case unknown
+    case general(message: String)
     case undefined(symbol: String)
     case repeatDefinition(symbol: String)
 }

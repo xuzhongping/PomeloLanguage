@@ -18,7 +18,7 @@ public let maxFieldNum = 128
 
 public class Upvalue {
     var isEnclosingLocalVar: Bool
-    var index: Int
+    var index: Index
     init() {
         isEnclosingLocalVar = false
         index = 0
@@ -104,17 +104,17 @@ class Loop {
 }
 
 /// 用于记录类编译时的信息
-class ClassBookKeep {
+public class ClassBookKeep {
     var name: String
-    var fields: [String: Value]
+    var fields: [(name: String, value: Value)]
     var inStatic: Bool
-    var instanceMethods: [Any]
-    var staticMethods: [Any]
+    var instanceMethods: [Index]
+    var staticMethods: [Index]
     var signature: Signature
     
-    init(name: String, fields: [String: Value], instanceMethods: [Any], staticMethods: [Any], signature: Signature) {
+    init(name: String, fields: (name: String, value: Value), instanceMethods: [Index], staticMethods: [Index], signature: Signature) {
         self.name = name
-        self.fields = fields
+        self.fields = [fields]
         self.instanceMethods = instanceMethods
         self.staticMethods = staticMethods
         self.signature = signature
@@ -161,19 +161,44 @@ public struct SymbolBindRule {
     var methodSignature: MethodSignatureFn?
     
     public static func prefixSymbol(nud: @escaping DenotationFn) -> SymbolBindRule {
-        return SymbolBindRule(symbol: nil, lbp: .none, nud: nud, led: nil, methodSignature: nil)
+        return SymbolBindRule(symbol: nil,
+                              lbp: .none,
+                              nud: nud,
+                              led: nil,
+                              methodSignature: nil)
     }
+    
     public static func prefixOperator(id: String) -> SymbolBindRule {
-        return SymbolBindRule(symbol: id, lbp: .none, nud: nil, led: nil, methodSignature: nil);
+        return SymbolBindRule(symbol: id,
+                              lbp: .none,
+                              nud: unaryOperator(unit:canAssign:),
+                              led: nil,
+                              methodSignature: unaryMethodSignature(unit:signature:))
     }
+    
     public static func infixSymbol(lbp: BindPower, led: @escaping DenotationFn) -> SymbolBindRule {
-        return SymbolBindRule(symbol: nil, lbp: lbp, nud: nil, led: led, methodSignature: nil)
+        return SymbolBindRule(symbol: nil,
+                              lbp: lbp,
+                              nud: nil,
+                              led: led,
+                              methodSignature: nil)
     }
+    
     public static func infixOperator(id: String, lbp: BindPower) -> SymbolBindRule {
-        return SymbolBindRule(symbol: id, lbp: lbp, nud: nil, led: nil, methodSignature: nil)
+        return SymbolBindRule(symbol: id,
+                              lbp: lbp,
+                              nud: nil,
+                              led: infixOperator(unit:canAssign:),
+                              methodSignature: infixMethodSignature(unit:signature:) as? SymbolBindRule.MethodSignatureFn)
     }
     
-    
+    public static func mixOperator(id: String) -> SymbolBindRule {
+        return SymbolBindRule(symbol: id,
+                              lbp: .term,
+                              nud: unaryOperator(unit:canAssign:),
+                              led: infixOperator(unit:canAssign:),
+                              methodSignature: mixMethodSignature(unit:signature:))
+    }
 }
 
 
@@ -184,13 +209,13 @@ public class CompilerUnit: NSObject {
     var fn: FnObject
     
     /// 当前作用域允许的局部变量数量上限
-    var localVars:Buffer<LocalVar>
+    var localVars: [LocalVar]
     
     /// 已分配的局部变量个数
     var localVarNum: Int
     
     /// 记录本层函数所引用的upvalue
-    var upvalues: Buffer<Upvalue>
+    var upvalues: [Upvalue]
     
     /// 当前正在编译的代码所处作用域
     var scopeDepth: Int
@@ -216,8 +241,8 @@ public class CompilerUnit: NSObject {
         self.enclosingClassBK = nil
         self.localVarNum = 1
         self.stackSlotNum = 1
-        self.localVars = Buffer<LocalVar>()
-        self.upvalues = Buffer<Upvalue>()
+        self.localVars = []
+        self.upvalues = []
         if let _ = enclosingUnit {
             if isMethod {
                 let thisLocalVar = LocalVar(name: "this")
@@ -298,19 +323,131 @@ public class CompilerUnit: NSObject {
             emitLoadConstant(constant: value as! Value)
         }
     }
+    
+    /// 添加局部变量
+    public func addLocalVar(name: String) -> Int {
+        let localVar = LocalVar(name: name)
+        localVar.scopeDepth = scopeDepth
+        localVar.isUpvalue = false
+        localVars.append(localVar)
+        return localVars.count - 1
+    }
+    
+    /// 声明局部变量
+    public func declareLocalVar(name: String) throws -> Int {
+        guard localVars.count >= maxArgNum else {
+            throw BuildError.general(message: "已分配局部变量数量超过最大值")
+        }
+        
+        for localVar in localVars.reversed() {
+            guard localVar.scopeDepth >= scopeDepth else { break }
+            guard localVar.name != name else { throw BuildError.general(message: "重新定义变量\(name)") }
+        }
+        return addLocalVar(name: name)
+    }
+    
+    @discardableResult
+    public func declareVariable(name: String) throws -> Int {
+        if scopeDepth == -1 {
+            let index = try defineModuleVar(virtual: curLexParser.virtual,
+                                            module: curLexParser.curModule,
+                                            name: name,
+                                            value: Value(type: .null))
+            return index
+        }
+        return try declareLocalVar(name: name)
+    }
+    
+    public func getEnclosingClassBKUnit() -> CompilerUnit? {
+        var unit: CompilerUnit? = self
+        while unit != nil {
+            if unit?.enclosingClassBK != nil {
+                return unit
+            }
+            unit = unit?.enclosingUnit
+        }
+        return nil
+    }
+    
+    public func getEnclosingClassBK() -> ClassBookKeep? {
+        if let unit = getEnclosingClassBKUnit() {
+            return unit.enclosingClassBK
+        }
+        return nil
+    }
+    
+    /// 为实参列表各个参数生成加载实参的指令
+    public func processArgList(signature: Signature) throws {
+        guard let token = curLexParser.curToken else {
+            throw BuildError.general(message: "Token为空")
+        }
+        guard token.type != .rightParen, token.type != .rightBracket else {
+            throw BuildError.general(message: "参数列表为空")
+        }
+        repeat {
+            if signature.argNum > maxArgNum {
+                throw BuildError.general(message: "参数个数超过最大")
+            }
+            try! expression(unit: self, rbp: .lowest)
+        } while curLexParser.matchCurToken(expected: .comma)
+    }
+    
+    public func processParaList(signature: Signature) throws {
+        guard let token = curLexParser.curToken else {
+            throw BuildError.general(message: "Token为空")
+        }
+        guard token.type != .rightParen, token.type != .rightBracket else {
+            throw BuildError.general(message: "参数列表为空")
+        }
+        
+        repeat {
+            if signature.argNum > maxArgNum {
+                throw BuildError.general(message: "参数个数超过最大")
+            }
+            try! curLexParser.consumeCurToken(expected: .id, message: "中缀运算符后非变量名")
+            //TODO: 需要处理字面量值,比如数字等
+            guard let name = curLexParser.preToken?.value as? String else {
+                throw BuildError.general(message: "参数非变量名")
+            }
+            try declareVariable(name: name)
+        } while curLexParser.matchCurToken(expected: .comma)
+    }
+    
+}
+
+/// 用于内部变量查找
+public class Variable: NSObject {
+    public enum ScopeType {
+        case invalid
+        case local
+        case upvalue
+        case module
+    }
+    var type: ScopeType
+    var index: Int
+    init(type: ScopeType, index: Int) {
+        self.type = type
+        self.index = index
+    }
 }
 
 /// 编译Module(一个Pomelo脚本文件)
 public func compileModule(virtual: Virtual, module: ModuleObject, code: String) throws -> FnObject {
     var lexParser: LexParser
     if let name = module.name {
-        lexParser = LexParser(virtual: virtual, moduleName: name, module: module, code: code)
+        lexParser = LexParser(virtual: virtual,
+                              moduleName: name,
+                              module: module,
+                              code: code)
     } else {
-        lexParser = LexParser(virtual: virtual, moduleName: "core.script.inc", module: module, code: code)
+        lexParser = LexParser(virtual: virtual,
+                              moduleName: "core.script.inc",
+                              module: module,
+                              code: code)
     }
     
     let moduleCU = CompilerUnit(lexParser: lexParser, enclosingUnit: nil, isMethod: false)
-    let moduleVarNumBefor = module.ivarTable.count
+    let moduleVarNumBefor = module.vars.count
     
     let token = try lexParser.nextToken()
     
@@ -397,4 +534,32 @@ public func unaryOperator(unit: CompilerUnit, canAssign: Bool) {
     emitCall(unit: unit, argsNum: 0, name: rule.symbol ?? "")
 }
 
+/// 单运算符方法签名
+public func unaryMethodSignature(unit: CompilerUnit, signature: Signature) {
+    signature.type = .getter
+}
+
+/// 中缀运算符方法签名
+public func infixMethodSignature(unit: CompilerUnit, signature: Signature) throws {
+    signature.type = .method
+    signature.argNum = 1
+    try! unit.curLexParser.consumeCurToken(expected: .leftParen, message: "中缀运算符后非\'(\'")
+    try! unit.curLexParser.consumeCurToken(expected: .id, message: "中缀运算符后非变量名")
+
+    //TODO: 需要处理字面量值,比如数字等
+    guard let name = unit.curLexParser.preToken?.value as? String else {
+        throw BuildError.general(message: "参数非变量名")
+    }
+    try! unit.declareVariable(name: name)
+    try! unit.curLexParser.consumeCurToken(expected: .rightParen, message: "变量名后非\')\'")
+}
+
+/// 既是单运算符又是中缀运算符方法签名
+public func mixMethodSignature(unit: CompilerUnit, signature: Signature) {
+    signature.type = .getter
+    guard try! unit.curLexParser.matchCurToken(expected: .leftParen) else {
+        return
+    }
+    try! infixMethodSignature(unit: unit, signature: signature)
+}
 

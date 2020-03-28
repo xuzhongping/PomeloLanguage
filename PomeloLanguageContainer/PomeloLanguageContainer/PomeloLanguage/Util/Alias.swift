@@ -21,3 +21,5 @@ public typealias Selector = String
 public typealias Byte = UInt8
 
 public typealias Buffer = Array
+
+public typealias Index = Int

@@ -13,21 +13,22 @@ public class ModuleObject: NSObject, ObjectProtocol {
     public var header: Header
     
     /// 被引用，但是未定义的变量名集合
-    var undefinedIvarNames: SymbolSet<String>
+    var undefinedIvarNames: Set<String>
     
     /// 已被定义过的变量表
-    public var ivarTable: SymbolTable<String, Value>
+    public var vars: [(name: String, value: Value)]
     
     var name: String?
     init(name: String, virtual: Virtual) {
         self.header = Header(virtual: virtual, type: .module, cls: nil) // module为元信息对象，不属于任何一个类
         self.name = name
-        self.ivarTable = [:]
-        self.undefinedIvarNames = SymbolSet<String>()
+        self.vars = []
+        self.undefinedIvarNames = Set<String>()
     }
 }
 
-public func defineModuleVar(virtual: Virtual,module: ModuleObject, name: String, value: Value) throws {
+
+public func defineModuleVar(virtual: Virtual,module: ModuleObject, name: String, value: Value) throws -> Int {
     guard name.count <= maxIdLength else {
         throw BuildError.unknown
     }
@@ -37,14 +38,16 @@ public func defineModuleVar(virtual: Virtual,module: ModuleObject, name: String,
         module.undefinedIvarNames.remove(name)
     }
     
-    /// 如果没定义过，就直接定义
-    guard let _ = module.ivarTable[name] else {
-        module.ivarTable[name] = value
-        return
+    if module.vars.contains(where: { (iname,_) -> Bool in return iname == name }) {
+        throw BuildError.repeatDefinition(symbol: name)
     }
-    
-    /// 重复定义
-    throw BuildError.repeatDefinition(symbol: name)
+    module.vars.append((name,value))
+    return module.vars.count - 1
+}
+
+/// 声明模块变量
+public func declareModuleVar(virtual: Virtual, module: ModuleObject, name: String, value: Value) {
+    module.vars.append((name,value))
 }
 
 
@@ -73,7 +76,7 @@ public func loadModule(virtual: Virtual, name: String, code: String) throws -> T
         if let module = module {
             virtual.allModules[name] = module
             if let coreModule = getCoreModule(virtual: virtual) {
-                for (name,value) in coreModule.ivarTable {
+                for (name,value) in coreModule.vars {
                     try! defineModuleVar(virtual: virtual, module: module, name: name, value: value)
                 }
             }

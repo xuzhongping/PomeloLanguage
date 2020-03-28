@@ -37,6 +37,7 @@
 		C0379512242CFD2100A5F27F /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FB242CFD2100A5F27F /* Error.swift */; };
 		C0379513242CFD2100A5F27F /* Alias.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FC242CFD2100A5F27F /* Alias.swift */; };
 		C0379514242CFD2100A5F27F /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FD242CFD2100A5F27F /* Extension.swift */; };
+		ED81C2A5242FAC640066CC67 /* Basic.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A4242FAC640066CC67 /* Basic.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,7 @@
 		C03794FB242CFD2100A5F27F /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		C03794FC242CFD2100A5F27F /* Alias.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alias.swift; sourceTree = "<group>"; };
 		C03794FD242CFD2100A5F27F /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
+		ED81C2A4242FAC640066CC67 /* Basic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Basic.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -227,6 +229,7 @@
 				C03794FB242CFD2100A5F27F /* Error.swift */,
 				C03794FC242CFD2100A5F27F /* Alias.swift */,
 				C03794FD242CFD2100A5F27F /* Extension.swift */,
+				ED81C2A4242FAC640066CC67 /* Basic.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -394,6 +397,7 @@
 				C0379513242CFD2100A5F27F /* Alias.swift in Sources */,
 				C0379511242CFD2100A5F27F /* Unicode.swift in Sources */,
 				C0379506242CFD2100A5F27F /* Function.swift in Sources */,
+				ED81C2A5242FAC640066CC67 /* Basic.swift in Sources */,
 				C037950C242CFD2100A5F27F /* Core.swift in Sources */,
 				C037950F242CFD2100A5F27F /* LexParser.swift in Sources */,
 				C037950A242CFD2100A5F27F /* OpCode.swift in Sources */,
