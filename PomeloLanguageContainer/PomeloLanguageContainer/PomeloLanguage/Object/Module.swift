@@ -47,8 +47,9 @@ public class ModuleObject: NSObject, ObjectProtocol {
     }
     
     /// 声明模块变量
-    public func declareModuleVar(virtual: Virtual, name: String, value: AnyValue) {
+    public func declareModuleVar(virtual: Virtual, name: String, value: AnyValue) -> Int {
         vars.append((name, value))
+        return vars.count - 1
     }
     
 }

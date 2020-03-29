@@ -145,7 +145,7 @@ public class LexParser: NSObject {
     
     private var expectationRightParenNum: Int = 0
     
-    private var line: Int = 0
+    public var line: Int = 0
     
     
     init(virtual: Virtual, moduleName: String, module: ModuleObject, code: String) {

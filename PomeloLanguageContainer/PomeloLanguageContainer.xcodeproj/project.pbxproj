@@ -37,6 +37,7 @@
 		C0379514242CFD2100A5F27F /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FD242CFD2100A5F27F /* Extension.swift */; };
 		ED81C2A5242FAC640066CC67 /* Basic.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A4242FAC640066CC67 /* Basic.swift */; };
 		ED81C2A724307DA30066CC67 /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A624307DA30066CC67 /* Symbol.swift */; };
+		ED81C2A9243109E00066CC67 /* CodeGen.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A8243109E00066CC67 /* CodeGen.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +95,7 @@
 		C03794FD242CFD2100A5F27F /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		ED81C2A4242FAC640066CC67 /* Basic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Basic.swift; sourceTree = "<group>"; };
 		ED81C2A624307DA30066CC67 /* Symbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
+		ED81C2A8243109E00066CC67 /* CodeGen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGen.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -195,6 +197,7 @@
 			children = (
 				C03794EE242CFD2000A5F27F /* Compiler.swift */,
 				ED81C2A624307DA30066CC67 /* Symbol.swift */,
+				ED81C2A8243109E00066CC67 /* CodeGen.swift */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
@@ -385,6 +388,7 @@
 				C0379509242CFD2100A5F27F /* Pomelo.swift in Sources */,
 				C0379501242CFD2100A5F27F /* Thread.swift in Sources */,
 				C0379514242CFD2100A5F27F /* Extension.swift in Sources */,
+				ED81C2A9243109E00066CC67 /* CodeGen.swift in Sources */,
 				C0379502242CFD2100A5F27F /* List.swift in Sources */,
 				C03794B9242CFCF500A5F27F /* ViewController.swift in Sources */,
 				C03794B7242CFCF500A5F27F /* AppDelegate.swift in Sources */,

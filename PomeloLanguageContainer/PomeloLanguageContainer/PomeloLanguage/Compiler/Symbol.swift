@@ -83,7 +83,16 @@ public struct SymbolBindRule {
         case call
         case highest
     }
-    public static var rulues: [Token.TokenType: SymbolBindRule] = [:]
+    public static var rulues: [Token.TokenType: SymbolBindRule] = [
+        .unknown: ununseRule(),
+        .num: prefixSymbolRule(nud: emitLiteral(unit:canAssign:)),
+        .string: prefixSymbolRule(nud: emitLiteral(unit:canAssign:)),
+        .id: SymbolBindRule(symbol: nil,
+                            lbp: .none,
+                            nud: nil, //TODO: id解析函数
+                            led: nil,
+                            methodSignature: idMethodSignature(unit:signature:) as? MethodSignatureFn)
+    ]
     
     /// 指示符函数指针
     public typealias DenotationFn = (_ unit: CompilerUnit, _ canAssign: Bool) -> ()
@@ -261,4 +270,11 @@ public func ensureSymbolExist(virtual: Virtual, symbolList: inout [String], name
     }
     symbolList.append(name)
     return symbolList.count - 1
+}
+
+public func getIndexFromSymbolList(list: [(name: String, value: AnyValue)], target: String) -> Int {
+    if let index = list.firstIndex(where: { (name, _) -> Bool in name == target }) {
+        return index
+    }
+    return -1
 }

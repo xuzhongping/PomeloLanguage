@@ -300,11 +300,7 @@ extension CompilerUnit {
         writeOpCodeShortOperand(code: .LOAD_CONSTANT, operand: index)
     }
     
-    /// 生成数字和字符串.nud()字面量指令
-    public func emitLiteral(canAssign: Bool) {
-        //TODO: value类型修改
-        emitLoadConstant(constant: AnyValue(value: curLexParser.preToken?.value))
-    }
+    
     
     /// 通过签名生成方法调用指令
     public func emitCallBySignature(signature: Signature, opCode: OP_CODE) {
@@ -398,6 +394,197 @@ extension CompilerUnit {
         } else {
             emitLoadVariable(variable: variable)
         }
+    }
+    
+    public func emitLoadThis() throws {
+        guard let variable = findVarFromLocalOrUpvalue(name: "this") else {
+            throw BuildError.general(message: "加载变量this失败")
+        }
+        emitLoadVariable(variable: variable)
+    }
+    
+    /// 生成gett或一般method调用指令
+    public func emitGetterMethodCall(signature: Signature, code: OP_CODE) throws {
+        let newSignature = Signature(type: .getter, name: signature.name, argNum: 0)
+        
+        if curLexParser.matchCurToken(expected: .leftParen) {
+            newSignature.type = .method
+            if !curLexParser.matchCurToken(expected: .rightParen) {
+                try! processArgList(signature: newSignature)
+                try! curLexParser.consumeCurToken(expected: .rightParen, message: "参数后必须跟)")
+            }
+        }
+        
+        if curLexParser.matchCurToken(expected: .leftBrace) {
+            newSignature.type = .method
+            newSignature.argNum += 1
+            let internalUnit = CompilerUnit(lexParser: curLexParser,
+                                            enclosingUnit: self,
+                                            isMethod: false)
+            let internalSignature = Signature(type: .method,
+                                              name: "",
+                                              argNum: 0)
+            
+            if curLexParser.matchCurToken(expected: .bitOr) {
+                try! processParaList(signature: internalSignature)
+                try! curLexParser.consumeCurToken(expected: .bitOr, message: "块参数后必须跟|")
+            }
+            internalUnit.fn.argNum = newSignature.argNum
+            internalUnit.compileBody(isConstruct: false)
+            internalUnit.endCompile()
+        }
+        if signature.type == .construct {
+            guard newSignature.type == .method else {
+                throw BuildError.general(message: "super的调用形式是super()或super(arguments)")
+            }
+            newSignature.type = .construct
+        }
+        emitCallBySignature(signature: newSignature, opCode: code)
+    }
+    
+    /// 生成setter、getter或一般方法调用指令
+    public func emitMethodCall(name: String, code: OP_CODE, assign: Bool) {
+        let signature = Signature(type: .getter,
+                                  name: name,
+                                  argNum: 0)
+        if assign && curLexParser.matchCurToken(expected: .assign) {
+            signature.type = .setter
+            signature.argNum = 1 // setter只能接受一个参数
+            try! expression(unit: self, rbp: .lowest)
+            emitCallBySignature(signature: signature, opCode: code)
+        } else {
+            try! emitGetterMethodCall(signature: signature, code: code)
+        }
+    }
+}
+
+// MARK: 编译相关
+extension CompilerUnit {
+    public func compileBlock() throws {
+        while true {
+            if curLexParser.matchCurToken(expected: .rightBrace) {
+                break
+            }
+            if curLexParser.status == LexParser.LexStatus.end {
+                throw BuildError.general(message: "提前结束造成错误")
+            }
+            compileProgram()
+        }
+    }
+    
+    public func compileBody(isConstruct: Bool) {
+        try! compileBlock()
+        if isConstruct {
+            writeOpCodeByteOperand(code: OP_CODE.LOAD_LOCAL_VAR, operand: 0)
+        } else {
+            writeOpCode(code: OP_CODE.PUSH_NULL)
+        }
+        writeOpCode(code: OP_CODE.RETURN)
+    }
+    
+    /// 结束当前编译单元的编译工作
+    /// 当存在外层编译单元时，内层编译单元为外层的闭包
+    @discardableResult
+    public func endCompile() -> FnObject {
+        writeOpCode(code: OP_CODE.END)
+        if let enclosingUnit = enclosingUnit {
+            let index = enclosingUnit.addConstant(constant: AnyValue(value: fn))
+            enclosingUnit.writeOpCodeShortOperand(code: OP_CODE.CREATE_CLOSURE, operand: index)
+            
+            for upvalue in upvalues {
+                enclosingUnit.writeByte(byte: upvalue.isEnclosingLocalVar ? 1: 0)
+                enclosingUnit.writeByte(byte: Byte(upvalue.index))
+            }
+        }
+        curLexParser.curCompileUnit = enclosingUnit
+        return fn
+    }
+    
+    /// 编译标识符
+    public func compileId(assign: Bool) throws {
+        guard let token = curLexParser.preToken else {
+            throw BuildError.general(message: "标识符为空")
+        }
+        guard let value = token.value as? String else {
+            throw BuildError.general(message: "标识符非字符串")
+        }
+        
+        /// 处理为函数调用
+        if enclosingUnit == nil && curLexParser.matchCurToken(expected: .leftParen) {
+            
+            let name = "Fn \(value)"
+            let index = getIndexFromSymbolList(list: curLexParser.curModule.vars, target: name)
+            guard index >= 0 else {
+                throw BuildError.general(message: "引用未定义的函数\(name)")
+            }
+            
+            emitLoadVariable(variable: Variable(type: .module, index: index))
+            
+            let signature = Signature(type: .method, name: "call", argNum: 0)
+            if !curLexParser.matchCurToken(expected: .rightParen) {
+                try! processArgList(signature: signature)
+                try! curLexParser.consumeCurToken(expected: .rightParen, message: "参数列表后要跟)")
+            }
+            emitCallBySignature(signature: signature, opCode: OP_CODE.CALL0)
+            return
+        }
+
+        /// 处理为局部变量何upvalue
+        if let variable = findVarFromLocalOrUpvalue(name: value) {
+            emitLoadOrStoreVariable(assign: assign, variable: variable)
+            return
+        }
+        
+        /// 处理为实例域
+        if let classBK = getEnclosingClassBK() {
+            let index = getIndexFromSymbolList(list: classBK.fields, target: value)
+            if index >= 0 {
+                var read = true
+                if assign && curLexParser.matchCurToken(expected: .assign) {
+                    read = false
+                    try! expression(unit: self, rbp: .lowest)
+                }
+                /// 方法内或方法外引用域
+                if let _ = enclosingUnit {
+                    writeOpCodeByteOperand(code: read ? OP_CODE.LOAD_THIS_FIELD: OP_CODE.STORE_THIS_FIELD, operand: index)
+                } else {
+                    try! emitLoadThis()
+                    writeOpCodeByteOperand(code: read ? OP_CODE.LOAD_FIELD: OP_CODE.STORE_FIELD, operand: index)
+                }
+                return
+            }
+        }
+        
+        /// 处理为静态域
+        if let classBK = getEnclosingClassBK() {
+            let name = "Cls\(classBK.name) \(value)"
+            if let variable = findVarFromLocalOrUpvalue(name: name) {
+                emitLoadOrStoreVariable(assign: assign, variable: variable)
+                return
+            }
+        }
+        
+        /// 处理为一般方法调用
+        if let _ = getEnclosingClassBK(), value.firstIsLowercase() {
+            try! emitLoadThis()
+            emitMethodCall(name: value, code: OP_CODE.CALL0, assign: assign)
+            return
+        }
+
+        /// 处理为模块变量
+        var index = getIndexFromSymbolList(list: curLexParser.curModule.vars, target: value)
+        if index == IndexNotFound {
+            let name = "Fn \(value)"
+            index = getIndexFromSymbolList(list: curLexParser.curModule.vars, target: name)
+            if index == IndexNotFound {
+                index = curLexParser.curModule.declareModuleVar(virtual: curLexParser.virtual,
+                                                                name: name,
+                                                                value: AnyValue(value: curLexParser.line))
+                emitLoadOrStoreVariable(assign: assign, variable: Variable(type: .module, index: index))
+                return
+            }
+        }
+        emitLoadOrStoreVariable(assign: assign, variable: Variable(type: .module, index: index))
     }
 }
 

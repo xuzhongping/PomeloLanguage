@@ -9,6 +9,7 @@
 import Cocoa
 
 extension String {
+    
     public func at(index: Int) -> Character? {
         guard index < self.count else {
             return nil
@@ -16,6 +17,7 @@ extension String {
         let i = self.index(self.startIndex, offsetBy: index)
         return self[i]
     }
+    
     public func subString(range: NSRange) -> String? {
         guard range.location + range.length < self.count else {
             return nil
@@ -23,6 +25,13 @@ extension String {
         let startIndex = self.index(self.startIndex, offsetBy: range.location)
         let endIndex = self.index(startIndex, offsetBy: range.length)
         return String(self[startIndex..<endIndex])
+    }
+    
+    public func firstIsLowercase() -> Bool {
+        guard let char = at(index: 0) else {
+            return false
+        }
+        return char.isLowercase
     }
 }
 

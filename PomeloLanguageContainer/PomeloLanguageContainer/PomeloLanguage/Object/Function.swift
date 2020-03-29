@@ -43,7 +43,7 @@ public class FnObject: NSObject, ObjectProtocol {
     var module: ModuleObject
     var maxStackSize: Int
     var upvalueCount: Int
-    var argCount: uint8
+    var argNum: Int
     
     #if DEBUG
     var debug: FnDebug?
@@ -55,7 +55,7 @@ public class FnObject: NSObject, ObjectProtocol {
         self.byteStream = []
         self.constantsList = []
         self.upvalueCount = 0
-        self.argCount = 0
+        self.argNum = 0
     }
 }
 
