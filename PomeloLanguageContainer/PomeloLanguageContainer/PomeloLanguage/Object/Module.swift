@@ -10,13 +10,16 @@ import Cocoa
 
 /// 模块对象
 public class ModuleObject: NSObject, ObjectProtocol {
+    
+    public typealias Var = (name: String, value: AnyValue)
+    
     public var header: Header
     
     /// 被引用，但是未定义的变量名集合
     var undefinedIvarNames: Set<String>
     
     /// 已被定义过的变量表
-    public var vars: [(name: String, value: Value)]
+    public var vars: [Var]
     
     var name: String?
     init(name: String, virtual: Virtual) {
@@ -25,29 +28,29 @@ public class ModuleObject: NSObject, ObjectProtocol {
         self.vars = []
         self.undefinedIvarNames = Set<String>()
     }
-}
-
-
-public func defineModuleVar(virtual: Virtual,module: ModuleObject, name: String, value: Value) throws -> Int {
-    guard name.count <= maxIdLength else {
-        throw BuildError.unknown
+    
+    @discardableResult
+    public func defineVar(virtual: Virtual, name: String, value: AnyValue) throws -> Int {
+        guard name.count <= maxIdLength else {
+            throw BuildError.unknown
+        }
+        /// 如果被提前引用，这次是实际定义，就从提前引用表删除，下面会定义
+        if undefinedIvarNames.contains(name) {
+            undefinedIvarNames.remove(name)
+        }
+        
+        if vars.contains(where: { (iname,_) -> Bool in return iname == name }) {
+            throw BuildError.repeatDefinition(symbol: name)
+        }
+        vars.append((name,value))
+        return vars.count - 1
     }
     
-    /// 如果被提前引用，这次是实际定义，就从提前引用表删除，下面会定义
-    if module.undefinedIvarNames.contains(name) {
-        module.undefinedIvarNames.remove(name)
+    /// 声明模块变量
+    public func declareModuleVar(virtual: Virtual, name: String, value: AnyValue) {
+        vars.append((name, value))
     }
     
-    if module.vars.contains(where: { (iname,_) -> Bool in return iname == name }) {
-        throw BuildError.repeatDefinition(symbol: name)
-    }
-    module.vars.append((name,value))
-    return module.vars.count - 1
-}
-
-/// 声明模块变量
-public func declareModuleVar(virtual: Virtual, module: ModuleObject, name: String, value: Value) {
-    module.vars.append((name,value))
 }
 
 
@@ -77,7 +80,7 @@ public func loadModule(virtual: Virtual, name: String, code: String) throws -> T
             virtual.allModules[name] = module
             if let coreModule = getCoreModule(virtual: virtual) {
                 for (name,value) in coreModule.vars {
-                    try! defineModuleVar(virtual: virtual, module: module, name: name, value: value)
+                    try! module.defineVar(virtual: virtual, name: name, value: value)
                 }
             }
         }

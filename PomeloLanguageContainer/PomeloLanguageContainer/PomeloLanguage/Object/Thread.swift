@@ -12,9 +12,9 @@ public let InitialFrameNum = 0
 
 public class ThreadObject: NSObject, ObjectProtocol {
     public var header: Header
-    var stack: [Value]
+    var stack: [AnyValue]
     var esp: Index
-    var stackCapacity: UInt64
+    var stackCapacity: Int
     
     var frames: [CallFrame]
     var usedFrameNum: Int
@@ -22,7 +22,7 @@ public class ThreadObject: NSObject, ObjectProtocol {
     
     var openUpvalue: [UpvalueObject]
     var caller: ThreadObject?
-    var errorObject: Value?
+    var errorObject: AnyValue?
     
     init(virtual: Virtual, closure: ClosureObject) {
         //TODO: 设置ThreadClass
@@ -38,7 +38,7 @@ public class ThreadObject: NSObject, ObjectProtocol {
         resetThread(closure: closure)
     }
     
-    public func prepareFrame(closure: ClosureObject, stack: inout [Value]) {
+    public func prepareFrame(closure: ClosureObject, stack: inout [AnyValue]) {
         let frame = frames[usedFrameNum + 1]
         frame.stack = stack
         frame.closure = closure

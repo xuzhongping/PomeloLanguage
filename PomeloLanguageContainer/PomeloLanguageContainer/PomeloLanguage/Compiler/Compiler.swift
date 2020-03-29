@@ -19,9 +19,9 @@ public let maxFieldNum = 128
 public class Upvalue {
     var isEnclosingLocalVar: Bool
     var index: Index
-    init() {
-        isEnclosingLocalVar = false
-        index = 0
+    init(index: Index, isEnclosingLocalVar: Bool) {
+        self.index = index
+        self.isEnclosingLocalVar = isEnclosingLocalVar
     }
 }
 
@@ -36,58 +36,7 @@ public class LocalVar {
     }
 }
 
-public class Signature {
-    public enum SignatureType {
-        case construct // 构造函数
-        case method
-        case getter
-        case setter
-        case subscriptGetter
-        case subscriptSetter
-    }
-    var type: SignatureType
-    var name: String
-    var length: Int
-    var argNum: Int
-    public init(type: SignatureType, name: String, argNum: Int) {
-        self.type = type
-        self.name = name
-        self.argNum = argNum
-        self.length = name.count
-    }
-    
-    public func toString() -> String {
-        var signatureStr = name
-        switch type {
-            case .getter:
-                break
-            case .setter:
-                signatureStr.append(contentsOf: "=(_)")
-            case .construct, .method:
-                signatureStr.append("(")
-                for i in 0..<argNum {
-                    signatureStr.append("_")
-                    if i < argNum - 1 { signatureStr.append(",") }
-                }
-                signatureStr.append(")")
-            case .subscriptGetter:
-                signatureStr.append("[")
-                for i in 0..<argNum {
-                    signatureStr.append("_")
-                    if i < argNum - 1 { signatureStr.append(",") }
-                }
-                signatureStr.append("]")
-            case .subscriptSetter:
-                signatureStr.append("[")
-                for i in 0..<argNum {
-                    signatureStr.append("_")
-                    if i < argNum - 1 { signatureStr.append(",") }
-                }
-                signatureStr.append(contentsOf: "]=(_)")
-        }
-        return signatureStr
-    }
-}
+
 
 class Loop {
     var condStartIndex: Int
@@ -106,98 +55,19 @@ class Loop {
 /// 用于记录类编译时的信息
 public class ClassBookKeep {
     var name: String
-    var fields: [(name: String, value: Value)]
+    var fields: [(name: String, value: AnyValue)]
     var inStatic: Bool
     var instanceMethods: [Index]
     var staticMethods: [Index]
     var signature: Signature
     
-    init(name: String, fields: (name: String, value: Value), instanceMethods: [Index], staticMethods: [Index], signature: Signature) {
+    init(name: String, fields: (name: String, value: AnyValue), instanceMethods: [Index], staticMethods: [Index], signature: Signature) {
         self.name = name
         self.fields = [fields]
         self.instanceMethods = instanceMethods
         self.staticMethods = staticMethods
         self.signature = signature
         self.inStatic = false
-    }
-}
-
-
-
-/// 符号绑定规则
-public struct SymbolBindRule {
-    public enum BindPower: Int {
-        case none
-        case lowest
-        case assign
-        case condition
-        case logic_or
-        case logic_and
-        case equal
-        case is_
-        case cmp
-        case bit_or
-        case bit_and
-        case bit_shift
-        case range
-        case term
-        case factor
-        case unary
-        case call
-        case highest
-    }
-    public static var rulues: [Token.TokenType: SymbolBindRule] = [:]
-    
-    /// 指示符函数指针
-    public typealias DenotationFn = (_ unit: CompilerUnit, _ canAssign: Bool) -> ()
-
-    /// 签名函数指针
-    public typealias MethodSignatureFn = (_ unit: CompilerUnit, _ signature: Signature) -> ()
-    
-    var symbol: String?
-    var lbp: BindPower
-    var nud: DenotationFn?
-    var led: DenotationFn?
-    var methodSignature: MethodSignatureFn?
-    
-    public static func prefixSymbol(nud: @escaping DenotationFn) -> SymbolBindRule {
-        return SymbolBindRule(symbol: nil,
-                              lbp: .none,
-                              nud: nud,
-                              led: nil,
-                              methodSignature: nil)
-    }
-    
-    public static func prefixOperator(id: String) -> SymbolBindRule {
-        return SymbolBindRule(symbol: id,
-                              lbp: .none,
-                              nud: unaryOperator(unit:canAssign:),
-                              led: nil,
-                              methodSignature: unaryMethodSignature(unit:signature:))
-    }
-    
-    public static func infixSymbol(lbp: BindPower, led: @escaping DenotationFn) -> SymbolBindRule {
-        return SymbolBindRule(symbol: nil,
-                              lbp: lbp,
-                              nud: nil,
-                              led: led,
-                              methodSignature: nil)
-    }
-    
-    public static func infixOperator(id: String, lbp: BindPower) -> SymbolBindRule {
-        return SymbolBindRule(symbol: id,
-                              lbp: lbp,
-                              nud: nil,
-                              led: infixOperator(unit:canAssign:),
-                              methodSignature: infixMethodSignature(unit:signature:) as? SymbolBindRule.MethodSignatureFn)
-    }
-    
-    public static func mixOperator(id: String) -> SymbolBindRule {
-        return SymbolBindRule(symbol: id,
-                              lbp: .term,
-                              nud: unaryOperator(unit:canAssign:),
-                              led: infixOperator(unit:canAssign:),
-                              methodSignature: mixMethodSignature(unit:signature:))
     }
 }
 
@@ -254,74 +124,67 @@ public class CompilerUnit: NSObject {
             self.localVars.first?.scopeDepth = -1
             self.scopeDepth = 0
         } else {
+            /// 没有外层编译单元，说明是模块作用域
             /// 模块作用域为-1
             self.scopeDepth = -1
             self.localVarNum = 0
         }
-        self.fn = FnObject(virtual: curLexParser.virtual, module: curLexParser.curModule, maxStackSize: uint64(self.localVarNum))
+        self.fn = FnObject(virtual: curLexParser.virtual, module: curLexParser.curModule, maxStackSize: self.localVarNum)
         super.init()
         lexParser.curCompileUnit = self
     }
+}
+
+
+// MARK: 指令写入基础
+extension CompilerUnit {
     @discardableResult
     public func writeByte(byte: Byte) -> Int{
         #if DEBUG
         //TODO: 写入行号
         #endif
-        fn.instrStream.append(byte)
-        return fn.instrStream.count - 1
+       
+        fn.byteStream.append(byte)
+        return fn.byteStream.count - 1
     }
-    
-    /// 写入操作码
-    public func writeOpCode(code: OP_CODE) {
-        writeByte(byte: code.rawValue)
-        stackSlotNum += OP_CODE_SLOTS_USED[Int(code.rawValue)]
-    }
-    
-    /// 写入1字节的操作数
-    public func writeByteOperand(operand: Int) -> Int {
-        return writeByte(byte: Byte(operand))
-    }
-    
-    /// 写入2字节操作数
-    public func writeShortOperand(operand: Int) {
-        writeByte(byte: Byte((operand >> 8) & 0xff))
-        writeByte(byte: Byte(operand & 0xff))
-    }
-    
-    /// 写入操作数为1字节的指令
-    public func writeOpCodeByteOperand(code: OP_CODE, operand: Int) -> Int {
-        writeOpCode(code: code)
-        return writeByteOperand(operand: operand)
-    }
-    
-    /// 写入操作数为2字节的指令
-    public func writeOpCodeShortOperand(code: OP_CODE, operand: Int) {
-        writeOpCode(code: code)
-        writeShortOperand(operand: operand)
-    }
-    
+   
+   /// 写入操作码
+   public func writeOpCode(code: OP_CODE) {
+       writeByte(byte: code.rawValue)
+       stackSlotNum += OP_CODE_SLOTS_USED[Int(code.rawValue)]
+       fn.maxStackSize = max(fn.maxStackSize, stackSlotNum)
+   }
+   
+   /// 写入1字节的操作数
+   public func writeByteOperand(operand: Int) {
+       writeByte(byte: Byte(operand))
+   }
+   
+   /// 写入2字节操作数
+   public func writeShortOperand(operand: Int) {
+       writeByte(byte: Byte((operand >> 8) & 0xff))
+       writeByte(byte: Byte(operand & 0xff))
+   }
+   
+   /// 写入操作数为1字节的指令
+   public func writeOpCodeByteOperand(code: OP_CODE, operand: Int) {
+       writeOpCode(code: code)
+       writeByteOperand(operand: operand)
+   }
+   
+   /// 写入操作数为2字节的指令
+   public func writeOpCodeShortOperand(code: OP_CODE, operand: Int) {
+       writeOpCode(code: code)
+       writeShortOperand(operand: operand)
+   }
+       
+}
+
+// MARK: 变量操作相关
+extension CompilerUnit {
+   
     public func compileProgram() {
         
-    }
-    
-    /// 添加常量并返回索引
-    public func addConstant(constant: Value) -> Int {
-        fn.constantsList.append(constant)
-        return fn.constantsList.count - 1
-    }
-    
-    /// 生成加载常量的指令
-    public func emitLoadConstant(constant: Value) {
-        let index = addConstant(constant: constant)
-        writeOpCodeShortOperand(code: .LOAD_CONSTANT, operand: index)
-    }
-    
-    /// 数字和字符串.nud()编译字面量
-    public func literal(canAssign: Bool) {
-        if let value = curLexParser.preToken?.value {
-            //TODO: value类型修改
-            emitLoadConstant(constant: value as! Value)
-        }
     }
     
     /// 添加局部变量
@@ -336,26 +199,31 @@ public class CompilerUnit: NSObject {
     /// 声明局部变量
     public func declareLocalVar(name: String) throws -> Int {
         guard localVars.count >= maxArgNum else {
-            throw BuildError.general(message: "已分配局部变量数量超过最大值")
+           throw BuildError.general(message: "已分配局部变量数量超过最大值")
         }
-        
+       
         for localVar in localVars.reversed() {
-            guard localVar.scopeDepth >= scopeDepth else { break }
-            guard localVar.name != name else { throw BuildError.general(message: "重新定义变量\(name)") }
+           guard localVar.scopeDepth >= scopeDepth else { break }
+           guard localVar.name != name else { throw BuildError.general(message: "重新定义变量\(name)") }
         }
         return addLocalVar(name: name)
     }
-    
+   
     @discardableResult
-    public func declareVariable(name: String) throws -> Int {
+    public func declareVariable(name: String) -> Int {
         if scopeDepth == -1 {
-            let index = try defineModuleVar(virtual: curLexParser.virtual,
-                                            module: curLexParser.curModule,
-                                            name: name,
-                                            value: Value(type: .null))
+            let index = try! curLexParser.curModule.defineVar(virtual: curLexParser.virtual,
+                                                             name: name,
+                                                             value: AnyValue(value: nil))
             return index
         }
-        return try declareLocalVar(name: name)
+        return try! declareLocalVar(name: name)
+    }
+    
+    /// 添加常量并返回索引
+    public func addConstant(constant: AnyValue) -> Int {
+        fn.constantsList.append(constant)
+        return fn.constantsList.count - 1
     }
     
     public func getEnclosingClassBKUnit() -> CompilerUnit? {
@@ -374,6 +242,87 @@ public class CompilerUnit: NSObject {
             return unit.enclosingClassBK
         }
         return nil
+    }
+    
+    /// 查找局部变量
+    public func findLocalVar(name: String) -> Int {
+        return localVars.firstIndex { (localVar) -> Bool in localVar.name == name } ?? -1
+    }
+    
+    /// 添加upvalue
+    public func addUpvalue(isEnclosingLocalVar: Bool, index: Index) -> Int {
+        let index = upvalues.firstIndex { (upvalue) -> Bool in
+            upvalue.index == index && upvalue.isEnclosingLocalVar == isEnclosingLocalVar
+        } ?? -1
+        if index >= 0 {
+            return index
+        }
+        upvalues.append(Upvalue(index: index, isEnclosingLocalVar: isEnclosingLocalVar))
+        return upvalues.count - 1
+    }
+    
+    /// 查找名为name的upvalue添加到upvalues中，返回其索引
+    public func findUpvalue(name: String) -> Int {
+        guard let enclosingUnit = enclosingUnit else { return IndexNotFound }
+        if !name.contains(" ") && enclosingUnit.enclosingClassBK != nil {
+            return IndexNotFound
+        }
+        let localIndex = enclosingUnit.findLocalVar(name: name)
+        if localIndex >= 0 {
+            return addUpvalue(isEnclosingLocalVar: true, index: localIndex)
+        }
+        let upvalueIndex = enclosingUnit.findUpvalue(name: name)
+        if upvalueIndex >= 0 {
+            return addUpvalue(isEnclosingLocalVar: false, index: upvalueIndex)
+        }
+        return IndexNotFound
+    }
+    
+    /// 从局部变量和upvalue中查找符号name
+    public func findVarFromLocalOrUpvalue(name: String) -> Variable? {
+        var index = findLocalVar(name: name)
+        if index != IndexNotFound {
+            return Variable(type: .local, index: index)
+        }
+        index = findUpvalue(name: name)
+        if index != IndexNotFound {
+            return Variable(type: .upvalue, index: index)
+        }
+        return nil
+    }
+}
+
+// MARK: 生成指令相关
+extension CompilerUnit {
+    /// 生成加载常量的指令
+    public func emitLoadConstant(constant: AnyValue) {
+        let index = addConstant(constant: constant)
+        writeOpCodeShortOperand(code: .LOAD_CONSTANT, operand: index)
+    }
+    
+    /// 生成数字和字符串.nud()字面量指令
+    public func emitLiteral(canAssign: Bool) {
+        //TODO: value类型修改
+        emitLoadConstant(constant: AnyValue(value: curLexParser.preToken?.value))
+    }
+    
+    /// 通过签名生成方法调用指令
+    public func emitCallBySignature(signature: Signature, opCode: OP_CODE) {
+        let name = signature.toString()
+        emitCall(argsNum: signature.argNum, name: name)
+        if opCode == .SUPER0 {
+            writeShortOperand(operand: addConstant(constant: AnyValue(value: nil)))
+        }
+    }
+
+    /// 通过方法名生成调用指令
+    public func emitCall(argsNum: Int, name: String) {
+        let index = ensureSymbolExist(virtual: curLexParser.virtual,
+                                      symbolList: &curLexParser.virtual.allMethodNames,
+                                      name: name)
+        if let opCode = OP_CODE(rawValue: OP_CODE.CALL0.rawValue + Byte(argsNum)) {
+            writeOpCodeShortOperand(code:opCode , operand: index)
+        }
     }
     
     /// 为实参列表各个参数生成加载实参的指令
@@ -409,10 +358,47 @@ public class CompilerUnit: NSObject {
             guard let name = curLexParser.preToken?.value as? String else {
                 throw BuildError.general(message: "参数非变量名")
             }
-            try declareVariable(name: name)
+            declareVariable(name: name)
         } while curLexParser.matchCurToken(expected: .comma)
     }
     
+    /// 生成加载变量到栈的指令
+    public func emitLoadVariable(variable: Variable) {
+        switch variable.type {
+        case .local:
+            writeOpCodeByteOperand(code: OP_CODE.LOAD_LOCAL_VAR, operand: variable.index)
+        case .upvalue:
+            writeOpCodeByteOperand(code: OP_CODE.LOAD_UPVALUE, operand: variable.index)
+        case .module:
+            writeOpCodeByteOperand(code: OP_CODE.LOAD_MODULE_VAR, operand: variable.index)
+        default:
+            break
+        }
+    }
+    
+    /// 生成从栈顶弹出数据到变量中存储的指令
+    public func emitStoreVariable(variable: Variable) {
+        switch variable.type {
+        case .local:
+            writeOpCodeByteOperand(code: OP_CODE.STORE_LOCAL_VAR, operand: variable.index)
+        case .upvalue:
+            writeOpCodeByteOperand(code: OP_CODE.STORE_UPVALUE, operand: variable.index)
+        case .module:
+            writeOpCodeByteOperand(code: OP_CODE.STORE_MODULE_VAR, operand: variable.index)
+        default:
+            break
+        }
+    }
+    
+    /// 生成加载或存储变量的指令
+    public func emitLoadOrStoreVariable(assign: Bool, variable: Variable) {
+        if assign && curLexParser.matchCurToken(expected: .assign) {
+            try! expression(unit: self, rbp: .lowest)
+            emitStoreVariable(variable: variable)
+        } else {
+            emitLoadVariable(variable: variable)
+        }
+    }
 }
 
 /// 用于内部变量查找
@@ -446,13 +432,15 @@ public func compileModule(virtual: Virtual, module: ModuleObject, code: String) 
                               code: code)
     }
     
-    let moduleCU = CompilerUnit(lexParser: lexParser, enclosingUnit: nil, isMethod: false)
+    let moduleUnit = CompilerUnit(lexParser: lexParser, enclosingUnit: nil, isMethod: false)
+    
+    
     let moduleVarNumBefor = module.vars.count
     
-    let token = try lexParser.nextToken()
+    try! lexParser.nextToken()
     
-    while true {
-        moduleCU.compileProgram()
+    while !lexParser.matchCurToken(expected: .eof) {
+        moduleUnit.compileProgram()
     }
     
     return FnObject(virtual: virtual, module: module, maxStackSize: 100)
@@ -488,78 +476,5 @@ public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) throws
         try! unit.curLexParser.nextToken()
         led(unit, canAssign)
     }
-}
-
-public func emitCallBySignature(unit: CompilerUnit, signature: Signature, opCode: OP_CODE) {
-    let symbol = signature.toString()
-    let index = ensureSymbolExist(
-            virtual: unit.curLexParser.virtual,
-            table: &unit.curLexParser.virtual.allMethodNames,
-            symbol: symbol)
-    unit.writeOpCodeShortOperand(code: opCode, operand: index)
-    if opCode == .SUPER0 {
-        unit.writeShortOperand(operand: unit.addConstant(constant: Value(type: .null)))
-    }
-}
-
-public func emitCall(unit: CompilerUnit, argsNum: Int, name: String) {
-    let index = ensureSymbolExist(virtual: unit.curLexParser.virtual, table: &unit.curLexParser.virtual.allMethodNames, symbol: name)
-    if let opCode = OP_CODE(rawValue: OP_CODE.CALL0.rawValue + Byte(argsNum)) {
-        unit.writeOpCodeShortOperand(code:opCode , operand: index)
-    }
-}
-
-public func infixOperator(unit: CompilerUnit, canAssign: Bool) {
-    guard let curToken = unit.curLexParser.curToken else {
-        return
-    }
-    guard let rule = SymbolBindRule.rulues[curToken.type] else {
-        return
-    }
-    let rbp = rule.lbp
-    try! expression(unit: unit, rbp: rbp)
-    
-    let signature = Signature(type: .method, name: rule.symbol ?? "", argNum: 1)
-    emitCallBySignature(unit: unit, signature: signature, opCode: OP_CODE.CALL0)
-}
-
-public func unaryOperator(unit: CompilerUnit, canAssign: Bool) {
-    guard let curToken = unit.curLexParser.curToken else {
-        return
-    }
-    guard let rule = SymbolBindRule.rulues[curToken.type] else {
-        return
-    }
-    try! expression(unit: unit, rbp: SymbolBindRule.BindPower.unary)
-    emitCall(unit: unit, argsNum: 0, name: rule.symbol ?? "")
-}
-
-/// 单运算符方法签名
-public func unaryMethodSignature(unit: CompilerUnit, signature: Signature) {
-    signature.type = .getter
-}
-
-/// 中缀运算符方法签名
-public func infixMethodSignature(unit: CompilerUnit, signature: Signature) throws {
-    signature.type = .method
-    signature.argNum = 1
-    try! unit.curLexParser.consumeCurToken(expected: .leftParen, message: "中缀运算符后非\'(\'")
-    try! unit.curLexParser.consumeCurToken(expected: .id, message: "中缀运算符后非变量名")
-
-    //TODO: 需要处理字面量值,比如数字等
-    guard let name = unit.curLexParser.preToken?.value as? String else {
-        throw BuildError.general(message: "参数非变量名")
-    }
-    try! unit.declareVariable(name: name)
-    try! unit.curLexParser.consumeCurToken(expected: .rightParen, message: "变量名后非\')\'")
-}
-
-/// 既是单运算符又是中缀运算符方法签名
-public func mixMethodSignature(unit: CompilerUnit, signature: Signature) {
-    signature.type = .getter
-    guard try! unit.curLexParser.matchCurToken(expected: .leftParen) else {
-        return
-    }
-    try! infixMethodSignature(unit: unit, signature: signature)
 }
 

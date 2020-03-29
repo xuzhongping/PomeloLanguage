@@ -42,7 +42,7 @@ public func createRawClass(virtual: Virtual, name: String, fieldNum: Int) -> Cla
 
 public func defineClass(virtual: Virtual, module: ModuleObject, name: String) -> ClassObject {
     let cls = createRawClass(virtual: virtual, name: name, fieldNum: 0)
-    try! defineModuleVar(virtual: virtual, module: module, name: name, value: Value(value: cls))
+    try! module.defineVar(virtual: virtual, name: name, value: AnyValue(value: cls))
     return cls
 }
 

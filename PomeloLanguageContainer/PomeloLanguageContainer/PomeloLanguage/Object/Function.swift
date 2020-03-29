@@ -17,7 +17,7 @@ public struct Method {
         case call
     }
     
-    public typealias NativeFnObject = (_ virtual: Virtual, _ args:inout [Value]) -> Bool
+    public typealias NativeFnObject = (_ virtual: Virtual, _ args:inout [AnyValue]) -> Bool
     
     var type: MethodType
     var nativeImp: NativeFnObject?
@@ -38,21 +38,21 @@ public struct Method {
 /// 指令流对象
 public class FnObject: NSObject, ObjectProtocol {
     public var header: Header
-    var instrStream: [Byte]
-    var constantsList: [Value]
+    var byteStream: [Byte]
+    var constantsList: [AnyValue]
     var module: ModuleObject
-    var maxStackSize: uint64
-    var upvalueCount: uint64
+    var maxStackSize: Int
+    var upvalueCount: Int
     var argCount: uint8
     
     #if DEBUG
     var debug: FnDebug?
     #endif
-    init(virtual: Virtual, module: ModuleObject, maxStackSize: uint64) {
+    init(virtual: Virtual, module: ModuleObject, maxStackSize: Int) {
         self.header = Header(virtual: virtual, type: .function, cls: nil)
         self.module = module
         self.maxStackSize = maxStackSize
-        self.instrStream = []
+        self.byteStream = []
         self.constantsList = []
         self.upvalueCount = 0
         self.argCount = 0
@@ -63,8 +63,8 @@ public class FnObject: NSObject, ObjectProtocol {
 /// upvalue对象
 class UpvalueObject: NSObject, ObjectProtocol {
     var header: Header
-    var localVars: [Value]
-    var closedVars: [Value]
+    var localVars: [AnyValue]
+    var closedVars: [AnyValue]
     var next: UpvalueObject?
     init(virtual: Virtual) {
         self.header = Header(virtual: virtual, type: .upValue, cls: nil)
@@ -91,7 +91,7 @@ public class ClosureObject: NSObject, ObjectProtocol {
 class CallFrame {
     var ip: uint64
     var closure: ClosureObject
-    var stack: [Value]
+    var stack: [AnyValue]
     init(virtual: Virtual, closure: ClosureObject) {
         self.closure = closure
         self.stack = []

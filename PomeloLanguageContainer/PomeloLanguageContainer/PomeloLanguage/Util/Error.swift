@@ -12,6 +12,7 @@ import Cocoa
 public extension LexParser {
     enum LexParserError: Error {
         case unknown
+        case general(message: String)
         case create
         case parseString
         case parseNumber
@@ -28,4 +29,5 @@ public enum BuildError: Error {
 
 public enum RuntimeError: Error {
     case unknown
+    case general(message: String)
 }

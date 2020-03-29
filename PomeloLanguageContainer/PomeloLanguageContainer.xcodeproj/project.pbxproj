@@ -23,14 +23,12 @@
 		C0379504242CFD2100A5F27F /* Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794E9242CFD2000A5F27F /* Module.swift */; };
 		C0379505242CFD2100A5F27F /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EA242CFD2000A5F27F /* Object.swift */; };
 		C0379506242CFD2100A5F27F /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EB242CFD2000A5F27F /* Function.swift */; };
-		C0379507242CFD2100A5F27F /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EC242CFD2000A5F27F /* Value.swift */; };
 		C0379508242CFD2100A5F27F /* Compiler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EE242CFD2000A5F27F /* Compiler.swift */; };
 		C0379509242CFD2100A5F27F /* Pomelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794EF242CFD2000A5F27F /* Pomelo.swift */; };
 		C037950A242CFD2100A5F27F /* OpCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F1242CFD2000A5F27F /* OpCode.swift */; };
 		C037950B242CFD2100A5F27F /* Virtual.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F2242CFD2000A5F27F /* Virtual.swift */; };
 		C037950C242CFD2100A5F27F /* Core.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F3242CFD2000A5F27F /* Core.swift */; };
 		C037950D242CFD2100A5F27F /* NativeFn.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F4242CFD2000A5F27F /* NativeFn.swift */; };
-		C037950E242CFD2100A5F27F /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F5242CFD2000A5F27F /* Symbol.swift */; };
 		C037950F242CFD2100A5F27F /* LexParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F7242CFD2000A5F27F /* LexParser.swift */; };
 		C0379510242CFD2100A5F27F /* Constant.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794F9242CFD2100A5F27F /* Constant.swift */; };
 		C0379511242CFD2100A5F27F /* Unicode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FA242CFD2100A5F27F /* Unicode.swift */; };
@@ -38,6 +36,7 @@
 		C0379513242CFD2100A5F27F /* Alias.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FC242CFD2100A5F27F /* Alias.swift */; };
 		C0379514242CFD2100A5F27F /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FD242CFD2100A5F27F /* Extension.swift */; };
 		ED81C2A5242FAC640066CC67 /* Basic.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A4242FAC640066CC67 /* Basic.swift */; };
+		ED81C2A724307DA30066CC67 /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A624307DA30066CC67 /* Symbol.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -81,14 +80,12 @@
 		C03794E9242CFD2000A5F27F /* Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Module.swift; sourceTree = "<group>"; };
 		C03794EA242CFD2000A5F27F /* Object.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Object.swift; sourceTree = "<group>"; };
 		C03794EB242CFD2000A5F27F /* Function.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Function.swift; sourceTree = "<group>"; };
-		C03794EC242CFD2000A5F27F /* Value.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
 		C03794EE242CFD2000A5F27F /* Compiler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Compiler.swift; sourceTree = "<group>"; };
 		C03794EF242CFD2000A5F27F /* Pomelo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Pomelo.swift; sourceTree = "<group>"; };
 		C03794F1242CFD2000A5F27F /* OpCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpCode.swift; sourceTree = "<group>"; };
 		C03794F2242CFD2000A5F27F /* Virtual.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
 		C03794F3242CFD2000A5F27F /* Core.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Core.swift; sourceTree = "<group>"; };
 		C03794F4242CFD2000A5F27F /* NativeFn.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NativeFn.swift; sourceTree = "<group>"; };
-		C03794F5242CFD2000A5F27F /* Symbol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
 		C03794F7242CFD2000A5F27F /* LexParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LexParser.swift; sourceTree = "<group>"; };
 		C03794F9242CFD2100A5F27F /* Constant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constant.swift; sourceTree = "<group>"; };
 		C03794FA242CFD2100A5F27F /* Unicode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Unicode.swift; sourceTree = "<group>"; };
@@ -96,6 +93,7 @@
 		C03794FC242CFD2100A5F27F /* Alias.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alias.swift; sourceTree = "<group>"; };
 		C03794FD242CFD2100A5F27F /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
 		ED81C2A4242FAC640066CC67 /* Basic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Basic.swift; sourceTree = "<group>"; };
+		ED81C2A624307DA30066CC67 /* Symbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -188,7 +186,6 @@
 				C03794E9242CFD2000A5F27F /* Module.swift */,
 				C03794EA242CFD2000A5F27F /* Object.swift */,
 				C03794EB242CFD2000A5F27F /* Function.swift */,
-				C03794EC242CFD2000A5F27F /* Value.swift */,
 			);
 			path = Object;
 			sourceTree = "<group>";
@@ -197,6 +194,7 @@
 			isa = PBXGroup;
 			children = (
 				C03794EE242CFD2000A5F27F /* Compiler.swift */,
+				ED81C2A624307DA30066CC67 /* Symbol.swift */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
@@ -208,7 +206,6 @@
 				C03794F2242CFD2000A5F27F /* Virtual.swift */,
 				C03794F3242CFD2000A5F27F /* Core.swift */,
 				C03794F4242CFD2000A5F27F /* NativeFn.swift */,
-				C03794F5242CFD2000A5F27F /* Symbol.swift */,
 			);
 			path = Virtual;
 			sourceTree = "<group>";
@@ -382,8 +379,8 @@
 				C0379512242CFD2100A5F27F /* Error.swift in Sources */,
 				C037950D242CFD2100A5F27F /* NativeFn.swift in Sources */,
 				C03794FE242CFD2100A5F27F /* ClassObject.swift in Sources */,
+				ED81C2A724307DA30066CC67 /* Symbol.swift in Sources */,
 				C0379504242CFD2100A5F27F /* Module.swift in Sources */,
-				C037950E242CFD2100A5F27F /* Symbol.swift in Sources */,
 				C0379508242CFD2100A5F27F /* Compiler.swift in Sources */,
 				C0379509242CFD2100A5F27F /* Pomelo.swift in Sources */,
 				C0379501242CFD2100A5F27F /* Thread.swift in Sources */,
@@ -401,7 +398,6 @@
 				C037950C242CFD2100A5F27F /* Core.swift in Sources */,
 				C037950F242CFD2100A5F27F /* LexParser.swift in Sources */,
 				C037950A242CFD2100A5F27F /* OpCode.swift in Sources */,
-				C0379507242CFD2100A5F27F /* Value.swift in Sources */,
 				C037950B242CFD2100A5F27F /* Virtual.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

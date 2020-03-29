@@ -51,17 +51,9 @@ public func buildCore(virtual: Virtual) {
     
     bindMetaClass(virtual: virtual, cls: virtual.classOfClass, metaCls: virtual.classOfClass)
     
-    executeModule(virtual: virtual, name: ModuleNameCore, code: "")
 }
 
-/// 确保符号添加到符号表中
-public func ensureSymbolExist(virtual: Virtual, table: inout [String], symbol: String) -> Int {
-    if let index = table.firstIndex(of: symbol) {
-        return index
-    }
-    table.append(symbol)
-    return table.count - 1
-}
+
 
 
 

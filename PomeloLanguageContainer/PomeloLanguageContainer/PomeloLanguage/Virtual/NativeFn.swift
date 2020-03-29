@@ -9,79 +9,73 @@
 import Cocoa
 
 /// 原生方法: 判断Object是否相等
-public func nativeObjectEqual(virtual: Virtual, args: inout [Value]) -> Bool {
-    RET_VALUE(args: &args, ret: Value(value: args[0] == args[1]))
+public func nativeObjectEqual(virtual: Virtual, args: inout [AnyValue]) -> Bool {
+    RET_VALUE(args: &args, ret: AnyValue(value: args[0] == args[1]))
     return true
 }
 
 /// 原生方法: 判断Object是否不相等
-public func nativeObjectNotEqual(virtual: Virtual, args: inout [Value]) -> Bool {
-    RET_VALUE(args: &args, ret: Value(value: !(args[0] == args[1])))
+public func nativeObjectNotEqual(virtual: Virtual, args: inout [AnyValue]) -> Bool {
+    RET_VALUE(args: &args, ret: AnyValue(value: !(args[0] == args[1])))
     return true
 }
 
 /// 原生方法: 判断Object是否属于Class的实例(包括继承)
-public func nativeObjectIs(virtual: Virtual, args: inout [Value]) -> Bool {
-    guard args[1].isClassObject(virtual: virtual) else {
+public func nativeObjectIs(virtual: Virtual, args: inout [AnyValue]) -> Bool {
+    guard args[1].isClassObject() else {
         //TODO: 运行时错误
         return false
     }
     
-    var thisCls = args[0].getClass(virtual: virtual)
-    let baseCls = args[1].toClassObject(virtual: virtual)
+    var thisCls: ClassObject? = args[0].getClass(virtual: virtual)
+    let baseCls = args[1].toClassObject()
 
     while thisCls != nil {
         if thisCls == baseCls {
-            args[0] = Value(value: true)
+            args[0] = AnyValue(value: true)
             return true
         }
         thisCls = thisCls?.superClass
     }
-    RET_VALUE(args: &args, ret: Value(value: false))
+    RET_VALUE(args: &args, ret: AnyValue(value: false))
     return true
 }
 
 /// 原生方法: 获取Object的类名
-public func nativeObjectGetClassName(virtual: Virtual, args: inout [Value]) -> Bool {
+public func nativeObjectGetClassName(virtual: Virtual, args: inout [AnyValue]) -> Bool {
     let cls = args[0].getClass(virtual: virtual)
-    if let name = cls?.name {
-        RET_VALUE(args: &args, ret: Value(value: name))
-    }
+    RET_VALUE(args: &args, ret: AnyValue(value: cls.name))
     return true
 }
 
 /// 原生方法: 获取Object所属的类
-public func nativeObjectGetClass(virtual: Virtual, args: inout [Value]) -> Bool {
+public func nativeObjectGetClass(virtual: Virtual, args: inout [AnyValue]) -> Bool {
     let cls = args[0].getClass(virtual: virtual)
-    if let cls = cls {
-        RET_VALUE(args: &args, ret: Value(value: cls))
-    }
+    RET_VALUE(args: &args, ret: AnyValue(value: cls))
     return true
 }
 
 /// 原生方法: 获取Class的name
-public func nativeClassGetName(virtual: Virtual, args: inout [Value]) -> Bool {
+public func nativeClassGetName(virtual: Virtual, args: inout [AnyValue]) -> Bool {
     let cls = args[0]
-    if let clsObject = cls.toClassObject(virtual: virtual) {
-        RET_VALUE(args: &args, ret: Value(value: clsObject))
-    }
+    RET_VALUE(args: &args, ret: AnyValue(value: cls.getClass(virtual: virtual).name))
     return true
 }
 
 /// 原生方法: 获取Class的基类
-public func nativeClassGetSuperClass(virtual: Virtual, args: inout [Value]) -> Bool {
+public func nativeClassGetSuperClass(virtual: Virtual, args: inout [AnyValue]) -> Bool {
     let cls = args[0]
-    if let superCls = cls.toClassObject(virtual: virtual)?.superClass {
-        RET_VALUE(args: &args, ret: Value(value: superCls))
+    if let superCls = cls.toClassObject()?.superClass {
+        RET_VALUE(args: &args, ret: AnyValue(value: superCls))
     } else {
-        RET_VALUE(args: &args, ret: Value(type: .null))
+        RET_VALUE(args: &args, ret: AnyValue(value: nil))
     }
     return true
 }
 
 
 /// 原生方法: 设置返回值
-private func RET_VALUE(args: inout [Value], ret: Value) {
+private func RET_VALUE(args: inout [AnyValue], ret: AnyValue) {
     args[0] = ret
 }
 
