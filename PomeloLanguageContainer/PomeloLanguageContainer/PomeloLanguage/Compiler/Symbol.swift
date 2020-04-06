@@ -91,14 +91,14 @@ public struct SymbolBindRule {
                             lbp: .none,
                             nud: nil, //TODO: id解析函数
                             led: nil,
-                            methodSignature: idMethodSignature(unit:signature:) as? MethodSignatureFn)
+                            methodSignature: idMethodSignature(unit:signature:))
     ]
     
     /// 指示符函数指针
-    public typealias DenotationFn = (_ unit: CompilerUnit, _ canAssign: Bool) -> ()
+    public typealias DenotationFn = (_ unit: CompilerUnit, _ canAssign: Bool) throws -> ()
 
     /// 签名函数指针
-    public typealias MethodSignatureFn = (_ unit: CompilerUnit, _ signature: Signature) -> ()
+    public typealias MethodSignatureFn = (_ unit: CompilerUnit, _ signature: Signature) throws -> ()
     
     var symbol: String?
     var lbp: BindPower
@@ -139,7 +139,7 @@ public struct SymbolBindRule {
                               lbp: lbp,
                               nud: nil,
                               led: infixOperator(unit:canAssign:),
-                              methodSignature: infixMethodSignature(unit:signature:) as? SymbolBindRule.MethodSignatureFn)
+                              methodSignature: infixMethodSignature(unit:signature:))
     }
     
     /// 注册既可作前缀有可做中缀的运算符，如-
@@ -174,7 +174,7 @@ public func infixOperator(unit: CompilerUnit, canAssign: Bool) {
     try! expression(unit: unit, rbp: rbp)
     
     let signature = Signature(type: .method, name: rule.symbol ?? "", argNum: 1)
-    unit.emitCallBySignature(signature: signature, opCode: OP_CODE.CALL0)
+    emitCallBySignature(unit: unit, signature: signature, opCode: OP_CODE.CALL0)
 }
 
 /// 前缀运算符.nud方法，如-、!等
@@ -186,7 +186,7 @@ public func unaryOperator(unit: CompilerUnit, canAssign: Bool) {
         return
     }
     try! expression(unit: unit, rbp: SymbolBindRule.BindPower.unary)
-    unit.emitCall(argsNum: 0, name: rule.symbol ?? "")
+    emitCall(unit: unit, argsNum: 0, name: rule.symbol ?? "")
 }
 
 /// 单运算符方法签名函数
@@ -259,7 +259,7 @@ public func idMethodSignature(unit: CompilerUnit, signature: Signature) throws {
     if unit.curLexParser.matchCurToken(expected: .rightParen) {
         return
     }
-    try! unit.processArgList(signature: signature)
+    try! emitProcessArgList(unit: unit, signature: signature)
     try! unit.curLexParser.consumeCurToken(expected: .rightParen, message: "方法参数后必须跟)")
 }
 
