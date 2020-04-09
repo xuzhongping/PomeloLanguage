@@ -38,7 +38,7 @@ public struct Method {
 /// 指令流对象
 public class FnObject: NSObject, ObjectProtocol {
     public var header: Header
-    var byteStream: [Byte]
+    public var byteStream: [Byte]
     var constantsList: [AnyValue]
     var module: ModuleObject
     var maxStackSize: Int

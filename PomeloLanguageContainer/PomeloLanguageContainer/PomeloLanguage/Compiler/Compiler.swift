@@ -129,7 +129,9 @@ public class CompilerUnit: NSObject {
             self.scopeDepth = -1
             self.localVarNum = 0
         }
-        self.fn = FnObject(virtual: curLexParser.virtual, module: curLexParser.curModule, maxStackSize: self.localVarNum)
+        self.fn = FnObject(virtual: curLexParser.virtual,
+                           module: curLexParser.curModule,
+                           maxStackSize: self.localVarNum)
         super.init()
         lexParser.curCompileUnit = self
     }
@@ -256,157 +258,6 @@ extension CompilerUnit {
     }
 }
 
-// MARK: 编译相关
-extension CompilerUnit {
-    public func compileBlock() throws {
-        while true {
-            if curLexParser.matchCurToken(expected: .rightBrace) {
-                break
-            }
-            if curLexParser.status == LexParser.LexStatus.end {
-                throw BuildError.general(message: "提前结束造成错误")
-            }
-            compileProgram()
-        }
-    }
-    
-    public func compileBody(isConstruct: Bool) {
-        try! compileBlock()
-        if isConstruct {
-            writeByteCode(unit: self,
-                          code: OP_CODE.LOAD_LOCAL_VAR,
-                          operand: 0)
-        } else {
-            writeOpCode(unit: self, code: OP_CODE.PUSH_NULL)
-        }
-        writeOpCode(unit: self, code: OP_CODE.RETURN)
-    }
-    
-    /// 结束当前编译单元的编译工作
-    /// 当存在外层编译单元时，内层编译单元为外层的闭包
-    @discardableResult
-    public func endCompile() -> FnObject {
-        writeOpCode(unit: self, code: OP_CODE.END)
-        if let enclosingUnit = enclosingUnit {
-            let index = enclosingUnit.addConstant(constant: AnyValue(value: fn))
-            writeShortByteCode(unit: enclosingUnit,
-                               code: OP_CODE.CREATE_CLOSURE,
-                               operand: index)
-            
-            for upvalue in upvalues {
-                writeByte(unit: enclosingUnit, byte: upvalue.isEnclosingLocalVar ? 1: 0)
-                writeByte(unit: enclosingUnit, byte: Byte(upvalue.index))
-            }
-        }
-        curLexParser.curCompileUnit = enclosingUnit
-        return fn
-    }
-    
-    /// 编译标识符
-    public func compileId(assign: Bool) throws {
-        guard let token = curLexParser.preToken else {
-            throw BuildError.general(message: "标识符为空")
-        }
-        guard let value = token.value as? String else {
-            throw BuildError.general(message: "标识符非字符串")
-        }
-        
-        /// 处理为函数调用
-        if enclosingUnit == nil && curLexParser.matchCurToken(expected: .leftParen) {
-            
-            let name = "Fn \(value)"
-            let index = getIndexFromSymbolList(list: curLexParser.curModule.vars, target: name)
-            guard index >= 0 else {
-                throw BuildError.general(message: "引用未定义的函数\(name)")
-            }
-            
-            emitLoadVariable(unit: self, variable: Variable(type: .module, index: index))
-            
-            let signature = Signature(type: .method, name: "call", argNum: 0)
-            if !curLexParser.matchCurToken(expected: .rightParen) {
-                try! emitProcessArgList(unit: self, signature: signature)
-                try! curLexParser.consumeCurToken(expected: .rightParen, message: "参数列表后要跟)")
-            }
-            emitCallBySignature(unit: self,
-                                signature: signature,
-                                opCode: OP_CODE.CALL0)
-            return
-        }
-
-        /// 处理为局部变量何upvalue
-        if let variable = findVarFromLocalOrUpvalue(name: value) {
-            emitLoadOrStoreVariable(unit: self,
-                                    assign: assign,
-                                    variable: variable)
-            return
-        }
-        
-        /// 处理为实例域
-        if let classBK = getEnclosingClassBK() {
-            let index = getIndexFromSymbolList(list: classBK.fields, target: value)
-            if index >= 0 {
-                var read = true
-                if assign && curLexParser.matchCurToken(expected: .assign) {
-                    read = false
-                    try! expression(unit: self, rbp: .lowest)
-                }
-                /// 方法内或方法外引用域
-                if let _ = enclosingUnit {
-                    writeByteCode(unit: self,
-                                  code: read ? OP_CODE.LOAD_THIS_FIELD: OP_CODE.STORE_THIS_FIELD,
-                                  operand: index)
-                } else {
-                    try! emitLoadThis(unit: self)
-                    writeByteCode(unit: self,
-                                  code: read ? OP_CODE.LOAD_FIELD: OP_CODE.STORE_FIELD,
-                                  operand: index)
-                }
-                return
-            }
-        }
-        
-        /// 处理为静态域
-        if let classBK = getEnclosingClassBK() {
-            let name = "Cls\(classBK.name) \(value)"
-            if let variable = findVarFromLocalOrUpvalue(name: name) {
-                emitLoadOrStoreVariable(unit: self,
-                                        assign: assign,
-                                        variable: variable)
-                return
-            }
-        }
-        
-        /// 处理为一般方法调用
-        if let _ = getEnclosingClassBK(), value.firstIsLowercase() {
-            try! emitLoadThis(unit: self)
-            emitMethodCall(unit: self,
-                           name: value,
-                           code: OP_CODE.CALL0,
-                           assign: assign)
-            return
-        }
-
-        /// 处理为模块变量
-        var index = getIndexFromSymbolList(list: curLexParser.curModule.vars, target: value)
-        if index == IndexNotFound {
-            let name = "Fn \(value)"
-            index = getIndexFromSymbolList(list: curLexParser.curModule.vars, target: name)
-            if index == IndexNotFound {
-                index = curLexParser.curModule.declareModuleVar(virtual: curLexParser.virtual,
-                                                                name: name,
-                                                                value: AnyValue(value: curLexParser.line))
-                emitLoadOrStoreVariable(unit: self,
-                                        assign: assign,
-                                        variable: Variable(type: .module, index: index))
-                return
-            }
-        }
-        emitLoadOrStoreVariable(unit: self,
-                                assign: assign,
-                                variable: Variable(type: .module, index: index))
-    }
-}
-
 /// 用于内部变量查找
 public class Variable: NSObject {
     public enum ScopeType {
@@ -468,8 +319,8 @@ public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) throws
     }
     try! unit.curLexParser.nextToken()
 
-    let canAssign = rbp.rawValue < SymbolBindRule.BindPower.assign.rawValue
-    try! nud(unit,canAssign)
+    let assign = rbp.rawValue < SymbolBindRule.BindPower.assign.rawValue
+    try! nud(unit,assign)
 
     while true {
         guard let token = unit.curLexParser.curToken else {
@@ -485,7 +336,7 @@ public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) throws
             break
         }
         try! unit.curLexParser.nextToken()
-        try! led(unit, canAssign)
+        try! led(unit, assign)
     }
 }
 

@@ -203,8 +203,8 @@ public func emitGetterMethodCall(unit: CompilerUnit, signature: Signature, code:
             try! unit.curLexParser.consumeCurToken(expected: .bitOr, message: "块参数后必须跟|")
         }
         internalUnit.fn.argNum = newSignature.argNum
-        internalUnit.compileBody(isConstruct: false)
-        internalUnit.endCompile()
+        emitBody(unit: internalUnit, isConstruct: false)
+        endCompile(unit: unit)
     }
     if signature.type == .construct {
         guard newSignature.type == .method else {
@@ -238,7 +238,7 @@ public func emitMethodCall(unit: CompilerUnit, name: String, code: OP_CODE, assi
 
 
 /// 生成数字和字符串.nud()字面量指令
-public func emitLiteral(unit: CompilerUnit, canAssign: Bool) {
+public func emitLiteral(unit: CompilerUnit, assign: Bool) {
     emitLoadConstant(unit: unit, constant: AnyValue(value: unit.curLexParser.preToken?.value))
 }
 
@@ -260,23 +260,24 @@ public func emitStringInterpolation(unit: CompilerUnit, assgin: Bool) {
     emitCall(unit: unit, argsNum: 0, name: "new()")
     
     repeat {
-        emitLiteral(unit: unit, canAssign: false)
+        emitLiteral(unit: unit, assign: false)
         try! expression(unit: unit, rbp: .lowest)
         emitCall(unit: unit, argsNum: 1, name: "addCore_()")
     } while unit.curLexParser.matchCurToken(expected: .interpolation)
     
     try! unit.curLexParser.consumeCurToken(expected: .string, message: "内嵌表达式应该在后面跟字符串")
-    emitLiteral(unit: unit, canAssign: false)
+    emitLiteral(unit: unit, assign: false)
     emitCall(unit: unit, argsNum: 1, name: "addCore_")
     emitCall(unit: unit, argsNum: 0, name: "join()")
 }
 
 /// 编译bool生成指令
 public func emitBoolean(unit: CompilerUnit, assign: Bool) {
-    var realType = Token.TokenType.false_
-    if let type = unit.curLexParser.preToken?.type,type == .true_ {
-        realType = type
-    }
+    let opCode = unit.curLexParser.preToken?.type == Token.TokenType.true_ ? OP_CODE.PUSH_TRUE: OP_CODE.PUSH_FALSE
+    writeOpCode(unit: unit, code: opCode)
+}
+
+public func emitNull(unit: CompilerUnit, assign: Bool) {
     writeOpCode(unit: unit, code: OP_CODE.PUSH_NULL)
 }
 ///编译this生成指令
@@ -305,6 +306,310 @@ public func emitSuper(unit: CompilerUnit, assign: Bool) throws {
     }
 }
 
+/// 中缀运算符.led方法
+public func emitInfixOperator(unit: CompilerUnit, assign: Bool) {
+    guard let curToken = unit.curLexParser.curToken else {
+        return
+    }
+    guard let rule = SymbolBindRule.rulues[curToken.type] else {
+        return
+    }
+    let rbp = rule.lbp
+    try! expression(unit: unit, rbp: rbp)
+    
+    let signature = Signature(type: .method, name: rule.symbol ?? "", argNum: 1)
+    emitCallBySignature(unit: unit, signature: signature, opCode: OP_CODE.CALL0)
+}
+
+/// 前缀运算符.nud方法，如-、!等
+public func emitUnaryOperator(unit: CompilerUnit, assign: Bool) {
+    guard let curToken = unit.curLexParser.curToken else {
+        return
+    }
+    guard let rule = SymbolBindRule.rulues[curToken.type] else {
+        return
+    }
+    try! expression(unit: unit, rbp: SymbolBindRule.BindPower.unary)
+    emitCall(unit: unit, argsNum: 0, name: rule.symbol ?? "")
+}
 
 
+//MARK: Compile
+/// 编译标识符
+public func emitId(unit: CompilerUnit, assign: Bool) throws {
+    guard let token = unit.curLexParser.preToken else {
+        throw BuildError.general(message: "标识符为空")
+    }
+    guard let value = token.value as? String else {
+        throw BuildError.general(message: "标识符非字符串")
+    }
+    
+    /// 处理为函数调用
+    if unit.enclosingUnit == nil && unit.curLexParser.matchCurToken(expected: .leftParen) {
+        
+        let name = "Fn \(value)"
+        let index = getIndexFromSymbolList(list: unit.curLexParser.curModule.vars, target: name)
+        guard index >= 0 else {
+            throw BuildError.general(message: "引用未定义的函数\(name)")
+        }
+        
+        emitLoadVariable(unit: unit, variable: Variable(type: .module, index: index))
+        
+        let signature = Signature(type: .method, name: "call", argNum: 0)
+        if !unit.curLexParser.matchCurToken(expected: .rightParen) {
+            try! emitProcessArgList(unit: unit, signature: signature)
+            try! unit.curLexParser.consumeCurToken(expected: .rightParen, message: "参数列表后要跟)")
+        }
+        emitCallBySignature(unit: unit,
+                            signature: signature,
+                            opCode: OP_CODE.CALL0)
+        return
+    }
 
+    /// 处理为局部变量何upvalue
+    if let variable = unit.findVarFromLocalOrUpvalue(name: value) {
+        emitLoadOrStoreVariable(unit: unit,
+                                assign: assign,
+                                variable: variable)
+        return
+    }
+    
+    /// 处理为实例域
+    if let classBK = unit.getEnclosingClassBK() {
+        let index = getIndexFromSymbolList(list: classBK.fields, target: value)
+        if index >= 0 {
+            var read = true
+            if assign && unit.curLexParser.matchCurToken(expected: .assign) {
+                read = false
+                try! expression(unit: unit, rbp: .lowest)
+            }
+            /// 方法内或方法外引用域
+            if let _ = unit.enclosingUnit {
+                writeByteCode(unit: unit,
+                              code: read ? OP_CODE.LOAD_THIS_FIELD: OP_CODE.STORE_THIS_FIELD,
+                              operand: index)
+            } else {
+                try! emitLoadThis(unit: unit)
+                writeByteCode(unit: unit,
+                              code: read ? OP_CODE.LOAD_FIELD: OP_CODE.STORE_FIELD,
+                              operand: index)
+            }
+            return
+        }
+    }
+    
+    /// 处理为静态域
+    if let classBK = unit.getEnclosingClassBK() {
+        let name = "Cls\(classBK.name) \(value)"
+        if let variable = unit.findVarFromLocalOrUpvalue(name: name) {
+            emitLoadOrStoreVariable(unit: unit,
+                                    assign: assign,
+                                    variable: variable)
+            return
+        }
+    }
+    
+    /// 处理为一般方法调用
+    if let _ = unit.getEnclosingClassBK(), value.firstIsLowercase() {
+        try! emitLoadThis(unit: unit)
+        emitMethodCall(unit: unit,
+                       name: value,
+                       code: OP_CODE.CALL0,
+                       assign: assign)
+        return
+    }
+
+    /// 处理为模块变量
+    var index = getIndexFromSymbolList(list: unit.curLexParser.curModule.vars, target: value)
+    if index == IndexNotFound {
+        let name = "Fn \(value)"
+        index = getIndexFromSymbolList(list: unit.curLexParser.curModule.vars, target: name)
+        if index == IndexNotFound {
+            index = unit.curLexParser.curModule.declareModuleVar(virtual: unit.curLexParser.virtual,
+                                                            name: name,
+                                                            value: AnyValue(value: unit.curLexParser.line))
+            emitLoadOrStoreVariable(unit: unit,
+                                    assign: assign,
+                                    variable: Variable(type: .module, index: index))
+            return
+        }
+    }
+    emitLoadOrStoreVariable(unit: unit,
+                            assign: assign,
+                            variable: Variable(type: .module, index: index))
+}
+
+public func emitBlock(unit: CompilerUnit) throws {
+    while true {
+        if unit.curLexParser.matchCurToken(expected: .rightBrace) {
+            break
+        }
+        if unit.curLexParser.status == LexParser.LexStatus.end {
+            throw BuildError.general(message: "提前结束造成错误")
+        }
+        unit.compileProgram()
+    }
+}
+
+public func emitBody(unit: CompilerUnit, isConstruct: Bool) {
+    try! emitBlock(unit: unit)
+    if isConstruct {
+        writeByteCode(unit: unit,
+                      code: OP_CODE.LOAD_LOCAL_VAR,
+                      operand: 0)
+    } else {
+        writeOpCode(unit: unit, code: OP_CODE.PUSH_NULL)
+    }
+    writeOpCode(unit: unit, code: OP_CODE.RETURN)
+}
+
+public func emitParentheses(unit: CompilerUnit, assign: Bool) {
+    try! expression(unit: unit, rbp: .lowest)
+    try! unit.curLexParser.consumeCurToken(expected: .rightParen, message: "(表达式后必须跟)")
+}
+
+public func emitListLiteral(unit: CompilerUnit, assgin: Bool) throws {
+    try! emitLoadModuleVar(unit: unit, name: "List")
+    emitCall(unit: unit, argsNum: 0, name: "new()")
+    while true {
+        guard let token = unit.curLexParser.curToken else {
+            throw BuildError.general(message: "Token为空")
+        }
+        if token.type == Token.TokenType.rightBracket {
+            break
+        }
+        try! expression(unit: unit, rbp: .lowest)
+        emitCall(unit: unit, argsNum: 1, name: "addCore_()")
+        guard unit.curLexParser.matchCurToken(expected: .comma) else { break }
+    }
+}
+
+public func emitSubscript(unit: CompilerUnit, assign: Bool) throws {
+    if unit.curLexParser.matchCurToken(expected: .rightBracket) {
+        throw BuildError.general(message: "[]内为空")
+    }
+    let signature = Signature(type: .subscriptGetter, name: "", argNum: 0)
+    try! emitProcessArgList(unit: unit, signature: signature)
+    try! unit.curLexParser.consumeCurToken(expected: .rightBracket, message: "[表达式后必须跟]")
+    if assign && unit.curLexParser.matchCurToken(expected: .assign) {
+        signature.type = .subscriptSetter
+        signature.argNum += 1
+        if signature.argNum > maxArgNum {
+            throw BuildError.general(message: "参数个数超出")
+        }
+        try! expression(unit: unit, rbp: .lowest)
+    }
+    emitCallBySignature(unit: unit, signature: signature, opCode: OP_CODE.CALL0)
+}
+
+/// 编译方法调用入口，所有调用的入口
+public func emitCallEntry(unit: CompilerUnit, assign: Bool) throws {
+    try! unit.curLexParser.consumeCurToken(expected: .id, message: "expect method name after '.'!")
+    guard let name = unit.curLexParser.curToken?.value as? String else {
+        throw BuildError.general(message: "方法名必须为字符串")
+    }
+    emitMethodCall(unit: unit, name: name, code: OP_CODE.CALL0, assign: assign)
+}
+
+/// 编译map对象字面量
+public func emitMapLiteral(unit: CompilerUnit, assign: Bool) throws {
+    try! emitLoadModuleVar(unit: unit, name: "Map")
+    emitCall(unit: unit, argsNum: 0, name: "new()")
+    while true {
+        guard let token = unit.curLexParser.curToken else {
+            throw BuildError.general(message: "Token为空")
+        }
+        if token.type == .rightBrace {
+            break
+        }
+        try! expression(unit: unit, rbp: .unary)
+        try! unit.curLexParser.consumeCurToken(expected: .colon, message: "expect ':' after key!")
+        try! expression(unit: unit, rbp: .lowest)
+        emitCall(unit: unit, argsNum: 2, name: "addCore_(_,_)")
+        
+        guard unit.curLexParser.matchCurToken(expected: .comma) else { break }
+    }
+    
+    try! unit.curLexParser.consumeCurToken(expected: .rightBrace, message: "map literal should end with ')'!")
+}
+
+/// 生成用占位符作为参数设置指令
+public func emitInstrWithPlaceholder(unit: CompilerUnit, opCode: OP_CODE) -> Int {
+    writeOpCode(unit: unit, code: opCode)
+    writeByte(unit: unit, byte: 0xFF)
+    return writeByte(unit: unit, byte: 0xFF) - 1
+}
+
+/// 用跳转到当前字节码结束地址的偏移量去替换占位符参数0xffff
+public func emitPatchPlaceholder(unit: CompilerUnit, absIndex: Int) {
+    let offset = unit.fn.byteStream.count - absIndex - 2
+    unit.fn.byteStream[absIndex] = Byte((offset >> 8) & 0xFF)
+    unit.fn.byteStream[absIndex + 1] = Byte(offset & 0xFF)
+}
+
+public func emitLogicOr(unit: CompilerUnit, assign: Bool) {
+    let placeholderIndex = emitInstrWithPlaceholder(unit: unit, opCode: .OR)
+    try! expression(unit: unit, rbp: .logic_or)
+    emitPatchPlaceholder(unit: unit, absIndex: placeholderIndex)
+}
+
+public func emitLogicAnd(unit: CompilerUnit, assign: Bool) {
+    let placeholderIndex = emitInstrWithPlaceholder(unit: unit, opCode: .AND)
+    try! expression(unit: unit, rbp: .logic_and)
+    emitPatchPlaceholder(unit: unit, absIndex: placeholderIndex)
+}
+
+public func emitCondition(unit: CompilerUnit, assign: Bool) {
+    let falseBranchStart = emitInstrWithPlaceholder(unit: unit, opCode: .JUMP_IF_FALSE)
+    try! expression(unit: unit, rbp: .lowest)
+    try! unit.curLexParser.consumeCurToken(expected: .colon, message: "expect ':' after true branch")
+    let falseBranchEnd = emitInstrWithPlaceholder(unit: unit, opCode: .JUMP)
+    
+    emitPatchPlaceholder(unit: unit, absIndex: falseBranchStart)
+    try! expression(unit: unit, rbp: .lowest)
+    emitPatchPlaceholder(unit: unit, absIndex: falseBranchEnd)
+}
+
+public func emitVarDefinition(unit: CompilerUnit, isStatic: Bool) throws {
+    try! unit.curLexParser.consumeCurToken(expected: .id, message: "missing variable name!")
+    guard let name = unit.curLexParser.preToken?.value as? String else {
+        throw BuildError.general(message: "preToken为空")
+    }
+    guard let token = unit.curLexParser.curToken else {
+        throw BuildError.general(message: "token为空")
+    }
+    if token.type == .comma {
+        throw BuildError.general(message: "'var' only support declaring a variable.")
+    }
+    if let enclosingClassBK = unit.enclosingClassBK, unit.enclosingUnit == nil {
+        if isStatic {
+            let localName = "Cls \(enclosingClassBK.name) \(name)"
+            if unit.findLocalVar(name: localName) == -1 {
+                let index = try! unit.declareLocalVar(name: localName)
+                writeOpCode(unit: unit, code: .PUSH_NULL)
+                
+            }
+        }
+    }
+
+}
+
+/// 结束当前编译单元的编译工作
+/// 当存在外层编译单元时，内层编译单元为外层的闭包
+@discardableResult
+public func endCompile(unit: CompilerUnit) -> FnObject {
+    writeOpCode(unit: unit, code: OP_CODE.END)
+    if let enclosingUnit = unit.enclosingUnit {
+        let index = enclosingUnit.addConstant(constant: AnyValue(value: unit.fn))
+        writeShortByteCode(unit: enclosingUnit,
+                           code: OP_CODE.CREATE_CLOSURE,
+                           operand: index)
+        
+        for upvalue in unit.upvalues {
+            writeByte(unit: enclosingUnit, byte: upvalue.isEnclosingLocalVar ? 1: 0)
+            writeByte(unit: enclosingUnit, byte: Byte(upvalue.index))
+        }
+    }
+    unit.curLexParser.curCompileUnit = unit.enclosingUnit
+    return unit.fn
+}

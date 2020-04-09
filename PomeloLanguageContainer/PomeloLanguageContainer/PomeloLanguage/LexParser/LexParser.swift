@@ -27,7 +27,7 @@ public class Token: NSObject {
         case break_
         case continue_
         case return_
-        case nil_
+        case null
         
         case class_
         case this
@@ -108,7 +108,7 @@ public class LexParser: NSObject {
         Keyword(string: "break",    length: 5, type: .break_),
         Keyword(string: "continue", length: 8, type: .continue_),
         Keyword(string: "return",   length: 6, type: .return_),
-        Keyword(string: "nil",      length: 3, type: .nil_),
+        Keyword(string: "nil",      length: 3, type: .null),
         Keyword(string: "class",    length: 5, type: .class_),
         Keyword(string: "is",       length: 2, type: .is_),
         Keyword(string: "static",   length: 6, type: .static_),
