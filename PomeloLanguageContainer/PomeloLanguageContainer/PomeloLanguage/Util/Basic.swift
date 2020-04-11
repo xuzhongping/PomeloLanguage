@@ -60,6 +60,13 @@ extension AnyValue {
        }
        return obj
     }
+    
+    public func toFnObject() -> FnObject? {
+       guard let obj = value as? FnObject else {
+           return nil
+       }
+       return obj
+    }
 }
 
 extension AnyValue {

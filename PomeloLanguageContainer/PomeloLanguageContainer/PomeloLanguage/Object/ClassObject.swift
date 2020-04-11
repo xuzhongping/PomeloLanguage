@@ -23,51 +23,65 @@ public class ClassObject: NSObject, ObjectProtocol {
     var methods: SymbolTable<Selector, Method>
     var name: String
     
-    init(header: Header, superClass: ClassObject?, name: String) {
+    init(virtual: Virtual, header: Header, superClass: ClassObject?, name: String) {
         self.header = header
         self.superClass = superClass
         self.name = name
         self.methods = [:]
     }
-}
-
-/// 创建一个裸类
-public func createRawClass(virtual: Virtual, name: String, fieldNum: Int) -> ClassObject {
-    /// 裸类没有所属类
-    let rawClassHeader = Header(virtual: virtual, type: .class_, cls: nil)
-    /// 裸类没有父类
-    let rawClass = ClassObject(header: rawClassHeader, superClass: nil, name: name)
-    return rawClass
-}
-
-public func defineClass(virtual: Virtual, module: ModuleObject, name: String) -> ClassObject {
-    let cls = createRawClass(virtual: virtual, name: name, fieldNum: 0)
-    try! module.defineVar(virtual: virtual, name: name, value: AnyValue(value: cls))
-    return cls
-}
-
-public func bindMethod(virtual: Virtual, cls: ClassObject,selector: String, method: Method) {
-    cls.methods[selector] = method
-}
-
-public func bindSuperClass(virtual: Virtual, cls: ClassObject, superCls: ClassObject) {
-    cls.superClass = superCls
     
-    /// 继承成员变量数
-    cls.fieldNum += superCls.fieldNum
+    /// 创建一个裸类
+    convenience init(rawClass virtual: Virtual, name: String, fieldNum: Int) {
+        /// 裸类没有所属类
+        let rawClassHeader = Header(virtual: virtual, type: .class_, cls: nil)
+        self.init(virtual: virtual, header: rawClassHeader, superClass: nil, name: name)
+    }
     
-    /// 继承方法
-    for (selector, method) in superCls.methods {
-        bindMethod(virtual: virtual, cls: cls, selector: selector, method: method)
+    /// 创建一个类
+    convenience init(virtual: Virtual, name: String, fieldNum: Int, superClass: ClassObject) {
+        // 先创建类的meta类
+        let metaClass = ClassObject(rawClass: virtual, name: name, fieldNum: 0)
+        metaClass.header.cls = virtual.classOfClass
+        
+        // 绑定classOfClass为meta类的基类
+        metaClass.bindSuperClass(virtual: virtual, superClass: virtual.classOfClass)
+        
+        // 创建类
+        self.init(rawClass: virtual, name: name, fieldNum: fieldNum)
+        header.cls = metaClass
+        bindSuperClass(virtual: virtual, superClass: superClass)
+    }
+    
+    public static func defineClass(virtual: Virtual, module: ModuleObject, name: String) -> ClassObject {
+        let cls = ClassObject(rawClass: virtual, name: name, fieldNum: 0)
+        module.defineVar(virtual: virtual, name: name, value: AnyValue(value: cls))
+        return cls
+    }
+    
+    public func bindMethod(virtual: Virtual, selector: String, method: Method) {
+        methods[selector] = method
+    }
+    
+    /// 绑定原生方法
+    public func bindNativeMethod(virtual: Virtual, selector: String,  imp: @escaping Method.NativeFnObject) {
+        let method = Method(nativeImp: imp)
+        bindMethod(virtual: virtual, selector: selector, method: method)
+    }
+
+    
+    public func bindSuperClass(virtual: Virtual, superClass: ClassObject) {
+        self.superClass = superClass
+        /// 继承成员变量数
+        self.fieldNum += superClass.fieldNum
+        
+        /// 继承方法
+        for (selector, method) in superClass.methods {
+            bindMethod(virtual: virtual, selector: selector, method: method)
+        }
+    }
+    
+    public func bindMetaClass(virtual: Virtual, metaClass: ClassObject) {
+        header.cls = metaClass
     }
 }
 
-public func bindMetaClass(virtual: Virtual, cls: ClassObject, metaCls: ClassObject) {
-    cls.header.cls = metaCls
-}
-
-/// 绑定原生方法
-public func bindNativeMethod(virtual: Virtual,cls: ClassObject, selector: String,  imp: @escaping Method.NativeFnObject) {
-    let method = Method(nativeImp: imp)
-    bindMethod(virtual: virtual, cls: cls, selector: selector, method: method)
-}

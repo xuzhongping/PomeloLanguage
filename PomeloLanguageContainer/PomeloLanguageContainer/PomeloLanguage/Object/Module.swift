@@ -30,9 +30,9 @@ public class ModuleObject: NSObject, ObjectProtocol {
     }
     
     @discardableResult
-    public func defineVar(virtual: Virtual, name: String, value: AnyValue) throws -> Int {
+    public func defineVar(virtual: Virtual, name: String, value: AnyValue)  -> Int {
         guard name.count <= maxIdLength else {
-            throw BuildError.unknown
+            fatalError()
         }
         /// 如果被提前引用，这次是实际定义，就从提前引用表删除，下面会定义
         if undefinedIvarNames.contains(name) {
@@ -40,7 +40,7 @@ public class ModuleObject: NSObject, ObjectProtocol {
         }
         
         if vars.contains(where: { (iname,_) -> Bool in return iname == name }) {
-            throw BuildError.repeatDefinition(symbol: name)
+           fatalError()
         }
         vars.append((name,value))
         return vars.count - 1
@@ -73,7 +73,7 @@ public func getCoreModule(virtual: Virtual) -> ModuleObject? {
 ///   - virtual: 虚拟机
 ///   - name: 模块名
 ///   - code: 源码
-public func loadModule(virtual: Virtual, name: String, code: String) throws -> ThreadObject? {
+public func loadModule(virtual: Virtual, name: String, code: String)  -> ThreadObject? {
     var module = getModule(virtual: virtual, name: name)
     if module == nil {
         module = ModuleObject(name: name, virtual: virtual)
@@ -81,7 +81,7 @@ public func loadModule(virtual: Virtual, name: String, code: String) throws -> T
             virtual.allModules[name] = module
             if let coreModule = getCoreModule(virtual: virtual) {
                 for (name,value) in coreModule.vars {
-                    try! module.defineVar(virtual: virtual, name: name, value: value)
+                    module.defineVar(virtual: virtual, name: name, value: value)
                 }
             }
         }

@@ -86,10 +86,10 @@ public struct SymbolBindRule {
     }
     
     /// 指示符函数指针
-    public typealias DenotationFn = (_ unit: CompilerUnit, _ assign: Bool) throws -> ()
+    public typealias DenotationFn = (_ unit: CompilerUnit, _ assign: Bool) -> ()
 
     /// 签名函数指针
-    public typealias MethodSignatureFn = (_ unit: CompilerUnit, _ signature: Signature) throws -> ()
+    public typealias MethodSignatureFn = (_ unit: CompilerUnit, _ signature: Signature) -> ()
     
     var symbol: String?
     /// 左邦定权值
@@ -235,18 +235,18 @@ public func unaryMethodSignature(unit: CompilerUnit, signature: Signature) {
 }
 
 /// 中缀运算符方法签名函数
-public func infixMethodSignature(unit: CompilerUnit, signature: Signature) throws {
+public func infixMethodSignature(unit: CompilerUnit, signature: Signature) {
     signature.type = .method
     signature.argNum = 1
-    try! unit.curLexParser.consumeCurToken(expected: .leftParen, message: "中缀运算符后非\'(\'")
-    try! unit.curLexParser.consumeCurToken(expected: .id, message: "中缀运算符后非变量名")
+    unit.curLexParser.consumeCurToken(expected: .leftParen, message: "中缀运算符后非\'(\'")
+    unit.curLexParser.consumeCurToken(expected: .id, message: "中缀运算符后非变量名")
 
     //TODO: 需要处理字面量值,比如数字等
     guard let name = unit.curLexParser.preToken?.value as? String else {
-        throw BuildError.general(message: "参数非变量名")
+        fatalError("参数非变量名")
     }
     unit.declareVariable(name: name)
-    try! unit.curLexParser.consumeCurToken(expected: .rightParen, message: "变量名后非\')\'")
+    unit.curLexParser.consumeCurToken(expected: .rightParen, message: "变量名后非\')\'")
 }
 
 /// 既是单运算符又是中缀运算符方法签名函数
@@ -255,11 +255,11 @@ public func mixMethodSignature(unit: CompilerUnit, signature: Signature) {
     guard unit.curLexParser.matchCurToken(expected: .leftParen) else {
         return
     }
-    try! infixMethodSignature(unit: unit, signature: signature)
+    infixMethodSignature(unit: unit, signature: signature)
 }
 
 @discardableResult
-public func trySetterSignature(unit: CompilerUnit,signature: Signature) throws -> Bool {
+public func trySetterSignature(unit: CompilerUnit,signature: Signature) -> Bool {
     guard unit.curLexParser.matchCurToken(expected: .assign) else {
         return false
     }
@@ -268,27 +268,27 @@ public func trySetterSignature(unit: CompilerUnit,signature: Signature) throws -
     } else {
         signature.type = .setter
     }
-    try! unit.curLexParser.consumeCurToken(expected: .leftParen, message: "=后非(")
-    try! unit.curLexParser.consumeCurToken(expected: .id, message: "非id")
+    unit.curLexParser.consumeCurToken(expected: .leftParen, message: "=后非(")
+    unit.curLexParser.consumeCurToken(expected: .id, message: "非id")
     guard let name = unit.curLexParser.preToken?.value as? String else {
-        throw BuildError.general(message: "参数非变量名")
+        fatalError("参数非变量名")
     }
     unit.declareVariable(name: name)
-    try! unit.curLexParser.consumeCurToken(expected: .rightParen, message: "参数后非)")
+    unit.curLexParser.consumeCurToken(expected: .rightParen, message: "参数后非)")
     signature.argNum += 1
     return true
 }
 
 
-public func idMethodSignature(unit: CompilerUnit, signature: Signature) throws {
+public func idMethodSignature(unit: CompilerUnit, signature: Signature) {
     signature.type = .getter
     if signature.name == "new" {
         guard unit.curLexParser.matchCurToken(expected: .leftParen) else {
-            throw BuildError.general(message: "构造函数后必须跟(")
+            fatalError("构造函数后必须跟(")
         }
         signature.type = .construct
     } else {
-        if try! trySetterSignature(unit: unit, signature: signature) {
+        if trySetterSignature(unit: unit, signature: signature) {
             return
         }
         guard unit.curLexParser.matchCurToken(expected: .leftParen) else {
@@ -299,16 +299,16 @@ public func idMethodSignature(unit: CompilerUnit, signature: Signature) throws {
     if unit.curLexParser.matchCurToken(expected: .rightParen) {
         return
     }
-    try! emitProcessArgList(unit: unit, signature: signature)
-    try! unit.curLexParser.consumeCurToken(expected: .rightParen, message: "方法参数后必须跟)")
+    emitProcessArgList(unit: unit, signature: signature)
+    unit.curLexParser.consumeCurToken(expected: .rightParen, message: "方法参数后必须跟)")
 }
 
 public func subscriptMethodSignature(unit: CompilerUnit, signature: Signature) {
     signature.type = .subscriptGetter
     signature.length = 0
-    try! emitProcessParaList(unit: unit, signature: signature)
-    try! unit.curLexParser.consumeCurToken(expected: .rightBracket, message: "expect ']' after index list!")
-    try! trySetterSignature(unit: unit, signature: signature)
+    emitProcessParaList(unit: unit, signature: signature)
+    unit.curLexParser.consumeCurToken(expected: .rightBracket, message: "expect ']' after index list!")
+    trySetterSignature(unit: unit, signature: signature)
 }
 
 /// 确保符号添加到符号表中
@@ -326,3 +326,5 @@ public func getIndexFromSymbolList(list: [(name: String, value: AnyValue)], targ
     }
     return -1
 }
+
+//public func addSymbol()

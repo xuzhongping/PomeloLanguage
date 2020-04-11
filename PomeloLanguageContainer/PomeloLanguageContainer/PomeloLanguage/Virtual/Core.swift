@@ -18,38 +18,39 @@ public func buildCore(virtual: Virtual) {
     virtual.allModules[ModuleNameCore] = coreModule
     
     /// 创建Object类
-    virtual.objectClass = defineClass(virtual: virtual, module: coreModule, name: ClassNameObject)
+    virtual.objectClass = ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassNameObject)
     
     /// 绑定原生方法
 //    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "!", imp: nativeObjectEqual)
-    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "==(_)", imp: nativeObjectEqual(virtual:args:))
-    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "!=(_)", imp: nativeObjectNotEqual(virtual:args:))
-    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "is(_)", imp: nativeObjectIs(virtual:args:))
-    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "className(_)", imp: nativeObjectGetClassName(virtual:args:))
-    bindNativeMethod(virtual: virtual, cls: virtual.objectClass, selector: "class(_)", imp: nativeObjectGetClass(virtual:args:))
+    virtual.objectClass.bindNativeMethod(virtual: virtual, selector: "==(_)", imp: nativeObjectEqual(virtual:args:))
+    virtual.objectClass.bindNativeMethod(virtual: virtual, selector: "!=(_)", imp: nativeObjectNotEqual(virtual:args:))
+    virtual.objectClass.bindNativeMethod(virtual: virtual, selector: "is(_)", imp: nativeObjectIs(virtual:args:))
+    virtual.objectClass.bindNativeMethod(virtual: virtual, selector: "className(_)", imp: nativeObjectGetClassName(virtual:args:))
+    virtual.objectClass.bindNativeMethod(virtual: virtual, selector: "class(_)", imp: nativeObjectGetClass(virtual:args:))
     
     /// 创建Class类
-    virtual.classOfClass = defineClass(virtual: virtual, module: coreModule, name: ClassNameClass)
+   
+    virtual.classOfClass =  ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassNameClass)
     
     /// 绑定原生方法
-    bindNativeMethod(virtual: virtual, cls: virtual.classOfClass, selector: "name", imp: nativeClassGetName(virtual:args:))
-    bindNativeMethod(virtual: virtual, cls: virtual.classOfClass, selector: "superClass", imp: nativeClassGetSuperClass(virtual:args:))
+    virtual.classOfClass.bindNativeMethod(virtual: virtual, selector: "name", imp: nativeClassGetName(virtual:args:))
+    virtual.classOfClass.bindNativeMethod(virtual: virtual, selector: "superClass", imp: nativeClassGetSuperClass(virtual:args:))
     
     /// 绑定基类
-    bindSuperClass(virtual: virtual, cls: virtual.classOfClass, superCls: virtual.objectClass)
+    virtual.classOfClass.bindSuperClass(virtual: virtual, superClass: virtual.objectClass)
     
     /// 创建ObjectMeta类
-    let objectMetaClass = defineClass(virtual: virtual, module: coreModule, name: ClassNameObjectMeta)
+    let objectMetaClass = ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassNameObjectMeta)
     
     /// 绑定基类
-    bindSuperClass(virtual: virtual, cls: objectMetaClass, superCls: virtual.classOfClass)
+    objectMetaClass.bindSuperClass(virtual: virtual, superClass: virtual.classOfClass)
     
     /// 绑定meta类
-    bindMetaClass(virtual: virtual, cls: virtual.objectClass, metaCls: objectMetaClass)
+    virtual.objectClass.bindMetaClass(virtual: virtual, metaClass: objectMetaClass)
     
-    bindMetaClass(virtual: virtual, cls: objectMetaClass, metaCls: virtual.classOfClass)
+    objectMetaClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
     
-    bindMetaClass(virtual: virtual, cls: virtual.classOfClass, metaCls: virtual.classOfClass)
+    virtual.classOfClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
     
 }
 

@@ -165,7 +165,7 @@ public class LexParser: NSObject {
         self.init(virtual: virtual, moduleName: moduleName, module: module, code: code)
     }
     @discardableResult
-    public func nextToken() throws -> Token?{
+    public func nextToken() -> Token?{
         status = .runing
         
         preToken = curToken
@@ -280,7 +280,7 @@ public class LexParser: NSObject {
                 token.type = .logicNot
             }
         case "\"":
-            try parseString()
+            parseString()
             return curToken
         default:
             if char.isCased || char == "_" {
@@ -295,7 +295,7 @@ public class LexParser: NSObject {
                 parseNum()
                 return curToken
             }
-            throw LexParserError.unknown
+            fatalError()
         }
         seekNext()
         return curToken
@@ -345,18 +345,18 @@ extension LexParser {
         }
     }
     
-    public func consumeCurToken(expected: Token.TokenType, message: String) throws {
+    public func consumeCurToken(expected: Token.TokenType, message: String) {
         guard curToken?.type == expected else {
-            throw BuildError.general(message: message)
+            fatalError(message)
         }
-        try nextToken()
+        nextToken()
     }
     
     public func matchCurToken(expected: Token.TokenType) -> Bool {
         guard curToken?.type == expected else {
             return false
         }
-        try! nextToken()
+        nextToken()
         return true
     }
 }
@@ -452,12 +452,12 @@ extension LexParser {
 
 // MARK: 解析字符串
 extension LexParser {
-    private func parseString() throws {
+    private func parseString() {
         var tempString = ""
         while true {
             seekNext()
             guard let character = self.seekCharacter, character != "\0" else {
-                throw LexParserError.parseString
+                fatalError()
             }
             
             guard character != "\"" else {
@@ -469,10 +469,10 @@ extension LexParser {
             /// 处理内嵌表达式 %(...)
             if character == "%" {
                 if !matchNextCharacter(expected: "(") {
-                    throw LexParserError.parseString
+                    fatalError()
                 }
                 if expectationRightParenNum > 0 {
-                    throw LexParserError.parseString
+                    fatalError()
                 }
                 expectationRightParenNum = 1
                 curToken?.type = .interpolation
@@ -504,7 +504,7 @@ extension LexParser {
                 case "\\":
                     tempString.append("\\")
                 default:
-                    throw LexParserError.parseString
+                    fatalError()
                 }
             } else {
                 tempString.append(character)

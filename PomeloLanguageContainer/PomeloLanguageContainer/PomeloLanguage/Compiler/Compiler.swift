@@ -155,14 +155,14 @@ extension CompilerUnit {
     }
     
     /// 声明局部变量
-    public func declareLocalVar(name: String) throws -> Int {
+    public func declareLocalVar(name: String) -> Int {
         guard localVars.count >= maxArgNum else {
-           throw BuildError.general(message: "已分配局部变量数量超过最大值")
+           fatalError()
         }
        
         for localVar in localVars.reversed() {
            guard localVar.scopeDepth >= scopeDepth else { break }
-           guard localVar.name != name else { throw BuildError.general(message: "重新定义变量\(name)") }
+           guard localVar.name != name else { fatalError() }
         }
         return addLocalVar(name: name)
     }
@@ -170,12 +170,12 @@ extension CompilerUnit {
     @discardableResult
     public func declareVariable(name: String) -> Int {
         if scopeDepth == -1 {
-            let index = try! curLexParser.curModule.defineVar(virtual: curLexParser.virtual,
+            let index = curLexParser.curModule.defineVar(virtual: curLexParser.virtual,
                                                              name: name,
                                                              value: AnyValue(value: nil))
             return index
         }
-        return try! declareLocalVar(name: name)
+        return declareLocalVar(name: name)
     }
     
     public func defineVariable(index: Int) {
@@ -276,7 +276,7 @@ public class Variable: NSObject {
 
 
 /// 编译Module(一个Pomelo脚本文件)
-public func compileModule(virtual: Virtual, module: ModuleObject, code: String) throws -> FnObject {
+public func compileModule(virtual: Virtual, module: ModuleObject, code: String) -> FnObject {
     var lexParser: LexParser
     if let name = module.name {
         lexParser = LexParser(virtual: virtual,
@@ -297,7 +297,7 @@ public func compileModule(virtual: Virtual, module: ModuleObject, code: String) 
     
     let moduleVarNumBefor = module.vars.count
     
-    try! lexParser.nextToken()
+    lexParser.nextToken()
     
     while !lexParser.matchCurToken(expected: .eof) {
         moduleUnit.compileProgram()
@@ -310,17 +310,17 @@ public func compileModule(virtual: Virtual, module: ModuleObject, code: String) 
 
 
 /// 语法分析核心
-public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) throws {
+public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) {
     guard let curToken = unit.curLexParser.curToken else {
-        return
+        fatalError()
     }
     guard let nud = SymbolBindRule.rulues[curToken.type]?.nud else {
-        throw BuildError.unknown
+        fatalError()
     }
-    try! unit.curLexParser.nextToken()
+    unit.curLexParser.nextToken()
 
     let assign = rbp.rawValue < SymbolBindRule.BindPower.assign.rawValue
-    try! nud(unit,assign)
+    nud(unit,assign)
 
     while true {
         guard let token = unit.curLexParser.curToken else {
@@ -335,8 +335,8 @@ public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) throws
         guard let led = SymbolBindRule.rulues[token.type]?.led else {
             break
         }
-        try! unit.curLexParser.nextToken()
-        try! led(unit, assign)
+        unit.curLexParser.nextToken()
+        led(unit, assign)
     }
 }
 

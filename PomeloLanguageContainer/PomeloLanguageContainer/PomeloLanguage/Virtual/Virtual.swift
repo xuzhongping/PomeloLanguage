@@ -52,6 +52,20 @@ public class Virtual: NSObject {
     /// Thread类
     var threadClass: ClassObject!
     
+    /// 内建类
+    var builtinClasses: [ClassObject] {
+        [stringClass,
+         mapClass,
+         rangeClass,
+         listClass,
+         nullClass,
+         boolClass,
+         numClass,
+         fnClass,
+         threadClass
+        ]
+    }
+    
     /// 所有模块
     public var allModules: [String: ModuleObject]
     
@@ -71,4 +85,32 @@ public class Virtual: NSObject {
         return virtual
     }
     
+    /// 为closure在thread中创建运行时栈
+    public func createFrame(thread: ThreadObject, closure: ClosureObject, argNum: Int) {
+        thread.prepareFrame(closure: closure, stackIndex: thread.esp - argNum)
+    }
+    
+    /// 关闭栈中lastIndex以上的upvalue
+    public func closedUpvalue(thread: ThreadObject, lastIndex: Int) {
+        for i in lastIndex..<thread.openUpvalues.count {
+            let upvalue = thread.openUpvalues[i]
+            upvalue.closedUpvalue = upvalue.localVar
+        }
+    }
+    
+    /// 将localVar所属的upvalue插入openUpvalues中
+    public func createOpenUpvalue(thread: ThreadObject, localVar: AnyValue) {
+        let upvalue = UpvalueObject(virtual: self)
+        thread.openUpvalues.append(upvalue)
+    }
+    
+    /// 校验基类合法性
+    public func validateSuperClass(name: String, superClass: ClassObject, fieldNum: Int)  {
+        if builtinClasses.contains(superClass) {
+            fatalError()
+        }
+        if superClass.fieldNum + fieldNum > maxFieldNum {
+            fatalError()
+        }
+    }
 }

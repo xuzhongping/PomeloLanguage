@@ -63,14 +63,10 @@ public class FnObject: NSObject, ObjectProtocol {
 /// upvalue对象
 class UpvalueObject: NSObject, ObjectProtocol {
     var header: Header
-    var localVars: [AnyValue]
-    var closedVars: [AnyValue]
-    var next: UpvalueObject?
+    var localVar: AnyValue?
+    var closedUpvalue: AnyValue?
     init(virtual: Virtual) {
         self.header = Header(virtual: virtual, type: .upValue, cls: nil)
-        self.localVars = []
-        self.closedVars = []
-        self.next = nil
     }
 }
 
@@ -91,10 +87,10 @@ public class ClosureObject: NSObject, ObjectProtocol {
 class CallFrame {
     var ip: uint64
     var closure: ClosureObject
-    var stack: [AnyValue]
+    var stackIndex: Int
     init(virtual: Virtual, closure: ClosureObject) {
         self.closure = closure
-        self.stack = []
+        self.stackIndex = 0
         self.ip = 0
     }
 }

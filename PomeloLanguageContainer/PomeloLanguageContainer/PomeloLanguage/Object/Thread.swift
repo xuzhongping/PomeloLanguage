@@ -17,10 +17,12 @@ public class ThreadObject: NSObject, ObjectProtocol {
     var stackCapacity: Int
     
     var frames: [CallFrame]
-    var usedFrameNum: Int
+    var usedFrameNum: Int {
+        frames.count
+    }
     var frameCapacity: Int
     
-    var openUpvalue: [UpvalueObject]
+    var openUpvalues: [UpvalueObject]
     var caller: ThreadObject?
     var errorObject: AnyValue?
     
@@ -32,15 +34,14 @@ public class ThreadObject: NSObject, ObjectProtocol {
         stack = []
         stackCapacity = closure.fn.maxStackSize + 1
         esp = 0
-        usedFrameNum = 0
-        openUpvalue = []
+        openUpvalues = []
         super.init()
         resetThread(closure: closure)
     }
     
-    public func prepareFrame(closure: ClosureObject, stack: inout [AnyValue]) {
+    public func prepareFrame(closure: ClosureObject, stackIndex: Int) {
         let frame = frames[usedFrameNum + 1]
-        frame.stack = stack
+        frame.stackIndex = stackIndex
         frame.closure = closure
         //TODO:FIX
         frame.ip = 0
@@ -48,9 +49,9 @@ public class ThreadObject: NSObject, ObjectProtocol {
     
     public func resetThread(closure: ClosureObject) {
         esp = 0
-        openUpvalue = []
+        openUpvalues = []
         caller = nil
         errorObject = nil
-        prepareFrame(closure: closure, stack: &stack)
+        prepareFrame(closure: closure, stackIndex: 0)
     }
 }

@@ -9,7 +9,7 @@
 import Cocoa
 
 class Pomelo {
-    public static func run(file: String) throws {
+    public static func run(file: String)  {
         let virtual = Virtual()
 
 //        guard let lexParser = LexParser(virtual: virtual, file: file) else {
