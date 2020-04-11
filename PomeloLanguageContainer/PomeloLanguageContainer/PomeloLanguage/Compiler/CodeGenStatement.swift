@@ -12,6 +12,23 @@ import Cocoa
 public func compileStatment(unit: CompilerUnit) {
     if unit.curLexParser.matchCurToken(expected: .if_) {
         compileIfStatment(unit: unit)
+    } else if unit.curLexParser.matchCurToken(expected: .while_) {
+        compileWhileStatment(unit: unit)
+    } else if unit.curLexParser.matchCurToken(expected: .for_) {
+        compileForStatment(unit: unit)
+    } else if unit.curLexParser.matchCurToken(expected: .return_) {
+        compileReturn(unit: unit)
+    } else if unit.curLexParser.matchCurToken(expected: .break_) {
+        compileBreak(unit: unit)
+    } else if unit.curLexParser.matchCurToken(expected: .continue_) {
+        compileContinue(unit: unit)
+    } else if unit.curLexParser.matchCurToken(expected: .leftBrace) {
+        enterScope(unit: unit)
+        emitBlock(unit: unit)
+        leaveScope(unit: unit)
+    } else {
+        expression(unit: unit, rbp: .lowest)
+        writeOpCode(unit: unit, code: .POP)
     }
 }
 
@@ -35,48 +52,49 @@ public func compileIfStatment(unit: CompilerUnit) {
     }
 }
 
+/// 进入循环前的设置
+func enterLoopSetting(unit: CompilerUnit, loop: Loop) {
+    loop.condStartIndex = unit.fn.byteStream.count - 1
+    loop.scopeDepth = unit.scopeDepth
+    loop.enclosingLoop = unit.curLoop
+    unit.curLoop = loop
+}
+
+/// 编译循环体
+func compileLoopBody(unit: CompilerUnit) {
+    unit.curLoop?.bodyStartIndex = unit.fn.byteStream.count
+    compileStatment(unit: unit)
+}
+
+func leaveLoopSetting(unit: CompilerUnit) {
+    guard let loop = unit.curLoop else {
+        fatalError("not in loop")
+    }
+    let loopBackOffset = unit.fn.byteStream.count - loop.condStartIndex + 2
+    writeShortByteCode(unit: unit,
+                       code: .LOOP,
+                       operand: loopBackOffset)
+    emitPatchPlaceholder(unit: unit, absIndex: loop.exitIndex)
+    var index = loop.bodyStartIndex
+    let loopEndIndex = unit.fn.byteStream.count
+    while index < loopEndIndex {
+        if OP_CODE.END.rawValue == unit.fn.byteStream[index] {
+            unit.fn.byteStream[index] = OP_CODE.JUMP.rawValue
+            emitPatchPlaceholder(unit: unit, absIndex: index + 1)
+            index += 3
+        } else {
+            index += 1 + getBytesOfByteCode(byteStream: unit.fn.byteStream,
+                                            constants: unit.fn.constantsList,
+                                            ip: index)
+        }
+    }
+    unit.curLoop = loop.enclosingLoop
+}
+
 /// 编译while语句
 public func compileWhileStatment(unit: CompilerUnit) {
     
-    /// 进入循环前的设置
-    func enterLoopSetting(unit: CompilerUnit, loop: Loop) {
-        loop.condStartIndex = unit.fn.byteStream.count - 1
-        loop.scopeDepth = unit.scopeDepth
-        loop.enclosingLoop = unit.curLoop
-        unit.curLoop = loop
-    }
-    
-    /// 编译循环体
-    func compileLoopBody(unit: CompilerUnit) {
-        unit.curLoop?.bodyStartIndex = unit.fn.byteStream.count
-        compileStatment(unit: unit)
-    }
-    
-    func leaveLoopSetting(unit: CompilerUnit) {
-        guard let loop = unit.curLoop else {
-            fatalError("not in loop")
-        }
-        let loopBackOffset = unit.fn.byteStream.count - loop.condStartIndex + 2
-        writeShortByteCode(unit: unit,
-                           code: .LOOP,
-                           operand: loopBackOffset)
-        emitPatchPlaceholder(unit: unit, absIndex: loop.exitIndex)
-        var index = loop.bodyStartIndex
-        let loopEndIndex = unit.fn.byteStream.count
-        while index < loopEndIndex {
-            if OP_CODE.END.rawValue == unit.fn.byteStream[index] {
-                unit.fn.byteStream[index] = OP_CODE.JUMP.rawValue
-                emitPatchPlaceholder(unit: unit, absIndex: index + 1)
-                index += 3
-            } else {
-                index += 1 + getBytesOfByteCode(byteStream: unit.fn.byteStream,
-                                                constants: unit.fn.constantsList,
-                                                ip: index)
-            }
-        }
-        unit.curLoop = loop.enclosingLoop
-    }
-    
+
     let loop = Loop()
     enterLoopSetting(unit: unit, loop: loop)
     unit.curLexParser.consumeCurToken(expected: .leftParen, message: "expect '(' befor condition!")
@@ -85,6 +103,7 @@ public func compileWhileStatment(unit: CompilerUnit) {
     leaveLoopSetting(unit: unit)
 }
 
+/// 获取ip所指向的操作码的操作数占用的字节数
 func getBytesOfByteCode(byteStream: [Byte], constants: [AnyValue], ip: Int) -> Int {
     switch OP_CODE(rawValue: byteStream[ip]) {
     case .CONSTRUCT,
@@ -161,4 +180,110 @@ func getBytesOfByteCode(byteStream: [Byte], constants: [AnyValue], ip: Int) -> I
     case .none:
         return 0
     }
+}
+
+/// 编译return语句
+public func compileReturn(unit: CompilerUnit) {
+    guard let token = unit.curLexParser.curToken else {
+        fatalError()
+    }
+    if token.type == .rightBrace {
+        writeOpCode(unit: unit, code: .PUSH_NULL)
+    } else {
+        expression(unit: unit, rbp: .lowest)
+    }
+    writeOpCode(unit: unit, code: .RETURN)
+}
+
+/// 编译break语句
+public func compileBreak(unit: CompilerUnit) {
+    guard let loop = unit.curLoop else {
+        fatalError()
+    }
+    destroyLocalVar(unit: unit, scopeDepth: loop.scopeDepth + 1)
+    emitInstrWithPlaceholder(unit: unit, opCode: .END)
+}
+
+/// 编译continue语句
+public func compileContinue(unit: CompilerUnit) {
+    guard let loop = unit.curLoop else {
+        fatalError()
+    }
+    destroyLocalVar(unit: unit, scopeDepth: loop.scopeDepth + 1)
+    let loopBackOffset = unit.fn.byteStream.count - loop.condStartIndex + 2
+    writeShortByteCode(unit: unit, code: .LOOP, operand: loopBackOffset)
+}
+
+/// 销毁作用域scopeDepth之内的局部变量
+@discardableResult
+public func destroyLocalVar(unit: CompilerUnit, scopeDepth: Int) -> Int {
+    guard unit.scopeDepth > -1 else {
+        fatalError()
+    }
+    var localIndex = unit.localVarNum - 1
+    while localIndex >= 0 && unit.localVars[localIndex].scopeDepth > scopeDepth {
+        if unit.localVars[localIndex].isUpvalue {
+            writeByte(unit: unit, byte: OP_CODE.CLOSE_UPVALUE.rawValue)
+        } else {
+            writeByte(unit: unit, byte: OP_CODE.POP.rawValue)
+        }
+        localIndex -= 1
+    }
+    return unit.localVarNum - 1 - localIndex
+}
+
+/// 进入新的作用域
+func enterScope(unit: CompilerUnit) {
+    unit.scopeDepth += 1
+}
+
+/// 退出作用域
+func leaveScope(unit: CompilerUnit) {
+    if let _ = unit.enclosingUnit {
+        let destroyNum = destroyLocalVar(unit: unit, scopeDepth: unit.scopeDepth)
+        unit.localVarNum -= destroyNum
+        unit.stackSlotNum -= destroyNum
+    }
+    unit.scopeDepth -= 1
+}
+
+public func compileForStatment(unit: CompilerUnit) {
+    enterScope(unit: unit)
+    unit.curLexParser.consumeCurToken(expected: .id, message: "expect variable after for!")
+    
+    guard let loopVarName = unit.curLexParser.preToken?.value as? String else {
+        fatalError()
+    }
+    
+    unit.curLexParser.consumeCurToken(expected: .leftParen, message: "expect '(' befir sequence!")
+    
+    expression(unit: unit, rbp: .lowest)
+    
+    unit.curLexParser.consumeCurToken(expected: .rightParen, message: "expect ')' after sequence!")
+    
+    let seqSlot = unit.addLocalVar(name: "seq ")
+    writeOpCode(unit: unit, code: .PUSH_NULL)
+    let iterSlot = unit.addLocalVar(name: "iter ")
+    
+    let loop = Loop()
+    enterLoopSetting(unit: unit, loop: loop)
+    
+    writeByteCode(unit: unit, code: .LOAD_LOCAL_VAR, operand: seqSlot)
+    writeByteCode(unit: unit, code: .LOAD_LOCAL_VAR, operand: iterSlot)
+    emitCall(unit: unit, argsNum: 1, name: "iterate(_)")
+    
+    writeByteCode(unit: unit, code: .STORE_LOCAL_VAR, operand: iterSlot)
+    loop.exitIndex = emitInstrWithPlaceholder(unit: unit, opCode: .JUMP_IF_FALSE)
+    
+    writeByteCode(unit: unit, code: .LOAD_LOCAL_VAR, operand: seqSlot)
+    writeByteCode(unit: unit, code: .LOAD_LOCAL_VAR, operand: iterSlot)
+    emitCall(unit: unit, argsNum: 1, name: "iteratorValue(_)")
+
+    enterScope(unit: unit)
+    unit.addLocalVar(name: loopVarName)
+    compileLoopBody(unit: unit)
+    leaveScope(unit: unit)
+    
+    leaveLoopSetting(unit: unit)
+    leaveScope(unit: unit)
 }

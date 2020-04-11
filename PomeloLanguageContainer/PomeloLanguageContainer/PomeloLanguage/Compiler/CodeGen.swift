@@ -38,9 +38,10 @@ public func writeShortOperand(unit: CompilerUnit, operand: Int) {
 }
 
 /// 写入操作数为1字节的指令
-public func writeByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) {
+public func writeByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) -> Int {
     writeOpCode(unit: unit, code: code)
     writeByteOperand(unit: unit, operand: operand)
+    return unit.fn.byteStream.count - 1
 }
 
 /// 写入操作数为2字节的指令
@@ -301,7 +302,7 @@ public func emitSuper(unit: CompilerUnit, assign: Bool)  {
                        assign: assign)
     } else {
         emitGetterMethodCall(unit: unit,
-                                  signature: enclosingBK.signature,
+                             signature: enclosingBK.signature!,
                                   code: OP_CODE.SUPER0)
     }
 }
@@ -534,6 +535,7 @@ public func emitMapLiteral(unit: CompilerUnit, assign: Bool)  {
 }
 
 /// 生成用占位符作为参数设置指令
+@discardableResult
 public func emitInstrWithPlaceholder(unit: CompilerUnit, opCode: OP_CODE) -> Int {
     writeOpCode(unit: unit, code: opCode)
     writeByte(unit: unit, byte: 0xFF)

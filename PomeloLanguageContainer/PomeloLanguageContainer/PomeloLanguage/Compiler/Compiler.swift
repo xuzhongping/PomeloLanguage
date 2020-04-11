@@ -59,14 +59,13 @@ public class ClassBookKeep {
     var inStatic: Bool
     var instanceMethods: [Index]
     var staticMethods: [Index]
-    var signature: Signature
-    
-    init(name: String, fields: (name: String, value: AnyValue), instanceMethods: [Index], staticMethods: [Index], signature: Signature) {
+    var signature: Signature?
+        
+    init(name: String) {
         self.name = name
-        self.fields = [fields]
-        self.instanceMethods = instanceMethods
-        self.staticMethods = staticMethods
-        self.signature = signature
+        self.fields = []
+        self.instanceMethods = []
+        self.staticMethods = []
         self.inStatic = false
     }
 }
@@ -146,6 +145,7 @@ extension CompilerUnit {
     }
     
     /// 添加局部变量
+    @discardableResult
     public func addLocalVar(name: String) -> Int {
         let localVar = LocalVar(name: name)
         localVar.scopeDepth = scopeDepth
