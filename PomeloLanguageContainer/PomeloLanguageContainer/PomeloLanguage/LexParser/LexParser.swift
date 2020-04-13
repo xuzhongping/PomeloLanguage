@@ -365,23 +365,23 @@ extension LexParser {
 }
 
 extension LexParser {
-    private func parseId() {
-        func isKeyword() -> Bool {
-            for keyboard in LexParser.keyboardsTable {
-                let subString = code.subString(range: NSRange(location: position, length: keyboard.length))
-                if subString == keyboard.string {
-                    curToken?.type = keyboard.type
-                    seek(offset: keyboard.length)
-                    return true
-                }
+    
+    func isKeyword() -> Bool {
+        for keyboard in LexParser.keyboardsTable {
+            let subString = code.subString(range: NSRange(location: position, length: keyboard.length))
+            if subString == keyboard.string {
+                curToken?.type = keyboard.type
+                seek(offset: keyboard.length)
+                return true
             }
-            return false
         }
-        
+        return false
+    }
+    private func parseId() {
         if isKeyword() {
-            seekNext()
             return
         }
+        
         var tempString = ""
         while let character = self.curChar,character.isCased {
             tempString.append(character)
