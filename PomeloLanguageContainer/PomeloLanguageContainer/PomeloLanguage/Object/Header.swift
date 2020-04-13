@@ -10,7 +10,7 @@ import Cocoa
 
 public class Header: NSObject {
     
-    enum ObjectType {
+    public enum ObjectType {
         case none
         case class_
         case list

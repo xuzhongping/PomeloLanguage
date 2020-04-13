@@ -10,8 +10,7 @@ import Cocoa
 
 public let InitialFrameNum = 0
 
-public class ThreadObject: NSObject, ObjectProtocol {
-    public var header: Header
+public class ThreadObject: BaseObject {
     var stack: [AnyValue]
     var esp: Index
     var stackCapacity: Int
@@ -27,21 +26,19 @@ public class ThreadObject: NSObject, ObjectProtocol {
     var errorObject: AnyValue?
     
     init(virtual: Virtual, closure: ClosureObject) {
-        //TODO: 设置ThreadClass
-        self.header = Header(virtual: virtual, type: .thread, cls: nil)
         frames = []
         frameCapacity = InitialFrameNum
         stack = []
         stackCapacity = closure.fn.maxStackSize + 1
         esp = 0
         openUpvalues = []
-        super.init()
+        super.init(virtual: virtual, type: .thread, cls: nil)
         resetThread(closure: closure)
     }
     
     public func prepareFrame(closure: ClosureObject, stackIndex: Int) {
         let frame = frames[usedFrameNum + 1]
-        frame.stackIndex = stackIndex
+        frame.stackStart = stackIndex
         frame.closure = closure
         //TODO:FIX
         frame.ip = 0

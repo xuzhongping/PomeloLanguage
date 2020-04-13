@@ -8,13 +8,12 @@
 
 import Cocoa
 
-public class ListObject: NSObject, ObjectProtocol {
-    public var header: Header
+public class ListObject: BaseObject {
     var container: [Any]
     init(virtual: Virtual) {
         //TODO: 设置ListClass
-        self.header = Header(virtual: virtual, type: .list, cls: nil)
         self.container = []
+        super.init(virtual: virtual, type: .list, cls: nil)
     }
     
     public func removeAt(index: Int) {

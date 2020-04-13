@@ -12,7 +12,7 @@ class ViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        Pomelo.run(file: "/Users/xuzhongping/Desktop/work/MyGithub/PomeloLanguage/PomeloLanguage/sample.sp")
+        Pomelo.run(file: "\(Bundle.main.path(forResource: "sample", ofType: "sp") ?? "")")
     }
 
     override var representedObject: Any? {

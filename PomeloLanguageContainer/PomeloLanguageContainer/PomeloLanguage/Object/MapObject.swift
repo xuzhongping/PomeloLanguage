@@ -8,13 +8,12 @@
 
 import Cocoa
 
-public class MapObject: NSObject, ObjectProtocol {
-    public var header: Header
+public class MapObject: BaseObject {
     var contaniner: [String: Any]
     init(virtual: Virtual) {
         //TODO: 设置MapClass
-        self.header = Header(virtual: virtual, type: .map, cls: nil)
         self.contaniner = [:]
+        super.init(virtual: virtual, type: .map, cls: nil)
     }
     public func set(key: String, value: Any) {
         self.contaniner[key] = value

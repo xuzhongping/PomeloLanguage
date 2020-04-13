@@ -9,12 +9,9 @@
 import Cocoa
 
 /// 模块对象
-public class ModuleObject: NSObject, ObjectProtocol {
+public class ModuleObject: BaseObject {
     
     public typealias Var = (name: String, value: AnyValue)
-    
-    public var header: Header
-    
     /// 被引用，但是未定义的变量名集合
     var undefinedIvarNames: Set<String>
     
@@ -23,10 +20,10 @@ public class ModuleObject: NSObject, ObjectProtocol {
     
     var name: String?
     init(name: String, virtual: Virtual) {
-        self.header = Header(virtual: virtual, type: .module, cls: nil) // module为元信息对象，不属于任何一个类
         self.name = name
         self.vars = []
         self.undefinedIvarNames = Set<String>()
+        super.init(virtual: virtual, type: .module, cls: nil)// module为元信息对象，不属于任何一个类
     }
     
     @discardableResult

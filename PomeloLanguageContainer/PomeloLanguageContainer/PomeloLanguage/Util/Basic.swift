@@ -8,10 +8,17 @@
 
 import Cocoa
 
+public class BaseObject: NSObject{
+    public var header: Header
+    public init(virtual: Virtual, type: Header.ObjectType, cls: ClassObject?){
+        header = Header(virtual: virtual, type: type, cls: cls)
+        super.init()
+    }
+}
 
 
 public class AnyValue: NSObject {
-    var value: Any?
+    private var value: Any?
     init(value: Any?) {
         self.value = value
     }
@@ -93,6 +100,10 @@ extension AnyValue {
     public func isThreadObject() -> Bool {
        return value is ThreadObject
     }
+    
+    public func isFnObject() -> Bool {
+       return value is FnObject
+    }
 }
 
 extension AnyValue {
@@ -110,6 +121,8 @@ extension AnyValue {
             return virtual.rangeClass
         case is ThreadObject:
             return virtual.threadClass
+        case is FnObject:
+            return virtual.fnClass
         default:
             return virtual.nullClass
         }

@@ -12,8 +12,11 @@ import Cocoa
 public struct Method {
     enum MethodType {
         case none
+        /// 原生函数
         case native
+        /// 脚本方法
         case script
+        /// 脚本函数
         case call
     }
     
@@ -36,11 +39,11 @@ public struct Method {
 }
 
 /// 指令流对象
-public class FnObject: NSObject, ObjectProtocol {
-    public var header: Header
+public class FnObject: BaseObject {
     public var byteStream: [Byte]
     var constantsList: [AnyValue]
     var module: ModuleObject
+    
     var maxStackSize: Int
     var upvalueCount: Int
     var argNum: Int
@@ -48,49 +51,49 @@ public class FnObject: NSObject, ObjectProtocol {
     #if DEBUG
     var debug: FnDebug?
     #endif
+    
     init(virtual: Virtual, module: ModuleObject, maxStackSize: Int) {
-        self.header = Header(virtual: virtual, type: .function, cls: nil)
         self.module = module
         self.maxStackSize = maxStackSize
         self.byteStream = []
         self.constantsList = []
         self.upvalueCount = 0
         self.argNum = 0
+        super.init(virtual: virtual, type: .function, cls: nil)
     }
 }
 
 
 /// upvalue对象
-class UpvalueObject: NSObject, ObjectProtocol {
-    var header: Header
+class UpvalueObject: BaseObject {
     var localVar: AnyValue?
     var closedUpvalue: AnyValue?
     init(virtual: Virtual) {
-        self.header = Header(virtual: virtual, type: .upValue, cls: nil)
+        super.init(virtual: virtual, type: .upValue, cls: nil)
     }
 }
 
 
 /// 闭包对象
-public class ClosureObject: NSObject, ObjectProtocol {
-    public var header: Header
+public class ClosureObject: BaseObject {
     var fn: FnObject
     var upvalues: [UpvalueObject]
+    
     init(virtual: Virtual, fn: FnObject) {
-        self.header = Header(virtual: virtual, type: .closure, cls: nil)
         self.fn = fn
         self.upvalues = []
+        super.init(virtual: virtual, type: .closure, cls: nil)
     }
 }
 
 /// 调用框架
 class CallFrame {
-    var ip: uint64
+    var ip: Index
     var closure: ClosureObject
-    var stackIndex: Int
+    var stackStart: Index
     init(virtual: Virtual, closure: ClosureObject) {
         self.closure = closure
-        self.stackIndex = 0
+        self.stackStart = 0
         self.ip = 0
     }
 }

@@ -39,10 +39,10 @@ public class LocalVar {
 
 
 class Loop {
-    var condStartIndex: Int
-    var bodyStartIndex: Int
+    var condStartIndex: Index
+    var bodyStartIndex: Index
     var scopeDepth: Int
-    var exitIndex: Int
+    var exitIndex: Index
     var enclosingLoop: Loop?
     init() {
         condStartIndex = 0
@@ -267,8 +267,8 @@ public class Variable: NSObject {
         case module
     }
     var type: ScopeType
-    var index: Int
-    init(type: ScopeType, index: Int) {
+    var index: Index
+    init(type: ScopeType, index: Index) {
         self.type = type
         self.index = index
     }

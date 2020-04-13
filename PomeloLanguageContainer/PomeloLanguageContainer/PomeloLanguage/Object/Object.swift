@@ -9,18 +9,11 @@
 import Foundation
 
 
-/// 所有对象都需要遵守此协议
-public protocol ObjectProtocol {
-    var header: Header { get set }
-}
-
-
 /// 普通实例对象
-class instanceObject: NSObject, ObjectProtocol {
-    var header: Header
+class instanceObject: BaseObject {
     var ivarTable: [String: Any]
     init(cls: ClassObject, virtual: Virtual) {
-        self.header = Header(virtual: virtual, type: .instance, cls: cls)
         self.ivarTable = [:]
+        super.init(virtual: virtual, type: .instance, cls: cls)
     }
 }

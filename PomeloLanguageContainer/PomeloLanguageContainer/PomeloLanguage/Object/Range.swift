@@ -8,14 +8,13 @@
 
 import Cocoa
 
-public class RangeObject: NSObject, ObjectProtocol {
-    public var header: Header
+public class RangeObject: BaseObject {
     var from: Int
     var to: Int
     init(virtual: Virtual, from: Int, to: Int) {
         //TODO: 设置RangeClass
-        self.header = Header(virtual: virtual, type: .range, cls: nil)
         self.from = from
         self.to = to
+        super.init(virtual: virtual, type: .range, cls: nil)
     }
 }

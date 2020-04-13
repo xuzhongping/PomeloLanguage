@@ -10,10 +10,7 @@ import Cocoa
 
 
 
-public class ClassObject: NSObject, ObjectProtocol {
-    /// 指向metaClass
-    public var header: Header
-    
+public class ClassObject: BaseObject {
     /// 基类
     var superClass: ClassObject?
     
@@ -24,10 +21,10 @@ public class ClassObject: NSObject, ObjectProtocol {
     var name: String
     
     init(virtual: Virtual, header: Header, superClass: ClassObject?, name: String) {
-        self.header = header
         self.superClass = superClass
         self.name = name
         self.methods = [:]
+        super.init(virtual: virtual, type: header.type, cls: header.cls)
     }
     
     /// 创建一个裸类
