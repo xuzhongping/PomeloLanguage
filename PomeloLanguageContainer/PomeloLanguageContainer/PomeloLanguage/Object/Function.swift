@@ -20,7 +20,7 @@ public struct Method {
         case call
     }
     
-    public typealias NativeFnObject = (_ virtual: Virtual, _ args:inout [AnyValue]) -> Bool
+    public typealias NativeFnObject = (_ virtual: Virtual, _ argsIndex: Index) -> Bool
     
     var type: MethodType
     var nativeImp: NativeFnObject?

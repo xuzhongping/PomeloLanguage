@@ -17,13 +17,13 @@ public class ClassObject: BaseObject {
     /// 域的个数存储在类中
     var fieldNum: Int = 0
     /// key: 方法签名 value: 方法实现
-    var methods: SymbolTable<Selector, Method>
+    var methods: [Method]
     var name: String
     
     init(virtual: Virtual, header: Header, superClass: ClassObject?, name: String) {
         self.superClass = superClass
         self.name = name
-        self.methods = [:]
+        self.methods = []
         super.init(virtual: virtual, type: header.type, cls: header.cls)
     }
     

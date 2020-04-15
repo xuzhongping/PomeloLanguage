@@ -75,6 +75,13 @@ extension AnyValue {
        return obj
     }
     
+    public func toClosureObject() -> ClosureObject? {
+       guard let obj = value as? ClosureObject else {
+           return nil
+       }
+       return obj
+    }
+    
     public func toFnObject() -> FnObject? {
        guard let obj = value as? FnObject else {
            return nil
@@ -112,6 +119,10 @@ extension AnyValue {
        return value is ThreadObject
     }
     
+    public func isClosureObject() -> Bool {
+       return value is ClosureObject
+    }
+    
     public func isFnObject() -> Bool {
        return value is FnObject
     }
@@ -124,6 +135,8 @@ extension AnyValue {
             return virtual.boolClass
         case is ClassObject:
             return virtual.classOfClass
+        case is InstanceObject:
+            return toInstanceObject()!.header.cls!
         case is ListObject:
             return virtual.listClass
         case is MapObject:

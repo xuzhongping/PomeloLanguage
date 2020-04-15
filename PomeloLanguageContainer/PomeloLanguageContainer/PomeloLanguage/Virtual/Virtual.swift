@@ -178,10 +178,123 @@ public class Virtual: NSObject {
                     fatalError()
                 }
                 push(value: self.fn!.constantsList[value])
+            
+            case .CALL0,
+                 .CALL1,
+                 .CALL2,
+                 .CALL3,
+                 .CALL4,
+                 .CALL5,
+                 .CALL6,
+                 .CALL7,
+                 .CALL8,
+                 .CALL9,
+                 .CALL10,
+                 .CALL11,
+                 .CALL12,
+                 .CALL13,
+                 .CALL14,
+                 .CALL15,
+                 .CALL16:
+                let argNum = opCode.rawValue - OP_CODE.CALL0.rawValue + 1
+                guard let index = readShort() else {
+                    fatalError()
+                }
+                let argsIndex = self.thread!.esp - Int(argNum)
+                let classObject = self.thread!.stack[argsIndex].getClass(virtual: self)
+                invokeMethod(argNum: Int(argNum),
+                             index: index,
+                             argsIndex: argsIndex,
+                             cls: classObject)
+            case .SUPER0,
+                 .SUPER1,
+                 .SUPER2,
+                 .SUPER3,
+                 .SUPER4,
+                 .SUPER5,
+                 .SUPER6,
+                 .SUPER7,
+                 .SUPER8,
+                 .SUPER9,
+                 .SUPER10,
+                 .SUPER11,
+                 .SUPER12,
+                 .SUPER13,
+                 .SUPER14,
+                 .SUPER15,
+                 .SUPER16:
+                let argNum = opCode.rawValue - OP_CODE.SUPER0.rawValue + 1
+                guard let index = readShort() else {
+                    fatalError()
+                }
+                let argsIndex = self.thread!.esp - Int(argNum)
+                guard let constIndex = readShort() else {
+                    fatalError()
+                }
+                guard let classObject = self.fn!.constantsList[constIndex].toClassObject() else {
+                    fatalError()
+                }
+                
+                if let result = invokeMethod(argNum: Int(argNum),
+                                             index: index,
+                                             argsIndex: argsIndex,
+                                             cls: classObject) {
+                    return result
+                }
             default: break
                 
             }
         }
+    }
+    
+    private func invokeMethod(argNum: Int, index: Index, argsIndex: Index, cls: ClassObject) -> Virtual.result? {
+        guard index < cls.methods.count else {
+            fatalError("method \(allMethodNames[index]) not found")
+        }
+        let method = cls.methods[index]
+        if method.type == .none {
+            fatalError("method \(allMethodNames[index]) not found")
+        }
+        switch method.type {
+        case .native:
+            if method.nativeImp!(self, argsIndex) {
+                self.thread!.esp -= argNum - 1
+            } else {
+                storeFrame()
+                if self.thread == nil {
+                    return .success
+                }
+                loadFrame()
+                if let errObj = self.thread?.errorObject {
+                    print(errObj)
+                    peekSet(value: AnyValue(value: nil))
+                }
+                if self.thread == nil {
+                    return .success
+                }
+                loadFrame()
+            }
+        case .script:
+            storeFrame()
+            createFrame(thread: self.thread!, closure: method.scriptImp!, argNum: argNum)
+            loadFrame()
+        case .call:
+            guard let fnObject = thread!.stack[stackStart].toClosureObject()?.fn else {
+                fatalError("instance must be a closure")
+            }
+            if argNum - 1 < fnObject.argNum {
+                fatalError("arguments less")
+            }
+            storeFrame()
+            guard let closureObject = thread!.stack[stackStart].toClosureObject() else {
+                fatalError("instance must be a closure")
+            }
+            createFrame(thread: thread!, closure: closureObject, argNum: argNum)
+            loadFrame()
+        default:
+            fatalError()
+        }
+        return nil
     }
 }
 
@@ -218,12 +331,26 @@ extension Virtual {
         return thread.stack[thread.esp - 1]
     }
     
+    func peekSet(value: AnyValue) {
+        guard let thread = self.thread else {
+            fatalError()
+        }
+        thread.stack[thread.esp - 1] = value
+    }
+    
     /// 获得次栈顶的数据
     func peek2() -> AnyValue {
         guard let thread = self.thread else {
             fatalError()
         }
         return thread.stack[thread.esp - 2]
+    }
+    
+    func peek2Set(value: AnyValue) {
+        guard let thread = self.thread else {
+            fatalError()
+        }
+        thread.stack[thread.esp - 2] = value
     }
     
     /// 读取1个字节
@@ -251,8 +378,8 @@ extension Virtual {
         return Int(fn!.byteStream[ip - 2]) << 8 | Int(fn!.byteStream[ip - 1])
     }
     
-    func storeFrame(frame: CallFrame, ip: Index) {
-        frame.ip = ip
+    func storeFrame() {
+        frame?.ip = ip
     }
     
     func loadFrame() {
