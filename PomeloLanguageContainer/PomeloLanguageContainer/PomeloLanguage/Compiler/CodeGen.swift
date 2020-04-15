@@ -38,6 +38,7 @@ public func writeShortOperand(unit: CompilerUnit, operand: Int) {
 }
 
 /// 写入操作数为1字节的指令
+@discardableResult
 public func writeByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) -> Int {
     writeOpCode(unit: unit, code: code)
     writeByteOperand(unit: unit, operand: operand)

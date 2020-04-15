@@ -39,6 +39,13 @@ extension AnyValue {
         return obj
     }
     
+    public func toInstanceObject() -> InstanceObject? {
+        guard let obj = value as? InstanceObject else {
+            return nil
+        }
+        return obj
+    }
+    
     public func toListObject() -> ListObject? {
         guard let obj = value as? ListObject else {
             return nil
@@ -83,6 +90,10 @@ extension AnyValue {
     
     public func isClassObject() -> Bool {
         return value is ClassObject
+    }
+    
+    public func isInstanceObject() -> Bool {
+        return value is InstanceObject
     }
     
     public func isListObject() -> Bool {

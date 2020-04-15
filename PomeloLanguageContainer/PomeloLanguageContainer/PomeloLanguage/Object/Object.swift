@@ -10,10 +10,10 @@ import Foundation
 
 
 /// 普通实例对象
-class instanceObject: BaseObject {
-    var ivarTable: [String: Any]
+public class InstanceObject: BaseObject {
+    var fields: [AnyValue]
     init(cls: ClassObject, virtual: Virtual) {
-        self.ivarTable = [:]
+        self.fields = []
         super.init(virtual: virtual, type: .instance, cls: cls)
     }
 }
