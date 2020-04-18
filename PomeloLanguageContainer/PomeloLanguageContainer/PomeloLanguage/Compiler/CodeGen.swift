@@ -13,10 +13,13 @@ import Cocoa
 public func writeByte(unit: CompilerUnit, byte: Byte) -> Int{
     #if DEBUG
     //TODO: 写入行号
+    if let token = unit.curLexParser.preToken {
+        unit.fn.byteStream.append(Byte(token.line))
+    }
     #endif
     unit.fn.byteStream.append(byte)
     
-    return unit.fn.byteStream.count - 1
+    return unit.fn.byteStream.lastIndex
  }
 
 /// 写入操作码
@@ -42,7 +45,7 @@ public func writeShortOperand(unit: CompilerUnit, operand: Int) {
 public func writeByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) -> Int {
     writeOpCode(unit: unit, code: code)
     writeByteOperand(unit: unit, operand: operand)
-    return unit.fn.byteStream.count - 1
+    return unit.fn.byteStream.lastIndex
 }
 
 /// 写入操作数为2字节的指令

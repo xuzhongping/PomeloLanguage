@@ -42,6 +42,8 @@
 		ED81C2A9243109E00066CC67 /* CodeGen.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A8243109E00066CC67 /* CodeGen.swift */; };
 		ED84C6102444C16F00A453DC /* sample.sp in Resources */ = {isa = PBXBuildFile; fileRef = ED84C60F2444C16F00A453DC /* sample.sp */; };
 		EDC1DECC244B219300FAEC97 /* Virtual.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1DECB244B219300FAEC97 /* Virtual.swift */; };
+		EDC1DECF244B46BB00FAEC97 /* core.po in Sources */ = {isa = PBXBuildFile; fileRef = EDC1DECE244B46BB00FAEC97 /* core.po */; };
+		EDC1DED1244B4AA600FAEC97 /* PoLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1DED0244B4AA600FAEC97 /* PoLoader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -102,8 +104,10 @@
 		ED81C2A4242FAC640066CC67 /* Basic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Basic.swift; sourceTree = "<group>"; };
 		ED81C2A624307DA30066CC67 /* Symbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
 		ED81C2A8243109E00066CC67 /* CodeGen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGen.swift; sourceTree = "<group>"; };
-		ED84C60F2444C16F00A453DC /* sample.sp */ = {isa = PBXFileReference; lastKnownFileType = text; path = sample.sp; sourceTree = SOURCE_ROOT; };
+		ED84C60F2444C16F00A453DC /* sample.sp */ = {isa = PBXFileReference; lastKnownFileType = text; name = sample.sp; path = PomeloLanguageContainer/PomeloLanguage/inc/sample.sp; sourceTree = SOURCE_ROOT; };
 		EDC1DECB244B219300FAEC97 /* Virtual.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
+		EDC1DECE244B46BB00FAEC97 /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = core.po; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = "<none>"; };
+		EDC1DED0244B4AA600FAEC97 /* PoLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoLoader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,7 +161,6 @@
 				C0379515242CFD2C00A5F27F /* PomeloLanguage */,
 				C03794B6242CFCF500A5F27F /* AppDelegate.swift */,
 				C03794B8242CFCF500A5F27F /* ViewController.swift */,
-				ED84C60F2444C16F00A453DC /* sample.sp */,
 				C03794BA242CFCF700A5F27F /* Assets.xcassets */,
 				C03794BC242CFCF700A5F27F /* Main.storyboard */,
 				C03794BF242CFCF700A5F27F /* Info.plist */,
@@ -249,6 +252,7 @@
 		C0379515242CFD2C00A5F27F /* PomeloLanguage */ = {
 			isa = PBXGroup;
 			children = (
+				EDC1DECD244B46AC00FAEC97 /* inc */,
 				C03794ED242CFD2000A5F27F /* Compiler */,
 				C03794F6242CFD2000A5F27F /* LexParser */,
 				C03794E2242CFD2000A5F27F /* Object */,
@@ -257,6 +261,16 @@
 				C03794F0242CFD2000A5F27F /* Virtual */,
 			);
 			path = PomeloLanguage;
+			sourceTree = "<group>";
+		};
+		EDC1DECD244B46AC00FAEC97 /* inc */ = {
+			isa = PBXGroup;
+			children = (
+				ED84C60F2444C16F00A453DC /* sample.sp */,
+				EDC1DECE244B46BB00FAEC97 /* core.po */,
+				EDC1DED0244B4AA600FAEC97 /* PoLoader.swift */,
+			);
+			path = inc;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -393,6 +407,7 @@
 				C0379505242CFD2100A5F27F /* Object.swift in Sources */,
 				C0379503242CFD2100A5F27F /* Header.swift in Sources */,
 				C0379512242CFD2100A5F27F /* Error.swift in Sources */,
+				EDC1DECF244B46BB00FAEC97 /* core.po in Sources */,
 				C037950D242CFD2100A5F27F /* NativeFn.swift in Sources */,
 				C03794FE242CFD2100A5F27F /* ClassObject.swift in Sources */,
 				ED7B78AA2442009E00DB2F2D /* CodeGenStatement.swift in Sources */,
@@ -410,6 +425,7 @@
 				C03794FF242CFD2100A5F27F /* MapObject.swift in Sources */,
 				C0379500242CFD2100A5F27F /* Range.swift in Sources */,
 				C0379510242CFD2100A5F27F /* Constant.swift in Sources */,
+				EDC1DED1244B4AA600FAEC97 /* PoLoader.swift in Sources */,
 				C0379513242CFD2100A5F27F /* Alias.swift in Sources */,
 				C0379511242CFD2100A5F27F /* Unicode.swift in Sources */,
 				C0379506242CFD2100A5F27F /* Function.swift in Sources */,

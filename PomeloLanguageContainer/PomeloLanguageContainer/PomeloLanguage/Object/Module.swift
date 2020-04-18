@@ -90,6 +90,43 @@ public func loadModule(virtual: Virtual, name: String, code: String)  -> ThreadO
     return ThreadObject(virtual: virtual, closure: closureObj)
 }
 
+/// 编译Module(一个Pomelo脚本文件)
+public func compileModule(virtual: Virtual, module: ModuleObject, code: String) -> FnObject {
+    var lexParser: LexParser
+    if let name = module.name {
+        lexParser = LexParser(virtual: virtual,
+                              moduleName: name,
+                              module: module,
+                              code: code)
+    } else {
+        lexParser = LexParser(virtual: virtual,
+                              moduleName: "core.script.inc",
+                              module: module,
+                              code: code)
+    }
+    
+    let moduleUnit = CompilerUnit(lexParser: lexParser,
+                                  enclosingUnit: nil,
+                                  isMethod: false)
+    
+    
+    let moduleVarNumBefor = module.moduleVarNames.count
+    
+    lexParser.nextToken()
+    
+    while !lexParser.matchCurToken(expected: .eof) {
+        moduleUnit.compileProgram()
+    }
+    
+    print("there is something to do...")
+    exit(0)
+    
+    return FnObject(virtual: virtual,
+                    module: module,
+                    maxStackSize: 100)
+}
+
+
 public func executeModule(virtual: Virtual, name: String, code: String) -> Virtual.result {
     let _ = loadModule(virtual: virtual, name: name, code: code)
     return .success

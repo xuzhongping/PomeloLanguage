@@ -13,9 +13,13 @@ import Cocoa
 // MARK: Module
 
 public func buildCore(virtual: Virtual) {
+    
 
     let coreModule = ModuleObject(name: ModuleNameCore, virtual: virtual)
-    virtual.allModules[ModuleNameCore] = coreModule
+    
+    let coreModuleCode = PoLoader.loadCore()
+    
+    virtual.allModules[ModuleNameCore] = AnyValue(value: coreModule)
     
     /// 创建Object类
     virtual.objectClass = ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassNameObject)
@@ -52,6 +56,9 @@ public func buildCore(virtual: Virtual) {
     
     virtual.classOfClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
     
+    
+    
+    executeModule(virtual: virtual, name: ModuleNameCore, code: coreModuleCode)
 }
 
 

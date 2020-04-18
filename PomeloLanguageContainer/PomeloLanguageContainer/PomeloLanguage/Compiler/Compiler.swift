@@ -77,11 +77,8 @@ public class CompilerUnit: NSObject {
     /// 当前编译函数
     var fn: FnObject
     
-    /// 当前作用域允许的局部变量数量上限
+    /// 当前作用域的局部变量
     var localVars: [LocalVar]
-    
-    /// 已分配的局部变量个数
-    var localVarNum: Int
     
     /// 记录本层函数所引用的upvalue
     var upvalues: [Upvalue]
@@ -108,10 +105,11 @@ public class CompilerUnit: NSObject {
         self.curLexParser = lexParser
         self.enclosingUnit = enclosingUnit
         self.enclosingClassBK = nil
-        self.localVarNum = 1
         self.stackSlotNum = 1
         self.localVars = []
         self.upvalues = []
+        
+        // 有外层单元，这里是局部作用域
         if let _ = enclosingUnit {
             if isMethod {
                 let thisLocalVar = LocalVar(name: "this")
@@ -120,18 +118,20 @@ public class CompilerUnit: NSObject {
                 let thisLocalVar = LocalVar(name: nil)
                 self.localVars.append(thisLocalVar)
             }
-            self.localVars.first?.scopeDepth = -1
-            self.scopeDepth = 0
+            
+            localVars.first?.scopeDepth = -1
+            scopeDepth = 0
         } else {
             /// 没有外层编译单元，说明是模块作用域
             /// 模块作用域为-1
-            self.scopeDepth = -1
-            self.localVarNum = 0
+            scopeDepth = -1
         }
         self.fn = FnObject(virtual: curLexParser.virtual,
                            module: curLexParser.curModule,
-                           maxStackSize: self.localVarNum)
+                           maxStackSize: localVars.count)
+        
         super.init()
+        
         lexParser.curCompileUnit = self
     }
 }
@@ -275,38 +275,7 @@ public class Variable: NSObject {
 }
 
 
-/// 编译Module(一个Pomelo脚本文件)
-public func compileModule(virtual: Virtual, module: ModuleObject, code: String) -> FnObject {
-    var lexParser: LexParser
-    if let name = module.name {
-        lexParser = LexParser(virtual: virtual,
-                              moduleName: name,
-                              module: module,
-                              code: code)
-    } else {
-        lexParser = LexParser(virtual: virtual,
-                              moduleName: "core.script.inc",
-                              module: module,
-                              code: code)
-    }
-    
-    let moduleUnit = CompilerUnit(lexParser: lexParser,
-                                  enclosingUnit: nil,
-                                  isMethod: false)
-    
-    
-    let moduleVarNumBefor = module.vars.count
-    
-    lexParser.nextToken()
-    
-    while !lexParser.matchCurToken(expected: .eof) {
-        moduleUnit.compileProgram()
-    }
-    
-    return FnObject(virtual: virtual,
-                    module: module,
-                    maxStackSize: 100)
-}
+
 
 
 /// 语法分析核心
