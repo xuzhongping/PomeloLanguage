@@ -16,8 +16,10 @@ public class ClassObject: BaseObject {
     
     /// 域的个数存储在类中
     var fieldNum: Int = 0
-    /// key: 方法签名 value: 方法实现
+    
+    /// 方法表
     var methods: [Method]
+    
     var name: String
     
     init(virtual: Virtual, header: Header, superClass: ClassObject?, name: String) {
@@ -55,14 +57,16 @@ public class ClassObject: BaseObject {
         return cls
     }
     
-    public func bindMethod(virtual: Virtual, selector: String, method: Method) {
-        methods[selector] = method
+    /// 绑定方法
+    public func bindMethod(virtual: Virtual, index: Index, method: Method) {
+        methods[index] = method
     }
     
     /// 绑定原生方法
     public func bindNativeMethod(virtual: Virtual, selector: String,  imp: @escaping Method.NativeFnObject) {
         let method = Method(nativeImp: imp)
-        bindMethod(virtual: virtual, selector: selector, method: method)
+        let methodIndex = ensureSymbolExist(virtual: virtual, symbolList: &virtual.allMethodNames, name: selector)
+        bindMethod(virtual: virtual, index: methodIndex, method: method)
     }
 
     
@@ -72,8 +76,9 @@ public class ClassObject: BaseObject {
         self.fieldNum += superClass.fieldNum
         
         /// 继承方法
-        for (selector, method) in superClass.methods {
-            bindMethod(virtual: virtual, selector: selector, method: method)
+        for i in 0..<superClass.methods.count {
+            let method = superClass.methods[i]
+            bindMethod(virtual: virtual, index: i, method: method)
         }
     }
     

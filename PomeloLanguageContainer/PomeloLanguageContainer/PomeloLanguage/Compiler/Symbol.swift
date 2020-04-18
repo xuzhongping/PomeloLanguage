@@ -317,7 +317,7 @@ public func ensureSymbolExist(virtual: Virtual, symbolList: inout [String], name
         return index
     }
     symbolList.append(name)
-    return symbolList.count - 1
+    return symbolList.lastIndex
 }
 
 public func getIndexFromSymbolList(list: [(name: String, value: AnyValue)], target: String) -> Int {

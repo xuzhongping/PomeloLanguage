@@ -84,7 +84,7 @@ func leaveLoopSetting(unit: CompilerUnit) {
             index += 3
         } else {
             index += 1 + getBytesOfByteCode(byteStream: unit.fn.byteStream,
-                                            constants: unit.fn.constantsList,
+                                            constants: unit.fn.constants,
                                             ip: index)
         }
     }

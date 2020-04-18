@@ -9,7 +9,7 @@
 import Cocoa
 
 /// 方法对象
-public struct Method {
+public class Method {
     enum MethodType {
         case none
         /// 原生函数
@@ -20,19 +20,22 @@ public struct Method {
         case call
     }
     
-    public typealias NativeFnObject = (_ virtual: Virtual, _ argsIndex: Index) -> Bool
+    public typealias NativeFnObject = (_ virtual: Virtual,_ stack: inout [AnyValue], _ argsStart: Index) -> Bool
     
     var type: MethodType
     var nativeImp: NativeFnObject?
     var scriptImp: ClosureObject?
+    
     init(type: MethodType) {
         self.type = type
     }
-    init(nativeImp: @escaping NativeFnObject) {
+    
+    convenience init(nativeImp: @escaping NativeFnObject) {
         self.init(type: .native)
         self.nativeImp = nativeImp
     }
-    init(scriptImp: ClosureObject) {
+    
+    convenience init(scriptImp: ClosureObject) {
         self.init(type: .script)
         self.scriptImp = scriptImp
     }
@@ -41,7 +44,7 @@ public struct Method {
 /// 指令流对象
 public class FnObject: BaseObject {
     public var byteStream: [Byte]
-    var constantsList: [AnyValue]
+    var constants: [AnyValue]
     var module: ModuleObject
     
     var maxStackSize: Int
@@ -56,7 +59,7 @@ public class FnObject: BaseObject {
         self.module = module
         self.maxStackSize = maxStackSize
         self.byteStream = []
-        self.constantsList = []
+        self.constants = []
         self.upvalueCount = 0
         self.argNum = 0
         super.init(virtual: virtual, type: .function, cls: nil)
@@ -91,10 +94,10 @@ class CallFrame {
     var ip: Index
     var closure: ClosureObject
     var stackStart: Index
-    init(virtual: Virtual, closure: ClosureObject) {
+    init(closure: ClosureObject, stackStart: Index, ip: Index) {
         self.closure = closure
-        self.stackStart = 0
-        self.ip = 0
+        self.stackStart = stackStart
+        self.ip = ip
     }
 }
 

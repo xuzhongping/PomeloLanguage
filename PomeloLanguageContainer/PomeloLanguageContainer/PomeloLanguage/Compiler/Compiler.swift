@@ -188,8 +188,8 @@ extension CompilerUnit {
     
     /// 添加常量并返回索引
     public func addConstant(constant: AnyValue) -> Int {
-        fn.constantsList.append(constant)
-        return fn.constantsList.count - 1
+        fn.constants.append(constant)
+        return fn.constants.count - 1
     }
     
     public func getEnclosingClassBKUnit() -> CompilerUnit? {

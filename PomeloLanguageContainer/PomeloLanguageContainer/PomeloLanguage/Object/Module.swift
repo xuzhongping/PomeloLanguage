@@ -9,90 +9,89 @@
 import Cocoa
 
 /// 模块对象
-public class ModuleObject: BaseObject {
-    
-    public typealias Var = (name: String, value: AnyValue)
-    /// 被引用，但是未定义的变量名集合
-    var undefinedIvarNames: Set<String>
-    
-    /// 已被定义过的变量表
-    public var vars: [Var]
+public class ModuleObject: BaseObject {            
+    public var moduleVarNames: [String]
+    public var moduleVarValues: [AnyValue]
     
     var name: String?
     init(name: String, virtual: Virtual) {
         self.name = name
-        self.vars = []
-        self.undefinedIvarNames = Set<String>()
-        super.init(virtual: virtual, type: .module, cls: nil)// module为元信息对象，不属于任何一个类
+        self.moduleVarNames = []
+        self.moduleVarValues = []
+        
+        super.init(virtual: virtual, type: .module, cls: nil)
     }
     
+    /// 定义模块变量
     @discardableResult
     public func defineVar(virtual: Virtual, name: String, value: AnyValue)  -> Int {
         guard name.count <= maxIdLength else {
-            fatalError()
-        }
-        /// 如果被提前引用，这次是实际定义，就从提前引用表删除，下面会定义
-        if undefinedIvarNames.contains(name) {
-            undefinedIvarNames.remove(name)
+            fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
         }
         
-        if vars.contains(where: { (iname,_) -> Bool in return iname == name }) {
-           fatalError()
+        var symbolIndex = Index.repeatDefine
+        if let nameIndex = moduleVarNames.firstIndex(of: name) {
+            
+            let oldValue = moduleVarValues[nameIndex]
+            // 处理已声明未定义，除此之外就是重复定义
+            if oldValue.isPlaceholder() {
+                moduleVarValues[nameIndex] = value
+                symbolIndex = nameIndex
+            }
+        } else {
+            moduleVarNames.append(name)
+            moduleVarValues.append(value)
+            symbolIndex = moduleVarValues.lastIndex
         }
-        vars.append((name,value))
-        return vars.count - 1
+        
+        return symbolIndex
     }
     
     /// 声明模块变量
     public func declareModuleVar(virtual: Virtual, name: String, value: AnyValue) -> Int {
-        vars.append((name, value))
-        return vars.count - 1
+        return defineVar(virtual: virtual, name: name, value: AnyValue.placeholder)
     }
     
 }
 
 
 /// 获取一个模块
-/// - Parameters:
-///   - virtual: 虚拟机
-///   - name: 模块名
 public func getModule(virtual: Virtual, name: String) -> ModuleObject? {
-    return virtual.allModules[name]
+    return virtual.allModules[name]?.toModuleObject()
 }
 
+
+/// 获取核心模块
 public func getCoreModule(virtual: Virtual) -> ModuleObject? {
     return getModule(virtual: virtual, name: ModuleNameCore)
 }
 
 
 /// 加载一个模块
-/// - Parameters:
-///   - virtual: 虚拟机
-///   - name: 模块名
-///   - code: 源码
 public func loadModule(virtual: Virtual, name: String, code: String)  -> ThreadObject? {
     var module = getModule(virtual: virtual, name: name)
+
     if module == nil {
         module = ModuleObject(name: name, virtual: virtual)
-        if let module = module {
-            virtual.allModules[name] = module
-            if let coreModule = getCoreModule(virtual: virtual) {
-                for (name,value) in coreModule.vars {
-                    module.defineVar(virtual: virtual, name: name, value: value)
-                }
-            }
+        virtual.allModules[name] = AnyValue(value: module)
+        guard let coreModule = getCoreModule(virtual: virtual) else {
+            fatalError("core module is null")
+        }
+        for i in 0..<coreModule.moduleVarNames.count {
+            let name = coreModule.moduleVarNames[i]
+            let value = coreModule.moduleVarValues[i]
+            module!.defineVar(virtual: virtual, name: name, value: value)
         }
     }
-    if let module = module {
-        let fnObj = try compileModule(virtual: virtual, module: module, code: code)
-        let closureObj = ClosureObject(virtual: virtual, fn: fnObj)
-        return ThreadObject(virtual: virtual, closure: closureObj)
-    }
-    return nil
+    
+    let fnObj = compileModule(virtual: virtual, module: module!, code: code)
+    let closureObj = ClosureObject(virtual: virtual, fn: fnObj)
+    
+    return ThreadObject(virtual: virtual, closure: closureObj)
 }
 
 public func executeModule(virtual: Virtual, name: String, code: String) -> Virtual.result {
-    let _ = try? loadModule(virtual: virtual, name: name, code: code)
+    let _ = loadModule(virtual: virtual, name: name, code: code)
     return .success
 }
 

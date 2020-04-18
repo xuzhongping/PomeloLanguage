@@ -590,7 +590,7 @@ public func emitVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
         // 静态域类
         if isStatic {
             let localName = "Cls \(enclosingClassBK.name) \(name)"
-            if unit.findLocalVar(name: localName) == IndexNotFound {
+            if unit.findLocalVar(name: localName) == Index.notFound {
                 let index = unit.declareLocalVar(name: localName)
                 writeOpCode(unit: unit, code: .PUSH_NULL)
                 guard unit.scopeDepth == 0 else {
@@ -613,7 +613,7 @@ public func emitVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
                 fatalError()
             }
             var fieldIndex = getIndexFromSymbolList(list: classBK.fields, target: name)
-            if fieldIndex == IndexNotFound {
+            if fieldIndex == Index.notFound {
 //                fieldIndex =
             } else {
                 if fieldIndex > maxFieldNum {

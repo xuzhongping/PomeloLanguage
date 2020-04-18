@@ -69,6 +69,9 @@ public class Virtual: NSObject {
     /// Thread类
     var threadClass: ClassObject!
     
+    /// Module类
+    var moduleClass: ClassObject!
+    
     /// 内建类
     var builtinClasses: [ClassObject] {
         [stringClass,
@@ -79,15 +82,18 @@ public class Virtual: NSObject {
          boolClass,
          numClass,
          fnClass,
-         threadClass
+         threadClass,
+         moduleClass
         ]
     }
     
     /// 所有模块
-    public var allModules: [String: ModuleObject]
+    public var allModules: [String: AnyValue]
     
-    /// 所有类的方法名集合(去重)
+    /// 所有类的方法名集合(已去重)
     public var allMethodNames: [String]
+    
+    
     override init() {
         allocatedBytes = 0
         lexParser = nil
@@ -177,7 +183,7 @@ public class Virtual: NSObject {
                 guard let value = readShort() else {
                     fatalError()
                 }
-                push(value: self.fn!.constantsList[value])
+                push(value: self.fn!.constants[value])
             
             case .CALL0,
                  .CALL1,
@@ -231,7 +237,7 @@ public class Virtual: NSObject {
                 guard let constIndex = readShort() else {
                     fatalError()
                 }
-                guard let classObject = self.fn!.constantsList[constIndex].toClassObject() else {
+                guard let classObject = self.fn!.constants[constIndex].toClassObject() else {
                     fatalError()
                 }
                 
@@ -257,7 +263,7 @@ public class Virtual: NSObject {
         }
         switch method.type {
         case .native:
-            if method.nativeImp!(self, argsIndex) {
+            if method.nativeImp!(self, &thread!.stack, argsIndex) {
                 self.thread!.esp -= argNum - 1
             } else {
                 storeFrame()
@@ -439,19 +445,19 @@ public func patchOperand(cls: ClassObject, fn: FnObject) {
              .SUPER16:
             ip += 2
             let superClassIndex = Int(fn.byteStream[ip]) << 8 | Int(fn.byteStream[ip + 1])
-            fn.constantsList[superClassIndex] = AnyValue(value: cls.superClass)
+            fn.constants[superClassIndex] = AnyValue(value: cls.superClass)
             ip += 2
         case .CREATE_CLOSURE:
             let fnIndex = Int(fn.byteStream[ip]) << 8 | Int(fn.byteStream[ip + 1])
-            guard let fnObject = fn.constantsList[fnIndex].toFnObject() else {
+            guard let fnObject = fn.constants[fnIndex].toFnObject() else {
                 fatalError()
             }
             patchOperand(cls: cls, fn: fnObject)
-            ip += getBytesOfByteCode(byteStream: fn.byteStream, constants: fn.constantsList, ip: ip - 1)
+            ip += getBytesOfByteCode(byteStream: fn.byteStream, constants: fn.constants, ip: ip - 1)
         case .END:
             return
         default:
-            ip += getBytesOfByteCode(byteStream: fn.byteStream, constants: fn.constantsList, ip: ip - 1)
+            ip += getBytesOfByteCode(byteStream: fn.byteStream, constants: fn.constants, ip: ip - 1)
         }
     }
 }

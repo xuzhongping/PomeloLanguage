@@ -43,3 +43,19 @@ extension Character {
         return self == "\0"
     }
 }
+
+extension Index {
+    public static var notFound: Index {
+        return -1
+    }
+    
+    public static var repeatDefine: Index {
+        return -1
+    }
+}
+
+extension Array {
+    public var lastIndex: Int {
+        return count - 1
+    }
+}

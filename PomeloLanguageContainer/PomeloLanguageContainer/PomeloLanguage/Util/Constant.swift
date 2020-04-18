@@ -30,7 +30,3 @@ public let ClassNameNum = "Num"
 public let ClassNameFn = "Fn"
 public let ClassNameThread = "Thread"
 
-public let IndexNotFound = -1
-
-
-

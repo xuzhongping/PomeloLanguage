@@ -8,42 +8,48 @@
 
 import Cocoa
 
-public let InitialFrameNum = 0
+public let InitialFrameNum = 4
 
 public class ThreadObject: BaseObject {
     var stack: [AnyValue]
-    var esp: Index
     var stackCapacity: Int
     
+    var esp: Index
+    
     var frames: [CallFrame]
+    var frameCapacity: Int
     var usedFrameNum: Int {
         frames.count
     }
-    var frameCapacity: Int
     
     var openUpvalues: [UpvalueObject]
     var caller: ThreadObject?
     var errorObject: AnyValue?
     
     init(virtual: Virtual, closure: ClosureObject) {
-        frames = []
-        frameCapacity = InitialFrameNum
         stack = []
         stackCapacity = closure.fn.maxStackSize + 1
+        
         esp = 0
+        frames = []
+        frameCapacity = InitialFrameNum
+        
         openUpvalues = []
         super.init(virtual: virtual, type: .thread, cls: nil)
+    
         resetThread(closure: closure)
     }
     
+    /// 为函数准备栈帧运行
     public func prepareFrame(closure: ClosureObject, stackIndex: Int) {
-        let frame = frames[usedFrameNum + 1]
-        frame.stackStart = stackIndex
-        frame.closure = closure
-        //TODO:FIX
-        frame.ip = 0
+        guard frameCapacity > usedFrameNum else {
+            fatalError("frame not enough!")
+        }
+        let frame = CallFrame(closure: closure, stackStart: stackIndex, ip: 0)
+        frames.append(frame)
     }
     
+    /// 重置thread
     public func resetThread(closure: ClosureObject) {
         esp = 0
         openUpvalues = []

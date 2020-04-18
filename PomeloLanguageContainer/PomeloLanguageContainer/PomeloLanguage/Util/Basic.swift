@@ -88,6 +88,13 @@ extension AnyValue {
        }
        return obj
     }
+    
+    public func toModuleObject() -> ModuleObject? {
+       guard let obj = value as? ModuleObject else {
+           return nil
+       }
+       return obj
+    }
 }
 
 extension AnyValue {
@@ -126,6 +133,18 @@ extension AnyValue {
     public func isFnObject() -> Bool {
        return value is FnObject
     }
+    
+    public func isModuleObject() -> Bool {
+       return value is ModuleObject
+    }
+    
+    public func isNull() -> Bool {
+        return value == nil
+    }
+    
+    public func isPlaceholder() -> Bool {
+        return self == AnyValue.placeholder
+    }
 }
 
 extension AnyValue {
@@ -147,8 +166,16 @@ extension AnyValue {
             return virtual.threadClass
         case is FnObject:
             return virtual.fnClass
+        case is ModuleObject:
+            return virtual.moduleClass
         default:
             return virtual.nullClass
         }
+    }
+}
+
+extension AnyValue {
+    public static var placeholder: AnyValue {
+        return AnyValue(value: "pomepo.placehodler")
     }
 }
