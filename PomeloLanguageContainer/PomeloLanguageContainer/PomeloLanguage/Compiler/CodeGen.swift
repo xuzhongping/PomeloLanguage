@@ -352,7 +352,7 @@ public func emitUnaryOperator(unit: CompilerUnit, assign: Bool) {
 
 
 //MARK: Compile
-/// 编译标识符
+/// 编译标识符的引用
 public func emitId(unit: CompilerUnit, assign: Bool) {
     guard let token = unit.curLexParser.preToken else {
         fatalError()
@@ -361,18 +361,24 @@ public func emitId(unit: CompilerUnit, assign: Bool) {
         fatalError()
     }
     
-    /// 处理为函数调用
+    // 处理为函数调用
+    // 函数只能在模块作用域中定义
     if unit.enclosingUnit == nil && unit.curLexParser.matchCurToken(expected: .leftParen) {
         
         let name = "Fn \(value)"
-        let index = getIndexFromSymbolList(list: unit.curLexParser.curModule.vars, target: name)
-        guard index >= 0 else {
-            fatalError()
+        let index = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: name)
+        
+        guard index != Index.notFound else {
+            fatalError("undefined function: \(name)!")
         }
         
-        emitLoadVariable(unit: unit, variable: Variable(type: .module, index: index))
+        // 函数闭包加载到栈
+        let variable = Variable(type: .module, index: index!)
+                
+        emitLoadVariable(unit: unit, variable: variable)
         
         let signature = Signature(type: .method, name: "call", argNum: 0)
+        
         if !unit.curLexParser.matchCurToken(expected: .rightParen) {
             emitProcessArgList(unit: unit, signature: signature)
             unit.curLexParser.consumeCurToken(expected: .rightParen, message: "参数列表后要跟)")
@@ -383,7 +389,7 @@ public func emitId(unit: CompilerUnit, assign: Bool) {
         return
     }
 
-    /// 处理为局部变量何upvalue
+    /// 处理为局部变量和upvalue
     if let variable = unit.findVarFromLocalOrUpvalue(name: value) {
         emitLoadOrStoreVariable(unit: unit,
                                 assign: assign,
@@ -393,8 +399,7 @@ public func emitId(unit: CompilerUnit, assign: Bool) {
     
     /// 处理为实例域
     if let classBK = unit.getEnclosingClassBK() {
-        let index = getIndexFromSymbolList(list: classBK.fields, target: value)
-        if index >= 0 {
+        if let index = classBK.fields.firstIndex(of: value) {
             var read = true
             if assign && unit.curLexParser.matchCurToken(expected: .assign) {
                 read = false
