@@ -24,7 +24,7 @@ public class ModuleObject: BaseObject {
     
     /// 定义模块变量
     @discardableResult
-    public func defineVar(virtual: Virtual, name: String, value: AnyValue)  -> Int {
+    public func defineVar(virtual: Virtual, name: String, value: AnyValue)  -> Index {
         guard name.count <= maxIdLength else {
             fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
         }
@@ -47,9 +47,14 @@ public class ModuleObject: BaseObject {
         return symbolIndex
     }
     
-    /// 声明模块变量
-    public func declareModuleVar(virtual: Virtual, name: String, value: AnyValue) -> Int {
-        return defineVar(virtual: virtual, name: name, value: AnyValue.placeholder)
+    /// 声明模块变量,不做重定义检查
+    public func declareVar(virtual: Virtual, name: String, value: AnyValue) -> Index {
+        guard name.count <= maxIdLength else {
+            fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
+        }
+        moduleVarNames.append(name)
+        moduleVarValues.append(value)
+        return moduleVarNames.lastIndex
     }
     
 }

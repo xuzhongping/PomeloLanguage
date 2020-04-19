@@ -23,3 +23,5 @@ public typealias Byte = UInt8
 public typealias Buffer = Array
 
 public typealias Index = Int
+
+public typealias ScopeDepth = Int

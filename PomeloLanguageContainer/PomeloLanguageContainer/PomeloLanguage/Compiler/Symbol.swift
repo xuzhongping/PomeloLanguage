@@ -238,6 +238,7 @@ public func unaryMethodSignature(unit: CompilerUnit, signature: Signature) {
 public func infixMethodSignature(unit: CompilerUnit, signature: Signature) {
     signature.type = .method
     signature.argNum = 1
+    
     unit.curLexParser.consumeCurToken(expected: .leftParen, message: "中缀运算符后非\'(\'")
     unit.curLexParser.consumeCurToken(expected: .id, message: "中缀运算符后非变量名")
 
@@ -245,6 +246,7 @@ public func infixMethodSignature(unit: CompilerUnit, signature: Signature) {
     guard let name = unit.curLexParser.preToken?.value as? String else {
         fatalError("参数非变量名")
     }
+
     unit.declareVariable(name: name)
     unit.curLexParser.consumeCurToken(expected: .rightParen, message: "变量名后非\')\'")
 }
@@ -283,22 +285,30 @@ public func trySetterSignature(unit: CompilerUnit,signature: Signature) -> Bool 
 public func idMethodSignature(unit: CompilerUnit, signature: Signature) {
     signature.type = .getter
     if signature.name == "new" {
+        if unit.curLexParser.matchCurToken(expected: .assign) {
+            fatalError("constructor shouldn`t be setter!")
+        }
+        
         guard unit.curLexParser.matchCurToken(expected: .leftParen) else {
             fatalError("构造函数后必须跟(")
         }
         signature.type = .construct
+        
     } else {
         if trySetterSignature(unit: unit, signature: signature) {
             return
         }
+        
         guard unit.curLexParser.matchCurToken(expected: .leftParen) else {
             return
         }
         signature.type = .method
     }
+    
     if unit.curLexParser.matchCurToken(expected: .rightParen) {
         return
     }
+    
     emitProcessArgList(unit: unit, signature: signature)
     unit.curLexParser.consumeCurToken(expected: .rightParen, message: "方法参数后必须跟)")
 }

@@ -16,7 +16,7 @@ class TestSignature: XCTestCase {
     }
 
     func testToString() {
-        let signature = Signature(type: .getter, name: "ss", argNum: 2)
+        let signature = Signature(type: .getter, name: "", argNum: 2)
         print(signature.toString())
         
     }

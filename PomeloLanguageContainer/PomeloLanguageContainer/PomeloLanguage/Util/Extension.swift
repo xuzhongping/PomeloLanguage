@@ -59,3 +59,13 @@ extension Array {
         return count - 1
     }
 }
+
+extension ScopeDepth {
+    public static var module: ScopeDepth {
+        return -1
+    }
+    
+    public static var normal: ScopeDepth {
+        return 0
+    }
+}

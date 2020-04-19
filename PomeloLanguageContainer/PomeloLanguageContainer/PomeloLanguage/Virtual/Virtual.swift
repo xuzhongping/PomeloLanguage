@@ -60,7 +60,7 @@ public class Virtual: NSObject {
     /// Bool类
     var boolClass: ClassObject!
     
-    /// Num类
+    /// Number类
     var numClass: ClassObject!
     
     /// Fn类

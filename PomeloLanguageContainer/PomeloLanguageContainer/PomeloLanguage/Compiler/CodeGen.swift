@@ -70,8 +70,9 @@ public func emitLoadConstant(unit: CompilerUnit, constant: AnyValue) {
 public func emitCallBySignature(unit: CompilerUnit, signature: Signature, opCode: OP_CODE) {
     let name = signature.toString()
     emitCall(unit: unit, argsNum: signature.argNum, name: name)
+    
     if opCode == .SUPER0 {
-        writeShortOperand(unit: unit, operand: unit.addConstant(constant: AnyValue(value: nil)))
+        writeShortOperand(unit: unit, operand: unit.addConstant(constant: AnyValue.placeholder))
     }
 }
 
@@ -80,11 +81,12 @@ public func emitCall(unit: CompilerUnit, argsNum: Int, name: String) {
     let index = ensureSymbolExist(virtual: unit.curLexParser.virtual,
                                   symbolList: &unit.curLexParser.virtual.allMethodNames,
                                   name: name)
-    if let opCode = OP_CODE(rawValue: OP_CODE.CALL0.rawValue + Byte(argsNum)) {
-        writeShortByteCode(unit: unit,
-                           code:opCode ,
-                           operand: index)
+    guard let opCode = OP_CODE(rawValue: OP_CODE.CALL0.rawValue + Byte(argsNum)) else {
+        fatalError("opcode error")
     }
+     writeShortByteCode(unit: unit,
+                              code:opCode ,
+                              operand: index)
 }
 
 /// 为实参列表各个参数生成加载实参的指令
@@ -93,27 +95,32 @@ public func emitProcessArgList(unit: CompilerUnit, signature: Signature) {
         fatalError()
     }
     guard token.type != .rightParen, token.type != .rightBracket else {
-        fatalError()
+        fatalError("empty argument list")
     }
-    repeat {
+
+    while true {
+        signature.argNum += 1
         if signature.argNum > maxArgNum {
-            fatalError()
+            fatalError("the max number of argument is \(maxArgNum)")
         }
         expression(unit: unit, rbp: .lowest)
-    } while unit.curLexParser.matchCurToken(expected: .comma)
+        guard unit.curLexParser.matchCurToken(expected: .comma) else { break }
+    }
 }
 
+/// 声明形参列表中的各个形参
 public func emitProcessParaList(unit: CompilerUnit, signature: Signature)  {
     guard let token = unit.curLexParser.curToken else {
         fatalError()
     }
     guard token.type != .rightParen, token.type != .rightBracket else {
-        fatalError()
+        fatalError("empty argument list")
     }
     
-    repeat {
+    while true {
+        signature.argNum += 1
         if signature.argNum > maxArgNum {
-            fatalError()
+            fatalError("the max number of argument is \(maxArgNum)")
         }
         unit.curLexParser.consumeCurToken(expected: .id, message: "中缀运算符后非变量名")
         //TODO: 需要处理字面量值,比如数字等
@@ -121,7 +128,8 @@ public func emitProcessParaList(unit: CompilerUnit, signature: Signature)  {
             fatalError()
         }
         unit.declareVariable(name: name)
-    } while unit.curLexParser.matchCurToken(expected: .comma)
+        guard unit.curLexParser.matchCurToken(expected: .comma) else { break }
+    }
 }
 
 /// 生成加载变量到栈的指令
@@ -139,8 +147,6 @@ public func emitLoadVariable(unit: CompilerUnit, variable: Variable) {
         writeByteCode(unit: unit,
                       code: OP_CODE.LOAD_MODULE_VAR,
                       operand: variable.index)
-    default:
-        break
     }
 }
 
@@ -159,8 +165,6 @@ public func emitStoreVariable(unit: CompilerUnit, variable: Variable) {
         writeByteCode(unit: unit,
                       code: OP_CODE.STORE_MODULE_VAR,
                       operand: variable.index)
-    default:
-        break
     }
 }
 
@@ -168,6 +172,7 @@ public func emitStoreVariable(unit: CompilerUnit, variable: Variable) {
 public func emitLoadOrStoreVariable(unit: CompilerUnit, assign: Bool, variable: Variable) {
     if assign && unit.curLexParser.matchCurToken(expected: .assign) {
         expression(unit: unit, rbp: .lowest)
+        // 上一步会将=右边表达式的值存在栈顶
         emitStoreVariable(unit: unit, variable: variable)
     } else {
         emitLoadVariable(unit: unit, variable: variable)

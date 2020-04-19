@@ -13,7 +13,7 @@ public let maxUpvalueNum = 128
 public let maxIdLength = 128
 public let maxMethodNameLength = maxIdLength
 public let maxArgNum = 16
-public let maxSignLenth = maxMethodNameLength + maxArgNum * 2 + 1
+public let maxSignLength = maxMethodNameLength + maxArgNum * 2 + 1
 public let maxFieldNum = 128
 
 public class Upvalue {
@@ -25,7 +25,7 @@ public class Upvalue {
     }
 }
 
-public class LocalVar {
+public class LocalVar: NSObject {
     public var name: String?
     public var scopeDepth: Int
     public var isUpvalue: Bool
@@ -33,6 +33,10 @@ public class LocalVar {
         self.name = name
         self.scopeDepth = -1
         self.isUpvalue = false
+    }
+    
+    public static var placeholder: LocalVar {
+        return LocalVar(name: "pomepo.placehodler")
     }
 }
 
@@ -55,7 +59,7 @@ class Loop {
 /// 用于记录类编译时的信息
 public class ClassBookKeep {
     var name: String
-    var fields: [(name: String, value: AnyValue)]
+    var fields: [String]
     var inStatic: Bool
     var instanceMethods: [Index]
     var staticMethods: [Index]
@@ -115,16 +119,14 @@ public class CompilerUnit: NSObject {
                 let thisLocalVar = LocalVar(name: "this")
                 self.localVars.append(thisLocalVar)
             } else {
-                let thisLocalVar = LocalVar(name: nil)
+                let thisLocalVar = LocalVar.placeholder
                 self.localVars.append(thisLocalVar)
             }
-            
-            localVars.first?.scopeDepth = -1
-            scopeDepth = 0
+            scopeDepth = ScopeDepth.normal
         } else {
             /// 没有外层编译单元，说明是模块作用域
             /// 模块作用域为-1
-            scopeDepth = -1
+            scopeDepth = ScopeDepth.module
         }
         self.fn = FnObject(virtual: curLexParser.virtual,
                            module: curLexParser.curModule,
@@ -151,29 +153,37 @@ extension CompilerUnit {
         localVar.scopeDepth = scopeDepth
         localVar.isUpvalue = false
         localVars.append(localVar)
-        return localVars.count - 1
+        
+        return localVars.lastIndex
     }
     
     /// 声明局部变量
     public func declareLocalVar(name: String) -> Int {
-        guard localVars.count >= maxArgNum else {
-           fatalError()
+        guard localVars.count >= maxLocalVarNum else {
+           fatalError("the max length of local variable of one scope is \(maxLocalVarNum)")
         }
        
         for localVar in localVars.reversed() {
-           guard localVar.scopeDepth >= scopeDepth else { break }
-           guard localVar.name != name else { fatalError() }
+            // 只找自己作用域内的
+            guard localVar.scopeDepth >= scopeDepth else {
+                break
+            }
+            guard localVar.name != name else {
+                fatalError("identifier \(name) redefinition!")
+            }
         }
         return addLocalVar(name: name)
     }
    
     @discardableResult
     public func declareVariable(name: String) -> Int {
-        if scopeDepth == -1 {
+        if scopeDepth == ScopeDepth.module {
             let index = curLexParser.curModule.defineVar(virtual: curLexParser.virtual,
-                                                             name: name,
-                                                             value: AnyValue(value: nil))
-            return index
+                                                            name: name,
+                                                           value: AnyValue.placeholder)
+            if index == Index.repeatDefine {
+                fatalError("identifier \(name) redefinition!")
+            }
         }
         return declareLocalVar(name: name)
     }
@@ -189,9 +199,10 @@ extension CompilerUnit {
     /// 添加常量并返回索引
     public func addConstant(constant: AnyValue) -> Int {
         fn.constants.append(constant)
-        return fn.constants.count - 1
+        return fn.constants.lastIndex
     }
     
+    /// 查找包含enclosingClassBK的最近unit
     public func getEnclosingClassBKUnit() -> CompilerUnit? {
         var unit: CompilerUnit? = self
         while unit != nil {
@@ -203,6 +214,8 @@ extension CompilerUnit {
         return nil
     }
     
+    /// 查找包含当前unit的classBookKeep
+    /// 用于查找当前方法所属的类
     public func getEnclosingClassBK() -> ClassBookKeep? {
         if let unit = getEnclosingClassBKUnit() {
             return unit.enclosingClassBK
@@ -211,62 +224,71 @@ extension CompilerUnit {
     }
     
     /// 查找局部变量
-    public func findLocalVar(name: String) -> Int {
-        return localVars.firstIndex { (localVar) -> Bool in localVar.name == name } ?? -1
+    /// 从内层向外层查
+    public func findLocalVar(name: String) -> Index {
+        return localVars.reversed().firstIndex { (localVar) -> Bool in localVar.name == name } ?? Index.notFound
     }
     
     /// 添加upvalue
     public func addUpvalue(isEnclosingLocalVar: Bool, index: Index) -> Int {
         let index = upvalues.firstIndex { (upvalue) -> Bool in
+            
             upvalue.index == index && upvalue.isEnclosingLocalVar == isEnclosingLocalVar
-        } ?? -1
-        if index >= 0 {
+            
+            } ?? Index.notFound
+        if index != Index.notFound {
             return index
         }
         upvalues.append(Upvalue(index: index, isEnclosingLocalVar: isEnclosingLocalVar))
-        return upvalues.count - 1
+        return upvalues.lastIndex
     }
     
     /// 查找名为name的upvalue添加到upvalues中，返回其索引
-    public func findUpvalue(name: String) -> Int {
-        guard let enclosingUnit = enclosingUnit else { return IndexNotFound }
-        if !name.contains(" ") && enclosingUnit.enclosingClassBK != nil {
-            return IndexNotFound
+    public func findUpvalue(name: String) -> Index {
+        guard let enclosingUnit = enclosingUnit else {
+            return Index.notFound
         }
+        
+        if !name.contains(" ") && enclosingUnit.enclosingClassBK != nil {
+            return Index.notFound
+        }
+        
         let localIndex = enclosingUnit.findLocalVar(name: name)
-        if localIndex >= 0 {
+        if localIndex != Index.notFound {
+            enclosingUnit.localVars[localIndex].isUpvalue = true
             return addUpvalue(isEnclosingLocalVar: true, index: localIndex)
         }
+        
         let upvalueIndex = enclosingUnit.findUpvalue(name: name)
-        if upvalueIndex >= 0 {
+        if upvalueIndex != Index.notFound {
             return addUpvalue(isEnclosingLocalVar: false, index: upvalueIndex)
         }
-        return IndexNotFound
+        return Index.notFound
     }
     
     /// 从局部变量和upvalue中查找符号name
     public func findVarFromLocalOrUpvalue(name: String) -> Variable? {
         var index = findLocalVar(name: name)
-        if index != IndexNotFound {
+        if index != Index.notFound {
             return Variable(type: .local, index: index)
         }
         index = findUpvalue(name: name)
-        if index != IndexNotFound {
+        if index != Index.notFound {
             return Variable(type: .upvalue, index: index)
         }
         return nil
     }
 }
 
-/// 用于内部变量查找
+/// 仅用于内部变量查找用的结构
 public class Variable: NSObject {
     public enum ScopeType {
-        case invalid
         case local
         case upvalue
         case module
     }
     var type: ScopeType
+    /// 此索引指向模块变量或局部变量或upvalue
     var index: Index
     init(type: ScopeType, index: Index) {
         self.type = type
@@ -283,27 +305,34 @@ public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) {
     guard let curToken = unit.curLexParser.curToken else {
         fatalError()
     }
+    
     guard let nud = SymbolBindRule.rulues[curToken.type]?.nud else {
-        fatalError()
+        fatalError("nud is null")
     }
+    
     unit.curLexParser.nextToken()
 
     let assign = rbp.rawValue < SymbolBindRule.BindPower.assign.rawValue
+    
     nud(unit,assign)
 
     while true {
         guard let token = unit.curLexParser.curToken else {
             break
         }
+        
         guard let lbp = SymbolBindRule.rulues[token.type]?.lbp else {
             break
         }
+        
         guard rbp.rawValue < lbp.rawValue else {
             break
         }
+        
         guard let led = SymbolBindRule.rulues[token.type]?.led else {
             break
         }
+        
         unit.curLexParser.nextToken()
         led(unit, assign)
     }
