@@ -24,7 +24,7 @@ public func compileStatment(unit: CompilerUnit) {
         compileContinue(unit: unit)
     } else if unit.curLexParser.matchCurToken(expected: .leftBrace) {
         enterScope(unit: unit)
-        emitBlock(unit: unit)
+        compileBlock(unit: unit)
         leaveScope(unit: unit)
     } else {
         expression(unit: unit, rbp: .lowest)

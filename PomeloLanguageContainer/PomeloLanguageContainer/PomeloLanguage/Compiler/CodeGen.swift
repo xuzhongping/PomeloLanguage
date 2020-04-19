@@ -180,16 +180,19 @@ public func emitLoadOrStoreVariable(unit: CompilerUnit, assign: Bool, variable: 
 }
 
 public func emitLoadThis(unit: CompilerUnit)  {
-    guard let variable = unit.findVarFromLocalOrUpvalue(name: "this") else {
+    guard let thisVariable = unit.findVarFromLocalOrUpvalue(name: "this") else {
         fatalError()
     }
-    emitLoadVariable(unit: unit, variable: variable)
+    emitLoadVariable(unit: unit, variable: thisVariable)
 }
 
-/// 生成gett或一般method调用指令
+/// 生成getter或一般method调用指令
 public func emitGetterMethodCall(unit: CompilerUnit, signature: Signature, code: OP_CODE)  {
-    let newSignature = Signature(type: .getter, name: signature.name, argNum: 0)
+    let newSignature = Signature(type: .getter,
+                                 name: signature.name,
+                                 argNum: 0)
     
+    // 如果是method，可能有参数列表，将参数入栈
     if unit.curLexParser.matchCurToken(expected: .leftParen) {
         newSignature.type = .method
         if !unit.curLexParser.matchCurToken(expected: .rightParen) {
@@ -198,27 +201,31 @@ public func emitGetterMethodCall(unit: CompilerUnit, signature: Signature, code:
         }
     }
     
+    // 可能有块参数，类似ruby
     if unit.curLexParser.matchCurToken(expected: .leftBrace) {
         newSignature.type = .method
         newSignature.argNum += 1
         let internalUnit = CompilerUnit(lexParser: unit.curLexParser,
                                         enclosingUnit: unit,
                                         isMethod: false)
+    
         let internalSignature = Signature(type: .method,
                                           name: "",
                                           argNum: 0)
         
+        // 代码块可能有形参列表: test() | x | {}
         if unit.curLexParser.matchCurToken(expected: .bitOr) {
             emitProcessParaList(unit: unit, signature: internalSignature)
             unit.curLexParser.consumeCurToken(expected: .bitOr, message: "块参数后必须跟|")
         }
-        internalUnit.fn.argNum = newSignature.argNum
+        internalUnit.fn.argNum = internalSignature.argNum
         emitBody(unit: internalUnit, isConstruct: false)
         endCompile(unit: unit)
     }
+    
     if signature.type == .construct {
         guard newSignature.type == .method else {
-            fatalError()
+            fatalError("the form of supercall is super() of super(arguments)")
         }
         newSignature.type = .construct
     }
@@ -449,20 +456,23 @@ public func emitId(unit: CompilerUnit, assign: Bool) {
                             variable: Variable(type: .module, index: index))
 }
 
-public func emitBlock(unit: CompilerUnit)  {
+/// 编译代码块，包括函数体、方法体、方法的块参数等
+public func compileBlock(unit: CompilerUnit)  {
     while true {
         if unit.curLexParser.matchCurToken(expected: .rightBrace) {
             break
         }
         if unit.curLexParser.status == LexParser.LexStatus.end {
-            fatalError()
+            fatalError("expect ')' at the end of block!")
         }
         unit.compileProgram()
     }
 }
 
+/// 编译函数或方法体
 public func emitBody(unit: CompilerUnit, isConstruct: Bool) {
-    emitBlock(unit: unit)
+    compileBlock(unit: unit)
+    /// 若是构造函数，将this对象加载到栈顶，供RETURN指令返回
     if isConstruct {
         writeByteCode(unit: unit,
                       code: OP_CODE.LOAD_LOCAL_VAR,
@@ -470,6 +480,7 @@ public func emitBody(unit: CompilerUnit, isConstruct: Bool) {
     } else {
         writeOpCode(unit: unit, code: OP_CODE.PUSH_NULL)
     }
+    /// RETURN指令会弹出栈顶的数据作为返回值返回
     writeOpCode(unit: unit, code: OP_CODE.RETURN)
 }
 
@@ -653,14 +664,23 @@ public func emitVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
 /// 当存在外层编译单元时，内层编译单元为外层的闭包
 @discardableResult
 public func endCompile(unit: CompilerUnit) -> FnObject {
+    // 写入END指令表示本编译单元的指令结束了
     writeOpCode(unit: unit, code: OP_CODE.END)
+
+    // 当存在父编译单元，说明其为闭包
     if let enclosingUnit = unit.enclosingUnit {
+        // 将当前编译单元的fn写入到父编译单元中作为常量
         let index = enclosingUnit.addConstant(constant: AnyValue(value: unit.fn))
-        writeShortByteCode(unit: enclosingUnit,
-                           code: OP_CODE.CREATE_CLOSURE,
-                           operand: index)
         
+
+        // 在父编译单元中写入指令创建闭包
+        writeShortByteCode(unit: enclosingUnit,
+                           code: .CREATE_CLOSURE,
+                           operand: index)
+    
+        // 写入所有upvalue
         for upvalue in unit.upvalues {
+            // 1代表此upvalueIndex为直接外层函数中局部变量的索引，0代表为直接外层函数中upvalue的索引
             writeByte(unit: enclosingUnit, byte: upvalue.isEnclosingLocalVar ? 1: 0)
             writeByte(unit: enclosingUnit, byte: Byte(upvalue.index))
         }
