@@ -561,7 +561,7 @@ public func emitMapLiteral(unit: CompilerUnit, assign: Bool)  {
         // 空map
         if token.type == .rightBrace {
             break
-        }
+        }                                   
         expression(unit: unit, rbp: .unary)
         unit.curLexParser.consumeCurToken(expected: .colon, message: "expect ':' after key!")
         expression(unit: unit, rbp: .lowest)
