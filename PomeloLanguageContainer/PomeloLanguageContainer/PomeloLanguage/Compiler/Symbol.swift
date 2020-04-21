@@ -319,7 +319,7 @@ public func subscriptMethodSignature(unit: CompilerUnit, signature: Signature) {
     emitProcessParaList(unit: unit, signature: signature)
     unit.curLexParser.consumeCurToken(expected: .rightBracket, message: "expect ']' after index list!")
     trySetterSignature(unit: unit, signature: signature)
-}
+} 
 
 /// 确保符号添加到符号表中
 public func ensureSymbolExist(virtual: Virtual, symbolList: inout [String], name: String) -> Int {

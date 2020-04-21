@@ -179,6 +179,7 @@ public func emitLoadOrStoreVariable(unit: CompilerUnit, assign: Bool, variable: 
     }
 }
 
+/// 加载变量this到栈顶
 public func emitLoadThis(unit: CompilerUnit)  {
     guard let thisVariable = unit.findVarFromLocalOrUpvalue(name: "this") else {
         fatalError()
@@ -260,14 +261,14 @@ public func emitLiteral(unit: CompilerUnit, assign: Bool) {
 }
 
 
-/// 生成加载类的指令
+/// 生成加载类的指令，类存在模块变量中
 public func emitLoadModuleVar(unit: CompilerUnit, name: String)  {
-    let index = getIndexFromSymbolList(list: unit.curLexParser.curModule.vars, target: name)
-    guard index >= 0 else {
-        fatalError()
+    guard let index = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: name) else {
+        fatalError("symbol should have been define")
     }
-    
-    writeShortByteCode(unit: unit, code: OP_CODE.LOAD_MODULE_VAR, operand: index)
+    writeShortByteCode(unit: unit,
+                       code: .LOAD_MODULE_VAR,
+                       operand: index)
 }
 
 /// 编译内嵌表达式生成指令
@@ -276,15 +277,16 @@ public func emitStringInterpolation(unit: CompilerUnit, assgin: Bool) {
     emitLoadModuleVar(unit: unit, name: "List")
     emitCall(unit: unit, argsNum: 0, name: "new()")
     
-    repeat {
+    while true {
         emitLiteral(unit: unit, assign: false)
         expression(unit: unit, rbp: .lowest)
-        emitCall(unit: unit, argsNum: 1, name: "addCore_()")
-    } while unit.curLexParser.matchCurToken(expected: .interpolation)
+        emitCall(unit: unit, argsNum: 1, name: "addCore_(_)")
+        guard unit.curLexParser.matchCurToken(expected: .interpolation)else { break }
+    }
     
     unit.curLexParser.consumeCurToken(expected: .string, message: "内嵌表达式应该在后面跟字符串")
     emitLiteral(unit: unit, assign: false)
-    emitCall(unit: unit, argsNum: 1, name: "addCore_")
+    emitCall(unit: unit, argsNum: 1, name: "addCore_(_)")
     emitCall(unit: unit, argsNum: 0, name: "join()")
 }
 
@@ -300,26 +302,34 @@ public func emitNull(unit: CompilerUnit, assign: Bool) {
 ///编译this生成指令
 public func emitThis(unit: CompilerUnit, assign: Bool)  {
     guard let _ = unit.getEnclosingClassBK() else {
-        fatalError()
+        fatalError("this must be inside a class method")
     }
     emitLoadThis(unit: unit)
 }
 
 public func emitSuper(unit: CompilerUnit, assign: Bool)  {
     guard let enclosingBK = unit.getEnclosingClassBK() else {
-        fatalError()
+        fatalError("can`t invoke super outsied a class method!")
     }
     emitLoadThis(unit: unit)
+    // 调用形式super.method()
     if unit.curLexParser.matchCurToken(expected: .dot) {
-        unit.curLexParser.consumeCurToken(expected: .id, message: ".后必须跟变量名")
+        unit.curLexParser.consumeCurToken(expected: .id, message: ".后必须跟方法名")
+        guard let value = unit.curLexParser.preToken?.value as? String else {
+            fatalError()
+        }
         emitMethodCall(unit: unit,
-                       name: unit.curLexParser.preToken?.value as? String ?? "",
+                       name: value,
                        code: OP_CODE.SUPER0,
                        assign: assign)
     } else {
+        // 调用super同名方法 super()
+        guard let signature = enclosingBK.signature else {
+            fatalError()
+        }
         emitGetterMethodCall(unit: unit,
-                             signature: enclosingBK.signature!,
-                                  code: OP_CODE.SUPER0)
+                             signature: signature,
+                             code: .SUPER0)
     }
 }
 
@@ -442,23 +452,17 @@ public func emitId(unit: CompilerUnit, assign: Bool) {
     }
 
     /// 处理为模块变量
-    var index = getIndexFromSymbolList(list: unit.curLexParser.curModule.vars, target: value)
-    if index == IndexNotFound {
+    var index = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: value)
+    if index == Index.notFound {
         let name = "Fn \(value)"
-        index = getIndexFromSymbolList(list: unit.curLexParser.curModule.vars, target: name)
-        if index == IndexNotFound {
-            index = unit.curLexParser.curModule.declareModuleVar(virtual: unit.curLexParser.virtual,
-                                                            name: name,
-                                                            value: AnyValue(value: unit.curLexParser.line))
-            emitLoadOrStoreVariable(unit: unit,
-                                    assign: assign,
-                                    variable: Variable(type: .module, index: index))
-            return
+        index = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: name)
+        if index == Index.notFound {
+            index = unit.curLexParser.curModule.declareVar(virtual: unit.curLexParser.virtual, name: name, value: AnyValue.placeholder)
         }
     }
     emitLoadOrStoreVariable(unit: unit,
                             assign: assign,
-                            variable: Variable(type: .module, index: index))
+                            variable: Variable(type: .module, index: index!))
 }
 
 /// 编译代码块，包括函数体、方法体、方法的块参数等
@@ -489,39 +493,48 @@ public func emitBody(unit: CompilerUnit, isConstruct: Bool) {
     writeOpCode(unit: unit, code: OP_CODE.RETURN)
 }
 
+/// 编译小括号
 public func emitParentheses(unit: CompilerUnit, assign: Bool) {
     expression(unit: unit, rbp: .lowest)
-    unit.curLexParser.consumeCurToken(expected: .rightParen, message: "(表达式后必须跟)")
+    unit.curLexParser.consumeCurToken(expected: .rightParen, message: "小括号表达式结束必须跟)")
 }
 
+/// 编译用[]字面量定义的list，如 [1,2,3]
 public func emitListLiteral(unit: CompilerUnit, assgin: Bool)  {
     emitLoadModuleVar(unit: unit, name: "List")
     emitCall(unit: unit, argsNum: 0, name: "new()")
+    
     while true {
         guard let token = unit.curLexParser.curToken else {
             fatalError()
         }
-        if token.type == Token.TokenType.rightBracket {
+        // 空list
+        if token.type == .rightBracket {
             break
         }
         expression(unit: unit, rbp: .lowest)
         emitCall(unit: unit, argsNum: 1, name: "addCore_()")
         guard unit.curLexParser.matchCurToken(expected: .comma) else { break }
     }
+    unit.curLexParser.consumeCurToken(expected: .rightBracket, message: "expect ')' after list element!")
 }
 
+/// 索引list元素，如list[i]
 public func emitSubscript(unit: CompilerUnit, assign: Bool)  {
     if unit.curLexParser.matchCurToken(expected: .rightBracket) {
-        fatalError()
+        fatalError("need argument in the '[]'!")
     }
     let signature = Signature(type: .subscriptGetter, name: "", argNum: 0)
+    
     emitProcessArgList(unit: unit, signature: signature)
+    
     unit.curLexParser.consumeCurToken(expected: .rightBracket, message: "[表达式后必须跟]")
+    
     if assign && unit.curLexParser.matchCurToken(expected: .assign) {
         signature.type = .subscriptSetter
         signature.argNum += 1
         if signature.argNum > maxArgNum {
-            fatalError()
+            fatalError("the max number of argument is \(maxArgNum)")
         }
         expression(unit: unit, rbp: .lowest)
     }
@@ -545,6 +558,7 @@ public func emitMapLiteral(unit: CompilerUnit, assign: Bool)  {
         guard let token = unit.curLexParser.curToken else {
             fatalError()
         }
+        // 空map
         if token.type == .rightBrace {
             break
         }
@@ -556,7 +570,7 @@ public func emitMapLiteral(unit: CompilerUnit, assign: Bool)  {
         guard unit.curLexParser.matchCurToken(expected: .comma) else { break }
     }
     
-    unit.curLexParser.consumeCurToken(expected: .rightBrace, message: "map literal should end with ')'!")
+    unit.curLexParser.consumeCurToken(expected: .rightBrace, message: "map literal should end with '}'!")
 }
 
 /// 生成用占位符作为参数设置指令
