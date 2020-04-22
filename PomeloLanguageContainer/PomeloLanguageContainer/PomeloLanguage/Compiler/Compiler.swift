@@ -157,7 +157,7 @@ extension CompilerUnit {
         return localVars.lastIndex
     }
     
-    /// 声明局部变量
+    /// 声明并定义局部变量
     public func declareLocalVar(name: String) -> Int {
         guard localVars.count >= maxLocalVarNum else {
            fatalError("the max length of local variable of one scope is \(maxLocalVarNum)")
@@ -189,11 +189,10 @@ extension CompilerUnit {
     }
     
     public func defineVariable(index: Int) {
-        guard scopeDepth != -1 else {
-            return
+        if scopeDepth == ScopeDepth.module {
+            writeByteCode(unit: self, code: .STORE_MODULE_VAR, operand: index)
+            writeOpCode(unit: self, code: .POP)
         }
-        writeByteCode(unit: self, code: OP_CODE.STORE_MODULE_VAR, operand: index)
-        writeOpCode(unit: self, code: OP_CODE.POP)
     }
     
     /// 添加常量并返回索引

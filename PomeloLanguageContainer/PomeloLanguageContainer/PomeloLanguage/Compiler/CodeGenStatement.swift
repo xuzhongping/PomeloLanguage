@@ -33,9 +33,13 @@ public func compileStatment(unit: CompilerUnit) {
 }
 
 /// 编译if语句
+/// if (condition) {statement} [else {statement}]
 public func compileIfStatment(unit: CompilerUnit) {
+    // curToken为if后的(
     unit.curLexParser.consumeCurToken(expected: .leftParen, message: "missing '(' after if!")
+    
     expression(unit: unit, rbp: .lowest)
+    
     unit.curLexParser.consumeCurToken(expected: .rightParen, message: "missing ')' before '{' in if!")
     
     let falseBranchStart = emitInstrWithPlaceholder(unit: unit, opCode: .JUMP_IF_FALSE)
@@ -66,6 +70,7 @@ func compileLoopBody(unit: CompilerUnit) {
     compileStatment(unit: unit)
 }
 
+/// 离开循环体的相关设置
 func leaveLoopSetting(unit: CompilerUnit) {
     guard let loop = unit.curLoop else {
         fatalError("not in loop")
@@ -74,6 +79,7 @@ func leaveLoopSetting(unit: CompilerUnit) {
     writeShortByteCode(unit: unit,
                        code: .LOOP,
                        operand: loopBackOffset)
+    
     emitPatchPlaceholder(unit: unit, absIndex: loop.exitIndex)
     var index = loop.bodyStartIndex
     let loopEndIndex = unit.fn.byteStream.count
@@ -93,18 +99,20 @@ func leaveLoopSetting(unit: CompilerUnit) {
 
 /// 编译while语句
 public func compileWhileStatment(unit: CompilerUnit) {
-    
-
     let loop = Loop()
     enterLoopSetting(unit: unit, loop: loop)
+    
     unit.curLexParser.consumeCurToken(expected: .leftParen, message: "expect '(' befor condition!")
+    expression(unit: unit, rbp: .lowest)
+    unit.curLexParser.consumeCurToken(expected: .rightParen, message: "expect ')' after condition!")
+    
     loop.exitIndex = emitInstrWithPlaceholder(unit: unit, opCode: .JUMP_IF_FALSE)
     compileLoopBody(unit: unit)
     leaveLoopSetting(unit: unit)
 }
 
 /// 获取ip所指向的操作码的操作数占用的字节数
-func getBytesOfByteCode(byteStream: [Byte], constants: [AnyValue], ip: Int) -> Int {
+func getBytesOfByteCode(byteStream: [Byte], constants: [AnyValue], ip: Index) -> Int {
     switch OP_CODE(rawValue: byteStream[ip]) {
     case .CONSTRUCT,
          .RETURN,
@@ -174,11 +182,11 @@ func getBytesOfByteCode(byteStream: [Byte], constants: [AnyValue], ip: Int) -> I
     case .CREATE_CLOSURE:
         let fnIndex = Int(byteStream[ip + 1]) << 8 | Int(byteStream[ip + 2])
         guard let fn = constants[fnIndex].toFnObject() else {
-            return 2 + 2
+            fatalError()
         }
-        return 2 + fn.upvalueCount + 2
+        return 2 + fn.upvalueNum * 2
     case .none:
-        return 0
+        fatalError()
     }
 }
 
@@ -198,7 +206,7 @@ public func compileReturn(unit: CompilerUnit) {
 /// 编译break语句
 public func compileBreak(unit: CompilerUnit) {
     guard let loop = unit.curLoop else {
-        fatalError()
+        fatalError("break should be used inside a loop!")
     }
     destroyLocalVar(unit: unit, scopeDepth: loop.scopeDepth + 1)
     emitInstrWithPlaceholder(unit: unit, opCode: .END)
@@ -207,9 +215,10 @@ public func compileBreak(unit: CompilerUnit) {
 /// 编译continue语句
 public func compileContinue(unit: CompilerUnit) {
     guard let loop = unit.curLoop else {
-        fatalError()
+        fatalError("continue should be used inside a loop!")
     }
     destroyLocalVar(unit: unit, scopeDepth: loop.scopeDepth + 1)
+    // 销毁局部变量，回到循环开始处
     let loopBackOffset = unit.fn.byteStream.count - loop.condStartIndex + 2
     writeShortByteCode(unit: unit, code: .LOOP, operand: loopBackOffset)
 }
@@ -217,19 +226,21 @@ public func compileContinue(unit: CompilerUnit) {
 /// 销毁作用域scopeDepth之内的局部变量
 @discardableResult
 public func destroyLocalVar(unit: CompilerUnit, scopeDepth: Int) -> Int {
-    guard unit.scopeDepth > -1 else {
-        fatalError()
+    guard unit.scopeDepth > ScopeDepth.module else {
+        fatalError("module scope can`t exit!")
     }
-    var localIndex = unit.localVarNum - 1
-    while localIndex >= 0 && unit.localVars[localIndex].scopeDepth > scopeDepth {
+    
+    var localIndex = unit.localVars.lastIndex
+    while localIndex >= 0 && unit.localVars[localIndex].scopeDepth >= scopeDepth {
         if unit.localVars[localIndex].isUpvalue {
             writeByte(unit: unit, byte: OP_CODE.CLOSE_UPVALUE.rawValue)
         } else {
             writeByte(unit: unit, byte: OP_CODE.POP.rawValue)
         }
         localIndex -= 1
+        unit.localVars.removeLast()
     }
-    return unit.localVarNum - 1 - localIndex
+    return unit.localVars.count - 1 - localIndex
 }
 
 /// 进入新的作用域
@@ -241,7 +252,6 @@ func enterScope(unit: CompilerUnit) {
 func leaveScope(unit: CompilerUnit) {
     if let _ = unit.enclosingUnit {
         let destroyNum = destroyLocalVar(unit: unit, scopeDepth: unit.scopeDepth)
-        unit.localVarNum -= destroyNum
         unit.stackSlotNum -= destroyNum
     }
     unit.scopeDepth -= 1
@@ -260,8 +270,8 @@ public func compileForStatment(unit: CompilerUnit) {
     expression(unit: unit, rbp: .lowest)
     
     unit.curLexParser.consumeCurToken(expected: .rightParen, message: "expect ')' after sequence!")
-    
     let seqSlot = unit.addLocalVar(name: "seq ")
+    
     writeOpCode(unit: unit, code: .PUSH_NULL)
     let iterSlot = unit.addLocalVar(name: "iter ")
     
@@ -280,8 +290,10 @@ public func compileForStatment(unit: CompilerUnit) {
     emitCall(unit: unit, argsNum: 1, name: "iteratorValue(_)")
 
     enterScope(unit: unit)
+    
     unit.addLocalVar(name: loopVarName)
     compileLoopBody(unit: unit)
+    
     leaveScope(unit: unit)
     
     leaveLoopSetting(unit: unit)

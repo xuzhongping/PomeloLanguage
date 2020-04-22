@@ -602,28 +602,36 @@ public func emitLogicAnd(unit: CompilerUnit, assign: Bool) {
 
 public func emitCondition(unit: CompilerUnit, assign: Bool) {
     let falseBranchStart = emitInstrWithPlaceholder(unit: unit, opCode: .JUMP_IF_FALSE)
+    
     expression(unit: unit, rbp: .lowest)
+    
     unit.curLexParser.consumeCurToken(expected: .colon, message: "expect ':' after true branch")
+    
     let falseBranchEnd = emitInstrWithPlaceholder(unit: unit, opCode: .JUMP)
     
     emitPatchPlaceholder(unit: unit, absIndex: falseBranchStart)
+    
     expression(unit: unit, rbp: .lowest)
+    
     emitPatchPlaceholder(unit: unit, absIndex: falseBranchEnd)
 }
 
 public func emitVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
     unit.curLexParser.consumeCurToken(expected: .id, message: "missing variable name!")
+    
     guard let name = unit.curLexParser.preToken?.value as? String else {
         fatalError()
     }
     guard let token = unit.curLexParser.curToken else {
         fatalError()
     }
+    
     if token.type == .comma {
-        fatalError()
+        fatalError("'var' only support declaring a variable.")
     }
     
     // 在类中
+    // unit.enclosingClassBK说明正在编译类，而unit.enclosingUnit为空说明未进入类方法，所以是在定义域
     if let enclosingClassBK = unit.enclosingClassBK, unit.enclosingUnit == nil {
         // 静态域类
         if isStatic {
@@ -632,50 +640,55 @@ public func emitVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
                 let index = unit.declareLocalVar(name: localName)
                 writeOpCode(unit: unit, code: .PUSH_NULL)
                 guard unit.scopeDepth == 0 else {
-                    fatalError()
+                    fatalError("should in class scope!")
                 }
+                
                 unit.defineVariable(index: index)
+                
                 guard let variable = unit.findVarFromLocalOrUpvalue(name: localName) else {
                     fatalError()
                 }
+                
                 if unit.curLexParser.matchCurToken(expected: .assign) {
                     expression(unit: unit, rbp: .lowest)
                     emitStoreVariable(unit: unit, variable: variable)
                 }
+                
             } else {
-                fatalError()
+                fatalError("static field '\(localName)' redefinition.")
             }
+            
         } else {
             // 实例域
             guard let classBK = unit.getEnclosingClassBK() else {
                 fatalError()
             }
-            var fieldIndex = getIndexFromSymbolList(list: classBK.fields, target: name)
-            if fieldIndex == Index.notFound {
-//                fieldIndex =
+            
+            if let _ = classBK.fields.firstIndex(of: name) {
+                fatalError("instance field '\(name)' redifinition")
             } else {
-                if fieldIndex > maxFieldNum {
-                    fatalError()
-                } else {
-                    fatalError()
+                if classBK.fields.count >= maxFieldNum {
+                    fatalError("the max number of instance field is \(maxFieldNum)")
                 }
+                classBK.fields.append(name)
             }
             
             if unit.curLexParser.matchCurToken(expected: .assign) {
-                fatalError()
+                fatalError("instance field isn`t allowed initialization")
             }
         }
         return
     }
     
     // 不在类中，按模块中普通变量定义
-    
     if unit.curLexParser.matchCurToken(expected: .assign) {
         expression(unit: unit, rbp: .lowest)
     } else {
         writeOpCode(unit: unit, code: .PUSH_NULL)
     }
-    let index = unit.declareLocalVar(name: name)
+    
+    // 如果是局部变量，在上面expression已经入栈，如果是模块变量，在下面defineVariable定义
+    let index = unit.declareVariable(name: name)
     unit.defineVariable(index: index)
 }
 
@@ -689,6 +702,7 @@ public func endCompile(unit: CompilerUnit) -> FnObject {
     // 当存在父编译单元，说明其为闭包
     if let enclosingUnit = unit.enclosingUnit {
         // 将当前编译单元的fn写入到父编译单元中作为常量
+        unit.fn.upvalueNum = unit.upvalues.count
         let index = enclosingUnit.addConstant(constant: AnyValue(value: unit.fn))
         
 
@@ -704,6 +718,7 @@ public func endCompile(unit: CompilerUnit) -> FnObject {
             writeByte(unit: enclosingUnit, byte: Byte(upvalue.index))
         }
     }
+    
     unit.curLexParser.curCompileUnit = unit.enclosingUnit
     return unit.fn
 }

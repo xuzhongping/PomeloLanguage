@@ -47,14 +47,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		C03794C6242CFCF700A5F27F /* PBXContainerItemProxy */ = {
+		C03794D1242CFCF700A5F27F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C03794AB242CFCF500A5F27F /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = C03794B2242CFCF500A5F27F;
 			remoteInfo = PomeloLanguageContainer;
 		};
-		C03794D1242CFCF700A5F27F /* PBXContainerItemProxy */ = {
+		ED321FE42450AABF005E59AE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C03794AB242CFCF500A5F27F /* Project object */;
 			proxyType = 1;
@@ -304,7 +304,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				C03794C7242CFCF700A5F27F /* PBXTargetDependency */,
+				ED321FE52450AABF005E59AE /* PBXTargetDependency */,
 			);
 			name = PomeloLanguageContainerTests;
 			productName = PomeloLanguageContainerTests;
@@ -458,15 +458,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		C03794C7242CFCF700A5F27F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C03794B2242CFCF500A5F27F /* PomeloLanguageContainer */;
-			targetProxy = C03794C6242CFCF700A5F27F /* PBXContainerItemProxy */;
-		};
 		C03794D2242CFCF700A5F27F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C03794B2242CFCF500A5F27F /* PomeloLanguageContainer */;
 			targetProxy = C03794D1242CFCF700A5F27F /* PBXContainerItemProxy */;
+		};
+		ED321FE52450AABF005E59AE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C03794B2242CFCF500A5F27F /* PomeloLanguageContainer */;
+			targetProxy = ED321FE42450AABF005E59AE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -641,7 +641,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = 3AQW5P79KC;

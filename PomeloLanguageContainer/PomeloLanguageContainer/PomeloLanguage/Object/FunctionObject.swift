@@ -48,7 +48,7 @@ public class FnObject: BaseObject {
     var module: ModuleObject
     
     var maxStackSize: Int
-    var upvalueCount: Int
+    var upvalueNum: Int
     var argNum: Int
     
     #if DEBUG
@@ -60,7 +60,7 @@ public class FnObject: BaseObject {
         self.maxStackSize = maxStackSize
         self.byteStream = []
         self.constants = []
-        self.upvalueCount = 0
+        self.upvalueNum = 0
         self.argNum = 0
         super.init(virtual: virtual, type: .function, cls: nil)
     }
