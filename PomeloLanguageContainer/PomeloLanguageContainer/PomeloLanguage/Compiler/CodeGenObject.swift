@@ -11,6 +11,7 @@ import Cocoa
 /// 生成存储模块变量的指令
 func emitStoreModuleVar(unit: CompilerUnit, index: Int) {
     writeShortByteCode(unit: unit, code: .STORE_MODULE_VAR, operand: index)
+    // 栈顶数据写入模块变量后就无用了，直接弹出
     writeOpCode(unit: unit, code: .POP)
 }
 
@@ -25,7 +26,7 @@ func declareMethod(unit: CompilerUnit, signStr: String) -> Int {
     }
     var methods = enclosingClassBK.inStatic ? enclosingClassBK.staticMethods : enclosingClassBK.instanceMethods
     if methods.contains(index) {
-        fatalError()
+        fatalError("repeat define method \(signStr) in class \(enclosingClassBK.name)")
     }
     
     methods.append(index)

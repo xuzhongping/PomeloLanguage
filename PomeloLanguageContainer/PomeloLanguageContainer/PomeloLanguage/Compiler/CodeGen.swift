@@ -616,6 +616,7 @@ public func emitCondition(unit: CompilerUnit, assign: Bool) {
     emitPatchPlaceholder(unit: unit, absIndex: falseBranchEnd)
 }
 
+/// 编译变量定义，读入var关键词
 public func emitVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
     unit.curLexParser.consumeCurToken(expected: .id, message: "missing variable name!")
     
