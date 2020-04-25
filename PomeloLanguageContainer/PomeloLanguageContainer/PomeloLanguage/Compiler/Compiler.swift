@@ -188,7 +188,9 @@ extension CompilerUnit {
         return declareLocalVar(name: name)
     }
     
-    public func defineVariable(index: Int) {
+    public func defineVariable(index: Index) {
+        //局部变量已存储到栈中,无须处理.
+        //模块变量并不存储到栈中,因此将其写回相应位置
         if scopeDepth == ScopeDepth.module {
             writeByteCode(unit: self, code: .STORE_MODULE_VAR, operand: index)
             writeOpCode(unit: self, code: .POP)

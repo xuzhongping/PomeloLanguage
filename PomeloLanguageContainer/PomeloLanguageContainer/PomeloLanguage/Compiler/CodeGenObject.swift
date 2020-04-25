@@ -112,6 +112,19 @@ func compileMethodDefinition(unit: CompilerUnit, classVar: Variable, isStatic: B
 
 /// 编译类体
 func compileClassBody(unit: CompilerUnit, classVar: Variable) {
+    //class Foo {
+    //    var instanceVar1
+    //    static var staticVar1
+    //    new() {
+    //
+    //    }
+    //    instanceMethod() {
+    //
+    //    }
+    //    static staticMethod() {
+    //
+    //    }
+    //}
     if unit.curLexParser.matchCurToken(expected: .static_) {
         if unit.curLexParser.matchCurToken(expected: .var_) {
             emitVarDefinition(unit: unit, isStatic: true)
@@ -127,9 +140,10 @@ func compileClassBody(unit: CompilerUnit, classVar: Variable) {
 
 /// 编译类定义
 func compileClassDefinition(unit: CompilerUnit) {
-    guard unit.scopeDepth == -1 else {
+    guard unit.scopeDepth == ScopeDepth.module else {
         fatalError("class definition must be in the module scope!")
     }
+    
     unit.curLexParser.consumeCurToken(expected: .id, message: "keyword class should follow by class name!")
     guard let className = unit.curLexParser.preToken?.value as? String else {
         fatalError()
@@ -145,7 +159,7 @@ func compileClassDefinition(unit: CompilerUnit) {
     }
     
     let filedNumIndex = writeByteCode(unit: unit, code: .CREATE_CLASS, operand: 255)
-    if unit.scopeDepth == -1 {
+    if unit.scopeDepth == ScopeDepth.module {
         emitStoreModuleVar(unit: unit, index: classVar.index)
     }
     let classBK = ClassBookKeep(name: className)
@@ -157,7 +171,7 @@ func compileClassDefinition(unit: CompilerUnit) {
     
     while !unit.curLexParser.matchCurToken(expected: .rightBrace) {
         compileClassBody(unit: unit, classVar: classVar)
-        guard let _ = unit.curLexParser.curToken else {
+        if unit.curLexParser.status == .end {
             fatalError()
         }
     }
@@ -173,15 +187,30 @@ func compileClassDefinition(unit: CompilerUnit) {
 
 /// 编译函数定义
 func compileFunctionDefinition(unit: CompilerUnit) {
+//    函数定义方式1:
+//    var name = Fn.new { |parames|
+//        code
+//    }
+//    name.call(args)
+//
+//    函数定义方法2:
+//    function name(params) {
+//        code
+//    }
+//    name(args)
+    
     if let _ = unit.enclosingUnit {
         fatalError("'fun' should be in module scope!")
     }
     unit.curLexParser.consumeCurToken(expected: .id, message: "missing function name!")
+    
     guard let name = unit.curLexParser.preToken?.value as? String else {
         fatalError()
     }
+    
     let fnName = "Fn \(name)"
-    let fnNameIndex = unit.declareLocalVar(name: fnName)
+    let fnNameIndex = unit.declareVariable(name: fnName)
+    
     let fnUnit = CompilerUnit(lexParser: unit.curLexParser, enclosingUnit: unit, isMethod: false)
     let tempFnSign = Signature(type: .method, name: "", argNum: 0)
     unit.curLexParser.consumeCurToken(expected: .leftParen, message: "expect '(' after function name!")
