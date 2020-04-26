@@ -69,7 +69,7 @@ public class FnObject: BaseObject {
 
 /// upvalue对象
 class UpvalueObject: BaseObject {
-    var localVar: AnyValue?
+    var localVarIndex: Index?
     var closedUpvalue: AnyValue?
     init(virtual: Virtual) {
         super.init(virtual: virtual, type: .upValue, cls: nil)

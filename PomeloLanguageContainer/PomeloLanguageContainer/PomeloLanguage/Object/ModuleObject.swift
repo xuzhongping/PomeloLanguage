@@ -131,7 +131,7 @@ public func compileModule(virtual: Virtual, module: ModuleObject, code: String) 
                     maxStackSize: 100)
 }
 
-
+@discardableResult
 public func executeModule(virtual: Virtual, name: String, code: String) -> Virtual.result {
     let _ = loadModule(virtual: virtual, name: name, code: code)
     return .success

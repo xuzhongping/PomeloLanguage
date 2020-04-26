@@ -33,20 +33,25 @@ public class ClassObject: BaseObject {
     convenience init(rawClass virtual: Virtual, name: String, fieldNum: Int) {
         /// 裸类没有所属类
         let rawClassHeader = Header(virtual: virtual, type: .class_, cls: nil)
-        self.init(virtual: virtual, header: rawClassHeader, superClass: nil, name: name)
+        self.init(virtual: virtual,
+                  header: rawClassHeader,
+                  superClass: nil,
+                  name: name)
     }
     
     /// 创建一个类
     convenience init(virtual: Virtual, name: String, fieldNum: Int, superClass: ClassObject) {
+        // 创建类
+        self.init(rawClass: virtual, name: name, fieldNum: fieldNum)
+        
         // 先创建类的meta类
         let metaClass = ClassObject(rawClass: virtual, name: name, fieldNum: 0)
+        // 设置meta类的类为classOfClass
         metaClass.header.cls = virtual.classOfClass
         
         // 绑定classOfClass为meta类的基类
         metaClass.bindSuperClass(virtual: virtual, superClass: virtual.classOfClass)
         
-        // 创建类
-        self.init(rawClass: virtual, name: name, fieldNum: fieldNum)
         header.cls = metaClass
         bindSuperClass(virtual: virtual, superClass: superClass)
     }

@@ -118,25 +118,30 @@ public class Virtual: NSObject {
     
     /// 关闭栈中lastIndex以上的upvalue
     public func closedUpvalue(thread: ThreadObject, lastIndex: Int) {
+ 
         for i in lastIndex..<thread.openUpvalues.count {
             let upvalue = thread.openUpvalues[i]
-            upvalue.closedUpvalue = upvalue.localVar
+            if let localVarIndex = upvalue.localVarIndex {
+                upvalue.closedUpvalue = thread.stack[localVarIndex]
+//                upvalue.localVarIndex = up
+            }
         }
     }
     
     /// 将localVar所属的upvalue插入openUpvalues中
-    public func createOpenUpvalue(thread: ThreadObject, localVar: AnyValue) {
+    public func createOpenUpvalue(thread: ThreadObject, localVarIndex: Index) {
         let upvalue = UpvalueObject(virtual: self)
+        upvalue.localVarIndex = localVarIndex
         thread.openUpvalues.append(upvalue)
     }
     
     /// 校验基类合法性
     public func validateSuperClass(name: String, superClass: ClassObject, fieldNum: Int)  {
         if builtinClasses.contains(superClass) {
-            fatalError()
+            fatalError("superClass mustn`t be a buildin class!")
         }
         if superClass.fieldNum + fieldNum > maxFieldNum {
-            fatalError()
+            fatalError("number of field including super exceed \(maxFieldNum)!")
         }
     }
     

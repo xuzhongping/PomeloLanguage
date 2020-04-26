@@ -41,10 +41,11 @@ public class ThreadObject: BaseObject {
     }
     
     /// 为函数准备栈帧运行
-    public func prepareFrame(closure: ClosureObject, stackIndex: Int) {
-        guard frameCapacity > usedFrameNum else {
+    public func prepareFrame(closure: ClosureObject, stackIndex: Index) {
+        guard frameCapacity >= usedFrameNum else {
             fatalError("frame not enough!")
         }
+        // ip 位于 closure.fn.byteStream中的第0个字节
         let frame = CallFrame(closure: closure, stackStart: stackIndex, ip: 0)
         frames.append(frame)
     }
