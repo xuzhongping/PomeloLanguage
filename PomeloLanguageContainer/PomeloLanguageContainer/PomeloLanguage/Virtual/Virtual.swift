@@ -417,7 +417,7 @@ extension Virtual {
     }
 }
 
-
+/// 修正部分指令操作数
 public func patchOperand(cls: ClassObject, fn: FnObject) {
     var ip = 0
     while true {
@@ -431,6 +431,7 @@ public func patchOperand(cls: ClassObject, fn: FnObject) {
              .LOAD_THIS_FIELD,
              .STORE_THIS_FIELD:
             fn.byteStream[ip] += Byte(cls.superClass?.fieldNum ?? 0)
+            ip += 1
         case .SUPER0,
              .SUPER1,
              .SUPER2,
@@ -465,4 +466,21 @@ public func patchOperand(cls: ClassObject, fn: FnObject) {
             ip += getBytesOfByteCode(byteStream: fn.byteStream, constants: fn.constants, ip: ip - 1)
         }
     }
+}
+
+/// 绑定方法或修正操作数
+public func bindMethodAndPatch(virtual: Virtual, opCode: OP_CODE, methodIndex: Index, cls: ClassObject, methodValue: AnyValue) {
+    var tempClass = cls
+    if opCode == .STATIC_METHOD {
+        guard let metaClass = cls.header.cls else {
+            fatalError()
+        }
+        tempClass = metaClass
+    }
+    guard let closureObject = methodValue.toClosureObject() else {
+        fatalError()
+    }
+    let method = Method(scriptImp: closureObject)
+    patchOperand(cls: tempClass, fn: method.scriptImp!.fn)
+    tempClass.bindMethod(virtual: virtual, index: methodIndex, method: method)
 }
