@@ -22,20 +22,6 @@ public class Virtual: NSObject {
     /// 当前线程
     var thread: ThreadObject?
     
-    /// 当前栈帧
-    var frame: CallFrame?
-    
-    /// 当前栈起始地址
-    var stackStart: Index
-    
-    /// 当前ip
-    var ip: Index
-    
-    /// 当前fn
-    var fn: FnObject?
-    
-    var opCode: OP_CODE?
-    
     /// Class类
     var classOfClass: ClassObject!
     
@@ -100,9 +86,7 @@ public class Virtual: NSObject {
         allObjectHeader = nil
         allModules = [:]
         allMethodNames = []
-        
-        stackStart = 0
-        ip = 0
+
     }
     
     public static func create() -> Virtual {
@@ -147,30 +131,177 @@ public class Virtual: NSObject {
     
     /// 执行指令
     public func executeInstruction(thread: ThreadObject) -> Virtual.result {
+        var curThread = thread
         self.thread = thread
+        
+        var curFrame: CallFrame?
+        var stackStartIndex: Index?
+        var ip: Index?
+        var fn: FnObject?
+        var opCode: OP_CODE?
+        
+        func push(value: AnyValue) {
+            curThread.stack[curThread.esp] = value
+            curThread.esp += 1
+        }
+        
+        func pop() -> AnyValue? {
+            curThread.esp -= 1
+            return curThread.stack[curThread.esp]
+        }
+        
+        func drop() {
+            curThread.esp -= 1
+        }
+        
+        func peek() -> AnyValue? {
+            return curThread.stack[curThread.esp - 1]
+        }
+        
+        func peek2() -> AnyValue? {
+            return curThread.stack[curThread.esp - 2]
+        }
+        
+        func setPeek(value: AnyValue) {
+            curThread.stack[curThread.esp - 1] = value
+        }
+        
+        func setPeek2(value: AnyValue) {
+            curThread.stack[curThread.esp - 2] = value
+        }
+        
+        func readByte() -> Byte? {
+            guard let ip = ip else {
+                fatalError()
+            }
+            return fn?.byteStream[ip]
+        }
+        
+        func readShort() -> Int? {
+            guard let ip = ip else {
+                fatalError()
+            }
+            guard let fn = fn else {
+                fatalError()
+            }
+            return Int(fn.byteStream[ip - 2]) << 8 | Int(fn.byteStream[ip - 1])
+        }
+        
+        func storeFrame() {
+            guard let ip = ip else {
+                fatalError()
+            }
+            curFrame?.ip = ip
+        }
+        
+        
+        func loadFrame() {
+            curFrame = curThread.frames.last
+            stackStartIndex = curFrame?.stackStart
+            ip = curFrame?.ip
+            fn = curFrame?.closure.fn
+        }
+        
+        func decode() {
+            guard let byte = readByte() else {
+                fatalError()
+            }
+            opCode = OP_CODE(rawValue: byte)
+        }
+        
+        func invokeMethod(index: Index, cls: ClassObject, argsNum: Int) -> Virtual.result? {
+            if index > cls.methods.count {
+                fatalError()
+            }
+            let method = cls.methods[index]
+            switch method.type {
+            case .none:
+                fatalError()
+            case .native:
+                guard let imp = method.nativeImp else {
+                    fatalError()
+                }
+                if imp(self, &curThread.stack, index) {
+                    curThread.esp -= argsNum
+                } else {
+                    storeFrame()
+                    if self.thread == nil {
+                        return .success
+                    }
+                    curThread = self.thread!
+                    loadFrame()
+                    
+                    if let errObject = curThread.errorObject {
+                        print(errObject)
+                        setPeek(value: errObject)
+                    }
+                    if self.thread == nil {
+                        return .success
+                    }
+                    
+                    curThread = self.thread!
+                    loadFrame()
+                }
+            case .script:
+                storeFrame()
+                guard let closureObject = method.scriptImp else {
+                    fatalError()
+                }
+                createFrame(thread: curThread, closure: closureObject, argNum: argsNum)
+                loadFrame()
+            case .call:
+                guard let closureObject = curThread.stack[thread.esp - argsNum].toClosureObject() else {
+                    fatalError()
+                }
+
+                if argsNum - 1 < closureObject.fn.argNum {
+                    fatalError("arguments less")
+                }
+                storeFrame()
+  
+                createFrame(thread: curThread, closure: closureObject, argNum: argsNum)
+                
+                loadFrame()
+            }
+            return nil
+        }
+        
         loadFrame()
         
         while true {
+            decode()
+            
             guard let opCode = opCode else {
-                return .success
+                fatalError()
             }
+            
             switch opCode {
             case .LOAD_LOCAL_VAR:
                 guard let byte = readByte() else {
                     fatalError()
                 }
-                push(value: self.thread!.stack[stackStart + Int(byte)])
+                guard let stackStackIndex = stackStartIndex else {
+                    fatalError()
+                }
+                push(value: curThread.stack[stackStackIndex + Int(byte)])
+                
             case .LOAD_THIS_FIELD:
                 guard let fieldIndex = readByte() else {
                     fatalError()
                 }
-                guard let instanceObject = self.thread!.stack[stackStart].toInstanceObject() else {
+                guard let stackStackIndex = stackStartIndex else {
+                    fatalError()
+                }
+                guard let instanceObject = curThread.stack[stackStackIndex].toInstanceObject() else {
                     fatalError("method receiver should be instanceObj")
                 }
+                
                 guard fieldIndex < (instanceObject.header.cls?.fieldNum ?? 0) else {
                     fatalError("out of bounds field!")
                 }
+                
                 push(value: instanceObject.fields[Int(fieldIndex)])
+                
             case .POP:
                 drop()
             case .PUSH_NULL:
@@ -183,12 +314,23 @@ public class Virtual: NSObject {
                 guard let byte = readByte() else {
                     fatalError()
                 }
-                self.thread!.stack[stackStart + Int(byte)] = peek()
+                guard let stackStackIndex = stackStartIndex else {
+                    fatalError()
+                }
+                
+                guard let value = peek() else {
+                    fatalError("method receiver should be instanceObj")
+                }
+                
+                curThread.stack[stackStackIndex + Int(byte)] = value
             case .LOAD_CONSTANT:
                 guard let value = readShort() else {
                     fatalError()
                 }
-                push(value: self.fn!.constants[value])
+                guard let fn = fn else {
+                    fatalError()
+                }
+                push(value: fn.constants[value])
             
             case .CALL0,
                  .CALL1,
@@ -207,16 +349,20 @@ public class Virtual: NSObject {
                  .CALL14,
                  .CALL15,
                  .CALL16:
-                let argNum = opCode.rawValue - OP_CODE.CALL0.rawValue + 1
+                
                 guard let index = readShort() else {
                     fatalError()
                 }
-                let argsIndex = self.thread!.esp - Int(argNum)
-                let classObject = self.thread!.stack[argsIndex].getClass(virtual: self)
-                invokeMethod(argNum: Int(argNum),
-                             index: index,
-                             argsIndex: argsIndex,
-                             cls: classObject)
+                
+                let argNum = opCode.rawValue - OP_CODE.CALL0.rawValue + 1
+            
+                let argsIndex = curThread.esp - Int(argNum)
+                
+                let classObject = curThread.stack[argsIndex].getClass(virtual: self)
+                
+                if let result = invokeMethod(index: index, cls: classObject, argsNum: Int(argNum)) {
+                    return result
+                }
             case .SUPER0,
                  .SUPER1,
                  .SUPER2,
@@ -234,22 +380,21 @@ public class Virtual: NSObject {
                  .SUPER14,
                  .SUPER15,
                  .SUPER16:
-                let argNum = opCode.rawValue - OP_CODE.SUPER0.rawValue + 1
+                
                 guard let index = readShort() else {
                     fatalError()
                 }
-                let argsIndex = self.thread!.esp - Int(argNum)
+                
+                let argNum = opCode.rawValue - OP_CODE.SUPER0.rawValue + 1
+                
                 guard let constIndex = readShort() else {
                     fatalError()
                 }
-                guard let classObject = self.fn!.constants[constIndex].toClassObject() else {
+                guard let classObject = fn?.constants[constIndex].toClassObject() else {
                     fatalError()
                 }
                 
-                if let result = invokeMethod(argNum: Int(argNum),
-                                             index: index,
-                                             argsIndex: argsIndex,
-                                             cls: classObject) {
+                if let result = invokeMethod(index: index, cls: classObject, argsNum: Int(argNum)) {
                     return result
                 }
             default: break
@@ -257,165 +402,10 @@ public class Virtual: NSObject {
             }
         }
     }
-    
-    private func invokeMethod(argNum: Int, index: Index, argsIndex: Index, cls: ClassObject) -> Virtual.result? {
-        guard index < cls.methods.count else {
-            fatalError("method \(allMethodNames[index]) not found")
-        }
-        let method = cls.methods[index]
-        if method.type == .none {
-            fatalError("method \(allMethodNames[index]) not found")
-        }
-        switch method.type {
-        case .native:
-            if method.nativeImp!(self, &thread!.stack, argsIndex) {
-                self.thread!.esp -= argNum - 1
-            } else {
-                storeFrame()
-                if self.thread == nil {
-                    return .success
-                }
-                loadFrame()
-                if let errObj = self.thread?.errorObject {
-                    print(errObj)
-                    peekSet(value: AnyValue(value: nil))
-                }
-                if self.thread == nil {
-                    return .success
-                }
-                loadFrame()
-            }
-        case .script:
-            storeFrame()
-            createFrame(thread: self.thread!, closure: method.scriptImp!, argNum: argNum)
-            loadFrame()
-        case .call:
-            guard let fnObject = thread!.stack[stackStart].toClosureObject()?.fn else {
-                fatalError("instance must be a closure")
-            }
-            if argNum - 1 < fnObject.argNum {
-                fatalError("arguments less")
-            }
-            storeFrame()
-            guard let closureObject = thread!.stack[stackStart].toClosureObject() else {
-                fatalError("instance must be a closure")
-            }
-            createFrame(thread: thread!, closure: closureObject, argNum: argNum)
-            loadFrame()
-        default:
-            fatalError()
-        }
-        return nil
-    }
+
 }
 
-extension Virtual {
-    func push(value: AnyValue) {
-        guard let thread = self.thread else {
-            fatalError()
-        }
-        thread.esp += 1
-        thread.stack[thread.esp] = value
-    }
-    
-    func pop() -> AnyValue {
-        guard let thread = self.thread else {
-            fatalError()
-        }
-        thread.esp -= 1
-        return thread.stack[thread.esp]
-    }
-    
-    /// 丢弃
-    func drop() {
-        guard let thread = self.thread else {
-            fatalError()
-        }
-        thread.esp -= 1
-    }
-    
-    /// 获得栈顶的数据
-    func peek() ->AnyValue {
-        guard let thread = self.thread else {
-            fatalError()
-        }
-        return thread.stack[thread.esp - 1]
-    }
-    
-    func peekSet(value: AnyValue) {
-        guard let thread = self.thread else {
-            fatalError()
-        }
-        thread.stack[thread.esp - 1] = value
-    }
-    
-    /// 获得次栈顶的数据
-    func peek2() -> AnyValue {
-        guard let thread = self.thread else {
-            fatalError()
-        }
-        return thread.stack[thread.esp - 2]
-    }
-    
-    func peek2Set(value: AnyValue) {
-        guard let thread = self.thread else {
-            fatalError()
-        }
-        thread.stack[thread.esp - 2] = value
-    }
-    
-    /// 读取1个字节
-    func readByte() -> Byte? {
-        guard fn != nil else {
-            fatalError()
-        }
-        guard ip <= fn!.byteStream.count else {
-            return nil
-        }
-        let byte = fn!.byteStream[ip]
-        ip += 1
-        return byte
-    }
-    
-    /// 读取2个字节
-    func readShort() -> Int? {
-        guard fn != nil else {
-            fatalError()
-        }
-        ip += 2
-        guard ip - 2 <= fn!.byteStream.count, ip - 1 <= fn!.byteStream.count else {
-            return nil
-        }
-        return Int(fn!.byteStream[ip - 2]) << 8 | Int(fn!.byteStream[ip - 1])
-    }
-    
-    func storeFrame() {
-        frame?.ip = ip
-    }
-    
-    func loadFrame() {
-        guard let thread = self.thread else {
-            fatalError()
-        }
-        frame = thread.frames[thread.usedFrameNum - 1]
-        
-        guard let frame = frame else {
-            fatalError()
-        }
-        
-        stackStart = frame.stackStart
-        ip = frame.ip
-        fn = frame.closure.fn
-    }
-    
-    func decode() {
-        guard let byte = readByte() else {
-            self.opCode = nil
-            return
-        }
-        self.opCode = OP_CODE(rawValue: byte)
-    }
-}
+
 
 /// 修正部分指令操作数
 public func patchOperand(cls: ClassObject, fn: FnObject) {
