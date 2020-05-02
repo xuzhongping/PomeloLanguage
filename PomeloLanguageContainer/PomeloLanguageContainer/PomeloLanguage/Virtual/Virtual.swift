@@ -136,7 +136,7 @@ public class Virtual: NSObject {
         
         var curFrame: CallFrame?
         var stackStartIndex: Index?
-        var ip: Index?
+        var ip: Index = 0
         var fn: FnObject?
         var opCode: OP_CODE?
         
@@ -171,35 +171,34 @@ public class Virtual: NSObject {
         }
         
         func readByte() -> Byte? {
-            guard let ip = ip else {
+            guard let byte = fn?.byteStream[ip] else {
                 fatalError()
             }
-            return fn?.byteStream[ip]
+            ip += 1
+            return byte
         }
         
         func readShort() -> Int? {
-            guard let ip = ip else {
-                fatalError()
-            }
             guard let fn = fn else {
                 fatalError()
             }
+            ip += 2
             return Int(fn.byteStream[ip - 2]) << 8 | Int(fn.byteStream[ip - 1])
         }
         
         func storeFrame() {
-            guard let ip = ip else {
-                fatalError()
-            }
             curFrame?.ip = ip
         }
         
         
         func loadFrame() {
             curFrame = curThread.frames.last
-            stackStartIndex = curFrame?.stackStart
-            ip = curFrame?.ip
-            fn = curFrame?.closure.fn
+            guard let curFrame = curFrame else {
+                fatalError()
+            }
+            stackStartIndex = curFrame.stackStart
+            ip = curFrame.ip
+            fn = curFrame.closure.fn
         }
         
         func decode() {
@@ -222,7 +221,7 @@ public class Virtual: NSObject {
                     fatalError()
                 }
                 if imp(self, &curThread.stack, index) {
-                    curThread.esp -= argsNum
+                    curThread.esp -= argsNum - 1 // -1 防止回收args[0]返回值
                 } else {
                     storeFrame()
                     if self.thread == nil {
@@ -248,6 +247,7 @@ public class Virtual: NSObject {
                     fatalError()
                 }
                 createFrame(thread: curThread, closure: closureObject, argNum: argsNum)
+                
                 loadFrame()
             case .call:
                 guard let closureObject = curThread.stack[thread.esp - argsNum].toClosureObject() else {
@@ -397,6 +397,140 @@ public class Virtual: NSObject {
                 if let result = invokeMethod(index: index, cls: classObject, argsNum: Int(argNum)) {
                     return result
                 }
+                
+            case .LOAD_UPVALUE:
+                guard let value = readByte() else {
+                    fatalError()
+                }
+                guard let upvalue = curFrame?.closure.upvalues[Int(value)].closedUpvalue else {
+                    fatalError()
+                }
+                push(value: upvalue)
+                
+            case .STORE_UPVALUE:
+                guard let value = peek() else {
+                    fatalError()
+                }
+                guard let upvalueIndex = readByte() else {
+                    fatalError()
+                }
+                curFrame?.closure.upvalues[Int(upvalueIndex)].closedUpvalue = value
+                
+            case .LOAD_MODULE_VAR:
+                guard let index = readShort() else {
+                    fatalError()
+                }
+                guard let fn = fn else {
+                    fatalError()
+                }
+                push(value: fn.module.moduleVarValues[index])
+                
+            case .STORE_MODULE_VAR:
+                guard let fn = fn else {
+                    fatalError()
+                }
+                guard let index = readShort() else {
+                    fatalError()
+                }
+                guard let value = peek() else {
+                    fatalError()
+                }
+                fn.module.moduleVarValues[index] = value
+                
+            case .STORE_THIS_FIELD:
+                guard let fieldIndex = readByte() else {
+                    fatalError()
+                }
+                guard let stackStackIndex = stackStartIndex else {
+                    fatalError()
+                }
+                guard let instance = curThread.stack[stackStackIndex].toInstanceObject() else {
+                    fatalError("receiver should be instance!")
+                }
+                guard fieldIndex < instance.header.cls?.fieldNum ?? 0 else {
+                    fatalError("out of bounds field!")
+                }
+                guard let top = peek() else {
+                    fatalError()
+                }
+                instance.fields[Int(fieldIndex)] = top
+                
+            case .LOAD_FIELD:
+                guard let fieldIndex = readByte() else {
+                    fatalError()
+                }
+                guard let instance = pop()?.toInstanceObject() else {
+                    fatalError("receiver should be instance!")
+                }
+                guard fieldIndex > instance.header.cls?.fieldNum ?? 0 else {
+                    fatalError("out of bounds field!")
+                }
+                push(value: instance.fields[Int(fieldIndex)])
+                
+            case .STORE_FIELD:
+                guard let fieldIndex = readByte() else {
+                    fatalError()
+                }
+                guard let instance = pop()?.toInstanceObject() else {
+                    fatalError("receiver should be instance!")
+                }
+                guard fieldIndex > instance.header.cls?.fieldNum ?? 0 else {
+                    fatalError("out of bounds field!")
+                }
+                guard let top = peek() else {
+                    fatalError()
+                }
+                instance.fields[Int(fieldIndex)] = top
+                
+            case .JUMP:
+                guard let offset = readShort(), offset > 0 else {
+                    fatalError("OPCODE_JUMP`s operand must be positive!")
+                }
+                ip += offset
+                
+            case .LOOP:
+                guard let offset = readShort(), offset > 0 else {
+                    fatalError("OPCODE_LOOP`s operand must be positive!")
+                }
+                ip -= offset
+            case .JUMP_IF_FALSE:
+                guard let offset = readShort(), offset > 0 else {
+                    fatalError("OPCODE_JUMP_IF_FALSE`s operand must be positive!")
+                }
+                guard let condition = pop() else {
+                    fatalError()
+                }
+                // 为null或为false时才为假，不包含0
+                if condition.isNull() || condition.toBool() == false {
+                    ip += offset
+                }
+                
+            case .AND:
+                guard let offset = readShort(), offset > 0 else {
+                    fatalError("OPCODE_AND`s operand must be positive!")
+                }
+                guard let condition = peek() else {
+                    fatalError()
+                }
+                if condition.isNull() || condition.toBool() == false {
+                    ip += offset
+                } else {
+                    drop()
+                }
+                
+            case .OR:
+                guard let offset = readShort(), offset > 0 else {
+                    fatalError("OPCODE_AND`s operand must be positive!")
+                }
+                guard let condition = peek() else {
+                    fatalError()
+                }
+                if condition.isNull() || condition.toBool() == false {
+                    drop()
+                } else {
+                    ip += offset
+                }
+                
             default: break
                 
             }
