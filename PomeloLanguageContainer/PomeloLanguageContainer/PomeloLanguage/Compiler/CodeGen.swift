@@ -474,7 +474,7 @@ public func compileBlock(unit: CompilerUnit)  {
         if unit.curLexParser.status == LexParser.LexStatus.end {
             fatalError("expect ')' at the end of block!")
         }
-        unit.compileProgram()
+        compileProgram(unit: unit)
     }
 }
 

@@ -280,10 +280,10 @@ public class Virtual: NSObject {
                 guard let byte = readByte() else {
                     fatalError()
                 }
-                guard let stackStackIndex = stackStartIndex else {
+                guard let stackStartIndex = stackStartIndex else {
                     fatalError()
                 }
-                push(value: curThread.stack[stackStackIndex + Int(byte)])
+                push(value: curThread.stack[stackStartIndex + Int(byte)])
                 
             case .LOAD_THIS_FIELD:
                 guard let fieldIndex = readByte() else {
@@ -531,7 +531,129 @@ public class Virtual: NSObject {
                     ip += offset
                 }
                 
-            default: break
+            case .CLOSE_UPVALUE:
+                closedUpvalue(thread: curThread, lastIndex: curThread.esp - 1)
+                drop()
+                
+            case .RETURN:
+                guard let retValue = pop() else {
+                    fatalError()
+                }
+                curThread.frames.removeLast()
+                guard let stackStartIndex = stackStartIndex else {
+                    fatalError()
+                }
+                closedUpvalue(thread: curThread, lastIndex: stackStartIndex)
+                if curThread.usedFrameNum == 0 {
+                    guard let callerThread = curThread.caller else {
+                        curThread.stack[stackStartIndex] = retValue
+                        curThread.esp = stackStartIndex + 1
+                        return .success
+                    }
+                    curThread.caller = nil
+                    curThread = callerThread
+                    self.thread = callerThread
+                    curThread.stack[curThread.esp - 1] = retValue
+                } else {
+                    curThread.stack[stackStartIndex] = retValue
+                    curThread.esp = stackStartIndex + 1
+                }
+                
+                loadFrame()
+                
+            case .CONSTRUCT:
+                guard let stackStartIndex = stackStartIndex else {
+                    fatalError()
+                }
+                guard let clsObject = curThread.stack[stackStartIndex].toClassObject() else {
+                    fatalError("stack[0] should be a class for OPCODE_CONSTRUCT!")
+                }
+                
+                let instance = InstanceObject(cls: clsObject, virtual: self)
+
+                curThread.stack[stackStartIndex] = AnyValue(value: instance)
+                
+            case .CREATE_CLOSURE:
+                guard let fnIndex = readShort() else {
+                    fatalError()
+                }
+                guard let fnObject = fn?.constants[fnIndex].toFnObject() else {
+                    fatalError()
+                }
+                
+                guard let stackStartIndex = stackStartIndex else {
+                    fatalError()
+                }
+                
+                guard let curFrame = curFrame else {
+                    fatalError()
+                }
+                
+                let closureObject = ClosureObject(virtual: self, fn: fnObject)
+                push(value: AnyValue(value: closureObject))
+                
+                for _ in 0..<fnObject.upvalueNum {
+                    guard let isEnclosingLocalVar = readByte() else {
+                        fatalError()
+                    }
+                    guard let index = readByte() else {
+                        fatalError()
+                    }
+                    if isEnclosingLocalVar == 1 {
+                        let upvalueObject = UpvalueObject(virtual: self)
+                        upvalueObject.localVarIndex = stackStartIndex + Int(index)
+                        closureObject.upvalues.append(upvalueObject)
+                    } else {
+                        closureObject.upvalues.append(curFrame.closure.upvalues[Int(index)])
+                    }
+                }
+            
+            case .CREATE_CLASS:
+                
+                // 指令流: 1字节的field数量
+                // 栈顶: 基类 次栈顶: 子类名
+                
+                guard let filedNum = readByte() else {
+                    fatalError()
+                }
+                
+                guard let superClass = curThread.stack[curThread.esp - 1].toClassObject() else {
+                    fatalError()
+                }
+                guard let className = curThread.stack[curThread.esp - 2].toString() else {
+                    fatalError()
+                }
+                
+                guard let stackStartIndex = stackStartIndex else {
+                    fatalError()
+                }
+                
+                drop()
+                
+                validateSuperClass(name: className, superClass: superClass, fieldNum: Int(filedNum))
+                let classObject = ClassObject(virtual: self, name: className, fieldNum: Int(filedNum), superClass: superClass)
+                thread.stack[stackStartIndex] = AnyValue(value: classObject)
+                
+            case .INSTANCE_METHOD,
+                 .STATIC_METHOD:
+                
+                // 指令类: 待绑定的方法名在vm->allMethodNames中的2字节的索引
+                // 栈顶: 待绑定的类 次栈顶: 待绑定的方法
+                guard let methodNameIndex = readShort() else {
+                    fatalError()
+                }
+                guard let classObject = pop()?.toClassObject() else {
+                    fatalError()
+                }
+                
+                guard let methodObject = pop()?.toClosureObject() else {
+                    fatalError()
+                }
+                
+                bindMethodAndPatch(virtual: self, opCode: opCode, methodIndex: methodNameIndex, cls: classObject, method: methodObject)
+            
+            case .END:
+                return .success
                 
             }
         }
@@ -593,7 +715,7 @@ public func patchOperand(cls: ClassObject, fn: FnObject) {
 }
 
 /// 绑定方法或修正操作数
-public func bindMethodAndPatch(virtual: Virtual, opCode: OP_CODE, methodIndex: Index, cls: ClassObject, methodValue: AnyValue) {
+public func bindMethodAndPatch(virtual: Virtual, opCode: OP_CODE, methodIndex: Index, cls: ClassObject, method: ClosureObject) {
     var tempClass = cls
     if opCode == .STATIC_METHOD {
         guard let metaClass = cls.header.cls else {
@@ -601,10 +723,10 @@ public func bindMethodAndPatch(virtual: Virtual, opCode: OP_CODE, methodIndex: I
         }
         tempClass = metaClass
     }
-    guard let closureObject = methodValue.toClosureObject() else {
-        fatalError()
-    }
-    let method = Method(scriptImp: closureObject)
+
+    let method = Method(scriptImp: method)
+    
     patchOperand(cls: tempClass, fn: method.scriptImp!.fn)
+    
     tempClass.bindMethod(virtual: virtual, index: methodIndex, method: method)
 }

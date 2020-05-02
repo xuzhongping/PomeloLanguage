@@ -142,9 +142,7 @@ public class CompilerUnit: NSObject {
 // MARK: 变量操作相关
 extension CompilerUnit {
    
-    public func compileProgram() {
-        
-    }
+
     
     /// 添加局部变量
     @discardableResult

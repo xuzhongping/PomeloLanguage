@@ -25,6 +25,14 @@ public class AnyValue: NSObject {
 }
 
 extension AnyValue {
+    
+    public func toString() -> String? {
+        guard let obj = value as? String else {
+            return nil
+        }
+        return obj
+    }
+    
     public func toBool() -> Bool? {
         guard let bool = value as? Bool else {
             return nil
@@ -98,6 +106,11 @@ extension AnyValue {
 }
 
 extension AnyValue {
+    
+    public func isString() -> Bool {
+        return value is String
+    }
+    
     public func isBool() -> Bool {
         return value is Bool
     }
@@ -150,6 +163,8 @@ extension AnyValue {
 extension AnyValue {
     public func getClass(virtual: Virtual) -> ClassObject {
         switch value {
+        case is String:
+            return virtual.stringClass
         case is Bool:
             return virtual.boolClass
         case is ClassObject:
