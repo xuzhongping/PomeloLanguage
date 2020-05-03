@@ -31,4 +31,23 @@ class Pomelo {
             print("\(token.type):\(token.value ?? "")")
         }
     }
+    
+    
+    /// 运行脚本文件
+    /// - Parameter file: 文件名
+    public func run(file: String) {
+        let virtual = Virtual()
+        
+        let code = PoLoader.loadModule(name: file)
+        
+        let result = executeModule(virtual: virtual, name: file, code: code)
+        print(result)
+    }
+    
+    
+    /// 运行脚本字符串
+    /// - Parameter cli: 命令行中的输入
+    public func run(cli: String) {
+        
+    }
 }

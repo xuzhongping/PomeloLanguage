@@ -13,7 +13,6 @@ import Cocoa
 public let ModuleNameCore = "Core"
 
 
-
 // MARK: - Class Name
 public let ClassNameObject = "Object"
 public let ClassNameObjectMeta = "ObjectMeta"
@@ -29,4 +28,5 @@ public let ClassNameBool = "Bool"
 public let ClassNameNum = "Num"
 public let ClassNameFn = "Fn"
 public let ClassNameThread = "Thread"
+
 

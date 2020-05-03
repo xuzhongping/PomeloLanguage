@@ -14,7 +14,7 @@ import Cocoa
 
 public func buildCore(virtual: Virtual) {
     
-
+    
     let coreModule = ModuleObject(name: ModuleNameCore, virtual: virtual)
     
     let coreModuleCode = PoLoader.loadCore()
@@ -55,8 +55,6 @@ public func buildCore(virtual: Virtual) {
     objectMetaClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
     
     virtual.classOfClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
-    
-    
     
     executeModule(virtual: virtual, name: ModuleNameCore, code: coreModuleCode)
 }
@@ -150,13 +148,16 @@ public func compileModule(virtual: Virtual, module: ModuleObject, code: String) 
 public func compileProgram(unit: CompilerUnit) {
     if unit.curLexParser.matchCurToken(expected: .class_) {
         compileClassDefinition(unit: unit)
+        
     } else if unit.curLexParser.matchCurToken(expected: .func_) {
         compileFunctionDefinition(unit: unit)
+        
     } else if unit.curLexParser.matchCurToken(expected: .var_) {
         guard let preToken = unit.curLexParser.preToken else {
             fatalError()
         }
         emitVarDefinition(unit: unit, isStatic: preToken.type == .static_)
+        
     } else if unit.curLexParser.matchCurToken(expected: .import_) {
         compileImport(unit: unit)
     }

@@ -86,13 +86,8 @@ public class Virtual: NSObject {
         allObjectHeader = nil
         allModules = [:]
         allMethodNames = []
-
-    }
-    
-    public static func create() -> Virtual {
-        let virtual = Virtual()
-        buildCore(virtual: virtual)
-        return virtual
+        super.init()
+        buildCore(virtual: self)
     }
     
     /// 为closure在thread中创建运行时栈

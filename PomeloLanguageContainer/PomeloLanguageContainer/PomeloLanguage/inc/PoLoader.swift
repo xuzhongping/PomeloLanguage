@@ -23,7 +23,12 @@ class PoLoader: NSObject {
         }
         return code
     }
+    
     static public func loadCore() -> String {
         return loadCode(name: "core", type: "po")
+    }
+    
+    static public func loadModule(name: String) -> String {
+        return loadCode(name: name, type: "po")
     }
 }
