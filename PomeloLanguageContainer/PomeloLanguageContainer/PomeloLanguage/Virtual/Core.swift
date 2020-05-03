@@ -156,9 +156,11 @@ public func compileProgram(unit: CompilerUnit) {
         guard let preToken = unit.curLexParser.preToken else {
             fatalError()
         }
-        emitVarDefinition(unit: unit, isStatic: preToken.type == .static_)
+        compileVarDefinition(unit: unit, isStatic: preToken.type == .static_)
         
     } else if unit.curLexParser.matchCurToken(expected: .import_) {
         compileImport(unit: unit)
+    } else {
+        compileStatment(unit: unit)
     }
 }

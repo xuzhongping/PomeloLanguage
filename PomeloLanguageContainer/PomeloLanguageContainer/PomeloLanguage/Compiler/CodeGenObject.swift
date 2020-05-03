@@ -89,7 +89,7 @@ func compileMethodDefinition(unit: CompilerUnit, classVar: Variable, isStatic: B
     }
     
     let methodIndex = declareMethod(unit: unit, signStr: sign.toString())
-    emitBody(unit: unit, isConstruct: sign.type == .construct)
+    compileBody(unit: unit, isConstruct: sign.type == .construct)
     
     endCompile(unit: unit)
     
@@ -127,12 +127,12 @@ func compileClassBody(unit: CompilerUnit, classVar: Variable) {
     //}
     if unit.curLexParser.matchCurToken(expected: .static_) {
         if unit.curLexParser.matchCurToken(expected: .var_) {
-            emitVarDefinition(unit: unit, isStatic: true)
+            compileVarDefinition(unit: unit, isStatic: true)
         } else {
             compileMethodDefinition(unit: unit, classVar: classVar, isStatic: true)
         }
     } else if unit.curLexParser.matchCurToken(expected: .var_) {
-        emitVarDefinition(unit: unit, isStatic: false)
+        compileVarDefinition(unit: unit, isStatic: false)
     } else {
         compileMethodDefinition(unit: unit, classVar: classVar, isStatic: false)
     }
@@ -216,13 +216,13 @@ func compileFunctionDefinition(unit: CompilerUnit) {
     unit.curLexParser.consumeCurToken(expected: .leftParen, message: "expect '(' after function name!")
     
     if !unit.curLexParser.matchCurToken(expected: .rightParen) {
-        emitProcessParaList(unit: unit, signature: tempFnSign)
+        processParaList(unit: unit, signature: tempFnSign)
         unit.curLexParser.consumeCurToken(expected: .rightParen, message: "expect ')' after parameter list!")
     }
     
     fnUnit.fn.argNum = tempFnSign.argNum
     unit.curLexParser.consumeCurToken(expected: .leftBrace, message: "expect '{' at the beginning of method body!")
-    emitBody(unit: fnUnit, isConstruct: false)
+    compileBody(unit: fnUnit, isConstruct: false)
     
     endCompile(unit: unit)
     unit.defineVariable(index: fnNameIndex)

@@ -12,20 +12,27 @@ import Cocoa
 public func compileStatment(unit: CompilerUnit) {
     if unit.curLexParser.matchCurToken(expected: .if_) {
         compileIfStatment(unit: unit)
+        
     } else if unit.curLexParser.matchCurToken(expected: .while_) {
         compileWhileStatment(unit: unit)
+        
     } else if unit.curLexParser.matchCurToken(expected: .for_) {
         compileForStatment(unit: unit)
+        
     } else if unit.curLexParser.matchCurToken(expected: .return_) {
         compileReturn(unit: unit)
+        
     } else if unit.curLexParser.matchCurToken(expected: .break_) {
         compileBreak(unit: unit)
+        
     } else if unit.curLexParser.matchCurToken(expected: .continue_) {
         compileContinue(unit: unit)
+        
     } else if unit.curLexParser.matchCurToken(expected: .leftBrace) {
         enterScope(unit: unit)
         compileBlock(unit: unit)
         leaveScope(unit: unit)
+        
     } else {
         expression(unit: unit, rbp: .lowest)
         writeOpCode(unit: unit, code: .POP)

@@ -90,7 +90,7 @@ public func emitCall(unit: CompilerUnit, argsNum: Int, name: String) {
 }
 
 /// 为实参列表各个参数生成加载实参的指令
-public func emitProcessArgList(unit: CompilerUnit, signature: Signature) {
+public func processArgList(unit: CompilerUnit, signature: Signature) {
     guard let token = unit.curLexParser.curToken else {
         fatalError()
     }
@@ -109,7 +109,7 @@ public func emitProcessArgList(unit: CompilerUnit, signature: Signature) {
 }
 
 /// 声明形参列表中的各个形参
-public func emitProcessParaList(unit: CompilerUnit, signature: Signature)  {
+public func processParaList(unit: CompilerUnit, signature: Signature)  {
     guard let token = unit.curLexParser.curToken else {
         fatalError()
     }
@@ -197,7 +197,7 @@ public func emitGetterMethodCall(unit: CompilerUnit, signature: Signature, code:
     if unit.curLexParser.matchCurToken(expected: .leftParen) {
         newSignature.type = .method
         if !unit.curLexParser.matchCurToken(expected: .rightParen) {
-            emitProcessArgList(unit: unit, signature: newSignature)
+            processArgList(unit: unit, signature: newSignature)
             unit.curLexParser.consumeCurToken(expected: .rightParen, message: "参数后必须跟)")
         }
     }
@@ -216,11 +216,11 @@ public func emitGetterMethodCall(unit: CompilerUnit, signature: Signature, code:
         
         // 代码块可能有形参列表: test() | x | {}
         if unit.curLexParser.matchCurToken(expected: .bitOr) {
-            emitProcessParaList(unit: unit, signature: internalSignature)
+            processParaList(unit: unit, signature: internalSignature)
             unit.curLexParser.consumeCurToken(expected: .bitOr, message: "块参数后必须跟|")
         }
         internalUnit.fn.argNum = internalSignature.argNum
-        emitBody(unit: internalUnit, isConstruct: false)
+        compileBody(unit: internalUnit, isConstruct: false)
         endCompile(unit: unit)
     }
     
@@ -256,7 +256,7 @@ public func emitMethodCall(unit: CompilerUnit, name: String, code: OP_CODE, assi
 
 
 /// 生成数字和字符串.nud()字面量指令
-public func emitLiteral(unit: CompilerUnit, assign: Bool) {
+public func compileLiteral(unit: CompilerUnit, assign: Bool) {
     emitLoadConstant(unit: unit, constant: AnyValue(value: unit.curLexParser.preToken?.value))
 }
 
@@ -272,42 +272,42 @@ public func emitLoadModuleVar(unit: CompilerUnit, name: String)  {
 }
 
 /// 编译内嵌表达式生成指令
-public func emitStringInterpolation(unit: CompilerUnit, assgin: Bool) {
+public func compileStringInterpolation(unit: CompilerUnit, assgin: Bool) {
     /// a %(b+c) d%(e) f
     emitLoadModuleVar(unit: unit, name: "List")
     emitCall(unit: unit, argsNum: 0, name: "new()")
     
     while true {
-        emitLiteral(unit: unit, assign: false)
+        compileLiteral(unit: unit, assign: false)
         expression(unit: unit, rbp: .lowest)
         emitCall(unit: unit, argsNum: 1, name: "addCore_(_)")
         guard unit.curLexParser.matchCurToken(expected: .interpolation)else { break }
     }
     
     unit.curLexParser.consumeCurToken(expected: .string, message: "内嵌表达式应该在后面跟字符串")
-    emitLiteral(unit: unit, assign: false)
+    compileLiteral(unit: unit, assign: false)
     emitCall(unit: unit, argsNum: 1, name: "addCore_(_)")
     emitCall(unit: unit, argsNum: 0, name: "join()")
 }
 
 /// 编译bool生成指令
-public func emitBoolean(unit: CompilerUnit, assign: Bool) {
+public func compileBoolean(unit: CompilerUnit, assign: Bool) {
     let opCode = unit.curLexParser.preToken?.type == Token.TokenType.true_ ? OP_CODE.PUSH_TRUE: OP_CODE.PUSH_FALSE
     writeOpCode(unit: unit, code: opCode)
 }
 
-public func emitNull(unit: CompilerUnit, assign: Bool) {
+public func compileNull(unit: CompilerUnit, assign: Bool) {
     writeOpCode(unit: unit, code: OP_CODE.PUSH_NULL)
 }
 ///编译this生成指令
-public func emitThis(unit: CompilerUnit, assign: Bool)  {
+public func compileThis(unit: CompilerUnit, assign: Bool)  {
     guard let _ = unit.getEnclosingClassBK() else {
         fatalError("this must be inside a class method")
     }
     emitLoadThis(unit: unit)
 }
 
-public func emitSuper(unit: CompilerUnit, assign: Bool)  {
+public func compileSuper(unit: CompilerUnit, assign: Bool)  {
     guard let enclosingBK = unit.getEnclosingClassBK() else {
         fatalError("can`t invoke super outsied a class method!")
     }
@@ -363,7 +363,7 @@ public func emitUnaryOperator(unit: CompilerUnit, assign: Bool) {
 
 //MARK: Compile
 /// 编译标识符的引用
-public func emitId(unit: CompilerUnit, assign: Bool) {
+public func compileId(unit: CompilerUnit, assign: Bool) {
     guard let token = unit.curLexParser.preToken else {
         fatalError()
     }
@@ -390,7 +390,7 @@ public func emitId(unit: CompilerUnit, assign: Bool) {
         let signature = Signature(type: .method, name: "call", argNum: 0)
         
         if !unit.curLexParser.matchCurToken(expected: .rightParen) {
-            emitProcessArgList(unit: unit, signature: signature)
+            processArgList(unit: unit, signature: signature)
             unit.curLexParser.consumeCurToken(expected: .rightParen, message: "参数列表后要跟)")
         }
         emitCallBySignature(unit: unit,
@@ -479,7 +479,7 @@ public func compileBlock(unit: CompilerUnit)  {
 }
 
 /// 编译函数或方法体
-public func emitBody(unit: CompilerUnit, isConstruct: Bool) {
+public func compileBody(unit: CompilerUnit, isConstruct: Bool) {
     compileBlock(unit: unit)
     /// 若是构造函数，将this对象加载到栈顶，供RETURN指令返回
     if isConstruct {
@@ -494,13 +494,13 @@ public func emitBody(unit: CompilerUnit, isConstruct: Bool) {
 }
 
 /// 编译小括号
-public func emitParentheses(unit: CompilerUnit, assign: Bool) {
+public func compileParentheses(unit: CompilerUnit, assign: Bool) {
     expression(unit: unit, rbp: .lowest)
     unit.curLexParser.consumeCurToken(expected: .rightParen, message: "小括号表达式结束必须跟)")
 }
 
 /// 编译用[]字面量定义的list，如 [1,2,3]
-public func emitListLiteral(unit: CompilerUnit, assgin: Bool)  {
+public func compileListLiteral(unit: CompilerUnit, assgin: Bool)  {
     emitLoadModuleVar(unit: unit, name: "List")
     emitCall(unit: unit, argsNum: 0, name: "new()")
     
@@ -520,13 +520,13 @@ public func emitListLiteral(unit: CompilerUnit, assgin: Bool)  {
 }
 
 /// 索引list元素，如list[i]
-public func emitSubscript(unit: CompilerUnit, assign: Bool)  {
+public func compileSubscript(unit: CompilerUnit, assign: Bool)  {
     if unit.curLexParser.matchCurToken(expected: .rightBracket) {
         fatalError("need argument in the '[]'!")
     }
     let signature = Signature(type: .subscriptGetter, name: "", argNum: 0)
     
-    emitProcessArgList(unit: unit, signature: signature)
+    processArgList(unit: unit, signature: signature)
     
     unit.curLexParser.consumeCurToken(expected: .rightBracket, message: "[表达式后必须跟]")
     
@@ -542,7 +542,7 @@ public func emitSubscript(unit: CompilerUnit, assign: Bool)  {
 }
 
 /// 编译方法调用入口，所有调用的入口
-public func emitCallEntry(unit: CompilerUnit, assign: Bool)  {
+public func compileCallEntry(unit: CompilerUnit, assign: Bool)  {
     unit.curLexParser.consumeCurToken(expected: .id, message: "expect method name after '.'!")
     guard let name = unit.curLexParser.curToken?.value as? String else {
         fatalError()
@@ -551,7 +551,7 @@ public func emitCallEntry(unit: CompilerUnit, assign: Bool)  {
 }
 
 /// 编译map对象字面量
-public func emitMapLiteral(unit: CompilerUnit, assign: Bool)  {
+public func compileMapLiteral(unit: CompilerUnit, assign: Bool)  {
     emitLoadModuleVar(unit: unit, name: "Map")
     emitCall(unit: unit, argsNum: 0, name: "new()")
     while true {
@@ -588,19 +588,19 @@ public func emitPatchPlaceholder(unit: CompilerUnit, absIndex: Int) {
     unit.fn.byteStream[absIndex + 1] = Byte(offset & 0xFF)
 }
 
-public func emitLogicOr(unit: CompilerUnit, assign: Bool) {
+public func compileLogicOr(unit: CompilerUnit, assign: Bool) {
     let placeholderIndex = emitInstrWithPlaceholder(unit: unit, opCode: .OR)
     expression(unit: unit, rbp: .logic_or)
     emitPatchPlaceholder(unit: unit, absIndex: placeholderIndex)
 }
 
-public func emitLogicAnd(unit: CompilerUnit, assign: Bool) {
+public func compileLogicAnd(unit: CompilerUnit, assign: Bool) {
     let placeholderIndex = emitInstrWithPlaceholder(unit: unit, opCode: .AND)
     expression(unit: unit, rbp: .logic_and)
     emitPatchPlaceholder(unit: unit, absIndex: placeholderIndex)
 }
 
-public func emitCondition(unit: CompilerUnit, assign: Bool) {
+public func compileCondition(unit: CompilerUnit, assign: Bool) {
     let falseBranchStart = emitInstrWithPlaceholder(unit: unit, opCode: .JUMP_IF_FALSE)
     
     expression(unit: unit, rbp: .lowest)
@@ -617,7 +617,7 @@ public func emitCondition(unit: CompilerUnit, assign: Bool) {
 }
 
 /// 编译变量定义，读入var关键词
-public func emitVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
+public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
     unit.curLexParser.consumeCurToken(expected: .id, message: "missing variable name!")
     
     guard let name = unit.curLexParser.preToken?.value as? String else {

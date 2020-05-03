@@ -105,45 +105,45 @@ public struct SymbolBindRule {
     public static var rulues: [Token.TokenType: SymbolBindRule] {
         [
             .unknown: ununseRule(),
-            .num: prefixSymbolRule(nud: emitLiteral(unit:assign:)),
-            .string: prefixSymbolRule(nud: emitLiteral(unit:assign:)),
+            .num: prefixSymbolRule(nud: compileLiteral(unit:assign:)),
+            .string: prefixSymbolRule(nud: compileLiteral(unit:assign:)),
             .id: SymbolBindRule(symbol: nil,
                                 lbp: .none,
-                                nud: emitId(unit:assign:), //TODO: id解析函数
+                                nud: compileId(unit:assign:), //TODO: id解析函数
                                 led: nil,
                                 methodSignature: idMethodSignature(unit:signature:)),
-            .interpolation: prefixSymbolRule(nud: emitStringInterpolation(unit:assgin:)),
+            .interpolation: prefixSymbolRule(nud: compileStringInterpolation(unit:assgin:)),
             .var_: ununseRule(),
             .func_: ununseRule(),
             .if_: ununseRule(),
             .else_: ununseRule(),
-            .true_: prefixSymbolRule(nud: emitBoolean(unit:assign:)),
-            .false_: prefixSymbolRule(nud: emitBoolean(unit:assign:)),
+            .true_: prefixSymbolRule(nud: compileBoolean(unit:assign:)),
+            .false_: prefixSymbolRule(nud: compileBoolean(unit:assign:)),
             .while_: ununseRule(),
             .for_: ununseRule(),
             .break_: ununseRule(),
             .continue_: ununseRule(),
             .return_: ununseRule(),
-            .null: prefixSymbolRule(nud: emitNull(unit:assign:)),
+            .null: prefixSymbolRule(nud: compileNull(unit:assign:)),
             .class_: ununseRule(),
-            .this: prefixSymbolRule(nud: emitThis(unit:assign:)),
+            .this: prefixSymbolRule(nud: compileThis(unit:assign:)),
             .static_: ununseRule(),
             .is_: infixOperatorRule(id: "is", lbp: .is_),
-            .super_: prefixSymbolRule(nud: emitSuper(unit:assign:)),
+            .super_: prefixSymbolRule(nud: compileSuper(unit:assign:)),
             .import_: ununseRule(),
             .comma: ununseRule(),
             .colon: ununseRule(),
-            .leftParen: prefixSymbolRule(nud: emitParentheses(unit:assign:)),
+            .leftParen: prefixSymbolRule(nud: compileParentheses(unit:assign:)),
             .rightParen: ununseRule(),
             .leftBracket: SymbolBindRule(symbol: nil,
                                          lbp: .call,
-                                         nud: emitListLiteral(unit:assgin:),
-                                         led: emitSubscript(unit:assign:),
+                                         nud: compileListLiteral(unit:assgin:),
+                                         led: compileSubscript(unit:assign:),
                                          methodSignature: subscriptMethodSignature(unit:signature:)),
             .rightBracket: ununseRule(),
-            .leftBrace: prefixSymbolRule(nud: emitMapLiteral(unit:assign:)),
+            .leftBrace: prefixSymbolRule(nud: compileMapLiteral(unit:assign:)),
             .rightBrace: ununseRule(),
-            .dot: infixSymbolRule(lbp: .call, led: emitCallEntry(unit:assign:)),
+            .dot: infixSymbolRule(lbp: .call, led: compileCallEntry(unit:assign:)),
             .dotDouble: infixOperatorRule(id: "..", lbp: .range),
             .add: infixOperatorRule(id: "+", lbp: .term),
             .sub: mixOperatorRule(id: "-"),
@@ -156,8 +156,8 @@ public struct SymbolBindRule {
             .bitNot: prefixOperatorRule(id: "~"),
             .bitShiftLeft: infixOperatorRule(id: "<<", lbp: .bit_shift),
             .bitShiftRight: infixOperatorRule(id: ">>", lbp: .bit_shift),
-            .logicAnd: infixSymbolRule(lbp: .logic_and, led: emitLogicAnd(unit:assign:)),
-            .logicOr: infixSymbolRule(lbp: .logic_or, led: emitLogicOr(unit:assign:)),
+            .logicAnd: infixSymbolRule(lbp: .logic_and, led: compileLogicAnd(unit:assign:)),
+            .logicOr: infixSymbolRule(lbp: .logic_or, led: compileLogicOr(unit:assign:)),
             .logicNot: prefixOperatorRule(id: "!"),
             .equal: infixOperatorRule(id: "==", lbp: .equal),
             .notEqual: infixOperatorRule(id: "!=", lbp: .equal),
@@ -166,7 +166,7 @@ public struct SymbolBindRule {
             .less: infixOperatorRule(id: "<", lbp: .cmp),
             .lessEqual: infixOperatorRule(id: "<=", lbp: .cmp),
             
-            .question: infixSymbolRule(lbp: .assign, led: emitCondition(unit:assign:)),
+            .question: infixSymbolRule(lbp: .assign, led: compileCondition(unit:assign:)),
             .eof: ununseRule()
         ]
     }
@@ -309,14 +309,14 @@ public func idMethodSignature(unit: CompilerUnit, signature: Signature) {
         return
     }
     
-    emitProcessArgList(unit: unit, signature: signature)
+    processArgList(unit: unit, signature: signature)
     unit.curLexParser.consumeCurToken(expected: .rightParen, message: "方法参数后必须跟)")
 }
 
 public func subscriptMethodSignature(unit: CompilerUnit, signature: Signature) {
     signature.type = .subscriptGetter
     signature.length = 0
-    emitProcessParaList(unit: unit, signature: signature)
+    processParaList(unit: unit, signature: signature)
     unit.curLexParser.consumeCurToken(expected: .rightBracket, message: "expect ']' after index list!")
     trySetterSignature(unit: unit, signature: signature)
 } 
