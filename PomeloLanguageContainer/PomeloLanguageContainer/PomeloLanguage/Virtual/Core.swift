@@ -106,19 +106,14 @@ public func executeModule(virtual: Virtual, name: String, code: String) -> Virtu
 
 /// 编译Module(一个Pomelo脚本文件)
 public func compileModule(virtual: Virtual, module: ModuleObject, code: String) -> FnObject {
-    var lexParser: LexParser
-    if let name = module.name {
-        lexParser = LexParser(virtual: virtual,
+    guard let name = module.name else {
+        fatalError()
+    }
+    let lexParser = LexParser(virtual: virtual,
                               moduleName: name,
                               module: module,
                               code: code)
-    } else {
-        lexParser = LexParser(virtual: virtual,
-                              moduleName: "core.script.inc",
-                              module: module,
-                              code: code)
-    }
-    
+
     let moduleUnit = CompilerUnit(lexParser: lexParser,
                                   enclosingUnit: nil,
                                   isMethod: false)
@@ -160,6 +155,7 @@ public func compileProgram(unit: CompilerUnit) {
         
     } else if unit.curLexParser.matchCurToken(expected: .import_) {
         compileImport(unit: unit)
+        
     } else {
         compileStatment(unit: unit)
     }

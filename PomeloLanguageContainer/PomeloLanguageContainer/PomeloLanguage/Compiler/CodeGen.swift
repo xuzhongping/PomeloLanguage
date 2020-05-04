@@ -69,7 +69,15 @@ public func emitLoadConstant(unit: CompilerUnit, constant: AnyValue) {
 /// 通过签名生成方法调用指令
 public func emitCallBySignature(unit: CompilerUnit, signature: Signature, opCode: OP_CODE) {
     let name = signature.toString()
-    emitCall(unit: unit, argsNum: signature.argNum, name: name)
+    
+    let index = ensureSymbolExist(virtual: unit.curLexParser.virtual,
+                                  symbolList: &unit.curLexParser.virtual.allMethodNames,
+                                  name: name)
+    
+    guard let opCode = OP_CODE(rawValue: opCode.rawValue + Byte(signature.argNum)) else {
+        fatalError("opcode error")
+    }
+    writeShortByteCode(unit: unit, code:opCode, operand: index)
     
     if opCode == .SUPER0 {
         writeShortOperand(unit: unit, operand: unit.addConstant(constant: AnyValue.placeholder))
@@ -84,9 +92,7 @@ public func emitCall(unit: CompilerUnit, argsNum: Int, name: String) {
     guard let opCode = OP_CODE(rawValue: OP_CODE.CALL0.rawValue + Byte(argsNum)) else {
         fatalError("opcode error")
     }
-     writeShortByteCode(unit: unit,
-                              code:opCode ,
-                              operand: index)
+     writeShortByteCode(unit: unit, code:opCode, operand: index)
 }
 
 /// 为实参列表各个参数生成加载实参的指令
@@ -257,7 +263,10 @@ public func emitMethodCall(unit: CompilerUnit, name: String, code: OP_CODE, assi
 
 /// 生成数字和字符串.nud()字面量指令
 public func compileLiteral(unit: CompilerUnit, assign: Bool) {
-    emitLoadConstant(unit: unit, constant: AnyValue(value: unit.curLexParser.preToken?.value))
+    guard let value = unit.curLexParser.preToken?.value else {
+        fatalError()
+    }
+    emitLoadConstant(unit: unit, constant: AnyValue(value: value))
 }
 
 
@@ -344,20 +353,28 @@ public func emitInfixOperator(unit: CompilerUnit, assign: Bool) {
     let rbp = rule.lbp
     expression(unit: unit, rbp: rbp)
     
-    let signature = Signature(type: .method, name: rule.symbol ?? "", argNum: 1)
+    guard let symbol = rule.symbol else {
+        fatalError()
+    }
+    
+    let signature = Signature(type: .method, name: symbol, argNum: 1)
     emitCallBySignature(unit: unit, signature: signature, opCode: OP_CODE.CALL0)
 }
 
 /// 前缀运算符.nud方法，如-、!等
 public func emitUnaryOperator(unit: CompilerUnit, assign: Bool) {
-    guard let curToken = unit.curLexParser.curToken else {
+    guard let preToken = unit.curLexParser.preToken else {
         return
     }
-    guard let rule = SymbolBindRule.rulues[curToken.type] else {
+    guard let rule = SymbolBindRule.rulues[preToken.type] else {
         return
     }
     expression(unit: unit, rbp: SymbolBindRule.BindPower.unary)
-    emitCall(unit: unit, argsNum: 0, name: rule.symbol ?? "")
+    
+    guard let symbol = rule.symbol else {
+        fatalError()
+    }
+    emitCall(unit: unit, argsNum: 0, name: symbol)
 }
 
 
