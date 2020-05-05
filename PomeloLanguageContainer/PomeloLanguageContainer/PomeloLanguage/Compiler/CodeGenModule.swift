@@ -35,9 +35,13 @@ func compileImport(unit: CompilerUnit) {
         unit.curLexParser.nextToken()
     }
     
-    let moduleNameIndex = unit.addConstant(constant: AnyValue(value: moduleName))
+    let moduleNameIndex = unit.defineConstant(constant: AnyValue(value: moduleName))
     
-    emitLoadModuleVar(unit: unit, name: "System")
+    guard let systemModuleVarIndex = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: "System") else {
+        fatalError()
+    }
+    unit.emitLoadVariable(variable: Variable(type: .module, index: systemModuleVarIndex))
+    
     writeShortByteCode(unit: unit, code: .LOAD_CONSTANT, operand: moduleNameIndex)
     emitCall(unit: unit, argsNum: 1, name: "importModule(_)")
     
@@ -53,15 +57,16 @@ func compileImport(unit: CompilerUnit) {
         guard let varName = unit.curLexParser.preToken?.value as? String else {
             fatalError()
         }
-        let varIndex = unit.declareVariable(name: varName)
-        let varNameIndex = unit.addConstant(constant: AnyValue(value: varName))
+        let varIndex = unit.declareVariable2(name: varName)
+        let varNameIndex = unit.defineConstant(constant: AnyValue(value: varName))
         
-        emitLoadModuleVar(unit: unit, name: "System")
+        unit.emitLoadVariable(variable: Variable(type: .module, index: systemModuleVarIndex))
         writeShortByteCode(unit: unit, code: .LOAD_CONSTANT, operand: moduleNameIndex)
         writeShortByteCode(unit: unit, code: .LOAD_CONSTANT, operand: varNameIndex)
         
         emitCall(unit: unit, argsNum: 2, name: "getModuleVariable(_,_)")
-        unit.emitDefineVariable(index: varIndex)
+        
+        unit.emitDefineVariable2(index: varIndex)
         
         guard unit.curLexParser.matchCurToken(expected: .comma) else { break }
     }

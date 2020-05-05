@@ -614,7 +614,7 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
             let localName = "Cls \(enclosingClassBK.name) \(name)"
             if unit.findLocalVar(name: localName) == Index.notFound {
                 // 将静态变量名声明为模块这个编译单元的局部变量
-                let index = unit.declareLocalVar(name: localName)
+                let localIndex = unit.declareLocalVar2(name: localName)
                 // 局部变量的值入栈
                 writeOpCode(unit: unit, code: .PUSH_NULL)
                 // 类体中scopeDepth为0
@@ -622,25 +622,13 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
                     fatalError("should in class scope!")
                 }
                 // 定义上面的局部变量
-                unit.emitDefineVariable(index: index)
+//                unit.emitDefineVariable(index: index)
                 
-                
-//                // 下面的代码也可以这么写
-//                if unit.curLexParser.matchCurToken(expected: .assign) {
-//                    expression(unit: unit, rbp: .lowest)
-//                    writeByteCode(unit: unit,
-//                                  code: OP_CODE.STORE_LOCAL_VAR,
-//                                  operand: index)
-//                }
-                
-                // 获取刚刚声明的局部变量
-                guard let variable = unit.findVarFromLocalOrUpvalue(name: localName) else {
-                    fatalError()
-                }
-                // 静态域可在定义时赋值，如果有赋值操作，就将表达式的值从栈顶回写到局部变量中
+          
+                let variable = Variable(type: .local, index: localIndex)
                 if unit.curLexParser.matchCurToken(expected: .assign) {
                     expression(unit: unit, rbp: .lowest)
-                    emitStoreVariable(unit: unit, variable: variable)
+                    unit.emitStoreVariable(variable: variable)
                 }
                 
             } else {
@@ -676,9 +664,9 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
         writeOpCode(unit: unit, code: .PUSH_NULL)
     }
     
-    // 如果是局部变量，在上面expression已经入栈，如果是模块变量，在下面defineVariable定义
-    let index = unit.declareVariable(name: name)
-    unit.emitDefineVariable(index: index)
+    // 如果是局部变量，在上面expression已经入栈，如果是模块变量，在下面emitStoreVariable定义
+    let index = unit.declareVariable2(name: name)
+    unit.emitDefineVariable2(index: index)
 }
 
 /// 结束当前编译单元的编译工作

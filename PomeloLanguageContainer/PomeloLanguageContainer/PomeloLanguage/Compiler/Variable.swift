@@ -44,11 +44,7 @@ extension ModuleObject {
     
 }
 
-//extension CompilerUnit {
-//    public func emitCodeStoreModuleVarValue(varIndex: Index) {
-//        writeByteCode(unit: self, code: OP_CODE.STORE_MODULE_VAR, operand: varIndex)
-//    }
-//}
+
 
 // MARK: 局部变量相关操作
 extension CompilerUnit {
@@ -109,9 +105,6 @@ extension CompilerUnit {
         return self.localVars.count - 1 - localIndex
     }
     
-    public func emitCodeStoreLocalVarValue(varIndex: Index) {
-        writeByteCode(unit: self, code: OP_CODE.STORE_LOCAL_VAR, operand: varIndex)
-    }
 }
 
 // MARK: upvalue相关操作
@@ -168,16 +161,13 @@ extension CompilerUnit {
         }
         return declareLocalVar(name: name)
     }
-//
-//    /// 生成根据作用域为变量赋值的指令
-//    public func emitCodeStoreVariable(index: Index) {
-//        //局部变量已存储到栈中,无须处理.
-//        //模块变量并不存储到栈中,因此将其写回相应位置
-//        if scopeDepth == ScopeDepth.module {
-//            writeByteCode(unit: self, code: .STORE_MODULE_VAR, operand: index)
-//            writeOpCode(unit: self, code: .POP)
-//        }
-//    }
+    
+    public func emitDefineVariable2(index: Index) {
+        if scopeDepth == ScopeDepth.module {
+            writeShortByteCode(unit: self, code: .STORE_MODULE_VAR, operand: index)
+            writeOpCode(unit: self, code: .POP)
+        }
+    }
 }
 
 
@@ -185,26 +175,26 @@ extension CompilerUnit {
 extension CompilerUnit {
     
     /// 生成加载变量到栈的指令
-    public func emitCodeLoadVariable(variable: Variable) {
+    public func emitLoadVariable(variable: Variable) {
         switch variable.type {
         case .local:
             writeByteCode(unit: self, code: OP_CODE.LOAD_LOCAL_VAR, operand: variable.index)
         case .upvalue:
             writeByteCode(unit: self, code: OP_CODE.LOAD_UPVALUE, operand: variable.index)
         case .module:
-            writeByteCode(unit: self, code: OP_CODE.LOAD_MODULE_VAR, operand: variable.index)
+            writeShortByteCode(unit: self, code: OP_CODE.LOAD_MODULE_VAR, operand: variable.index)
         }
     }
 
     /// 生成从栈顶弹出数据到变量中存储的指令
-    public func emitCodeStoreVariable(variable: Variable) {
+    public func emitStoreVariable(variable: Variable) {
         switch variable.type {
         case .local:
             writeByteCode(unit: self, code: OP_CODE.STORE_LOCAL_VAR, operand: variable.index)
         case .upvalue:
             writeByteCode(unit: self, code: OP_CODE.STORE_UPVALUE, operand: variable.index)
         case .module:
-            writeByteCode(unit: self, code: OP_CODE.STORE_MODULE_VAR, operand: variable.index)
+            writeShortByteCode(unit: self, code: OP_CODE.STORE_MODULE_VAR, operand: variable.index)
         }
     }
     
@@ -225,13 +215,13 @@ extension CompilerUnit {
 // MARK: 常量相关
 extension CompilerUnit {
     /// 定义常量
-    public func defineConstant(constant: AnyValue) -> Int {
+    public func defineConstant(constant: AnyValue) -> Index {
         fn.constants.append(constant)
         return fn.constants.lastIndex
     }
     
     /// 生成加载常量的指令
-    public func emitCodeLoadConstant(constantIndex: Index) {
+    public func emitLoadConstant(constantIndex: Index) {
         writeShortByteCode(unit: self, code: .LOAD_CONSTANT, operand: constantIndex)
     }
 }

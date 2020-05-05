@@ -149,22 +149,28 @@ func compileClassDefinition(unit: CompilerUnit) {
         fatalError()
     }
     
-    emitLoadConstant(unit: unit, constant: AnyValue(value: className))
-    
+    let constantIndex = unit.defineConstant(constant: AnyValue(value: className))
+    unit.emitLoadConstant(constantIndex: constantIndex)
+
     
     if unit.curLexParser.matchCurToken(expected: .less) {
         expression(unit: unit, rbp: .call)
     } else {
-        emitLoadModuleVar(unit: unit, name: "object")
+        guard let moduleVarIndex = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: "Object") else {
+            fatalError()
+        }
+        let variable = Variable(type: .module, index: moduleVarIndex)
+        unit.emitLoadVariable(variable: variable)
     }
     
-    let index = unit.declareVariable(name: className)
+    let index = unit.declareVariable2(name: className)
     
     let classVar = Variable(type: .module, index: index)
     
     let filedNumIndex = writeByteCode(unit: unit, code: .CREATE_CLASS, operand: 255)
     if unit.scopeDepth == ScopeDepth.module {
-        emitStoreModuleVar(unit: unit, index: classVar.index)
+        unit.emitStoreVariable(variable: Variable(type: .module, index: classVar.index))
+        writeOpCode(unit: unit, code: .POP)
     }
     let classBK = ClassBookKeep(name: className)
     unit.enclosingClassBK = classBK
@@ -214,7 +220,7 @@ func compileFunctionDefinition(unit: CompilerUnit) {
     }
     
     let fnName = "Fn \(name)"
-    let fnNameIndex = unit.declareVariable(name: fnName)
+    let fnNameIndex = unit.declareVariable2(name: fnName)
     
     let fnUnit = CompilerUnit(lexParser: unit.curLexParser, enclosingUnit: unit, isMethod: false)
     let tempFnSign = Signature(type: .method, name: "", argNum: 0)
@@ -230,7 +236,7 @@ func compileFunctionDefinition(unit: CompilerUnit) {
     compileBody(unit: fnUnit, isConstruct: false)
     
     endCompile(unit: unit)
-    unit.emitDefineVariable(index: fnNameIndex)
+    unit.emitDefineVariable2(index: fnNameIndex)
 }
 
 
