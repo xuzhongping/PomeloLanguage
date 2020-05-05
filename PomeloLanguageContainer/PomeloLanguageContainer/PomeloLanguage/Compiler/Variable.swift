@@ -221,3 +221,17 @@ extension CompilerUnit {
         return nil
     }
 }
+
+// MARK: 常量相关
+extension CompilerUnit {
+    /// 定义常量
+    public func defineConstant(constant: AnyValue) -> Int {
+        fn.constants.append(constant)
+        return fn.constants.lastIndex
+    }
+    
+    /// 生成加载常量的指令
+    public func emitCodeLoadConstant(constantIndex: Index) {
+        writeShortByteCode(unit: self, code: .LOAD_CONSTANT, operand: constantIndex)
+    }
+}
