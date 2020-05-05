@@ -148,15 +148,19 @@ func compileClassDefinition(unit: CompilerUnit) {
     guard let className = unit.curLexParser.preToken?.value as? String else {
         fatalError()
     }
-    let index = unit.declareVariable(name: className)
-    let classVar = Variable(type: .module, index: index)
+    
     emitLoadConstant(unit: unit, constant: AnyValue(value: className))
+    
     
     if unit.curLexParser.matchCurToken(expected: .less) {
         expression(unit: unit, rbp: .call)
     } else {
         emitLoadModuleVar(unit: unit, name: "object")
     }
+    
+    let index = unit.declareVariable(name: className)
+    
+    let classVar = Variable(type: .module, index: index)
     
     let filedNumIndex = writeByteCode(unit: unit, code: .CREATE_CLASS, operand: 255)
     if unit.scopeDepth == ScopeDepth.module {
@@ -170,16 +174,16 @@ func compileClassDefinition(unit: CompilerUnit) {
     enterScope(unit: unit)
     
     while !unit.curLexParser.matchCurToken(expected: .rightBrace) {
-        compileClassBody(unit: unit, classVar: classVar)
         if unit.curLexParser.status == .end {
             fatalError()
         }
+        compileClassBody(unit: unit, classVar: classVar)
     }
     
     unit.fn.byteStream[filedNumIndex] = Byte(classBK.fields.count)
-    classBK.fields.removeAll()
-    classBK.instanceMethods.removeAll()
-    classBK.staticMethods.removeAll()
+//    classBK.fields.removeAll()
+//    classBK.instanceMethods.removeAll()
+//    classBK.staticMethods.removeAll()
     
     unit.enclosingClassBK = nil
     leaveScope(unit: unit)
@@ -199,9 +203,10 @@ func compileFunctionDefinition(unit: CompilerUnit) {
 //    }
 //    name(args)
     
-    if let _ = unit.enclosingUnit {
+    guard unit.enclosingUnit == nil else {
         fatalError("'fun' should be in module scope!")
     }
+    
     unit.curLexParser.consumeCurToken(expected: .id, message: "missing function name!")
     
     guard let name = unit.curLexParser.preToken?.value as? String else {
@@ -225,7 +230,7 @@ func compileFunctionDefinition(unit: CompilerUnit) {
     compileBody(unit: fnUnit, isConstruct: false)
     
     endCompile(unit: unit)
-    unit.defineVariable(index: fnNameIndex)
+    unit.emitDefineVariable(index: fnNameIndex)
 }
 
 

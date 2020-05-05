@@ -8,6 +8,7 @@
 
 import Cocoa
 
+/// 编译时和运行时结构
 /// 方法对象
 public class Method {
     enum MethodType {
@@ -41,6 +42,7 @@ public class Method {
     }
 }
 
+/// 编译时和运行时结构
 /// 指令流对象
 public class FnObject: BaseObject {
     public var byteStream: [Byte]
@@ -66,7 +68,7 @@ public class FnObject: BaseObject {
     }
 }
 
-
+/// 运行时结构
 /// upvalue对象
 class UpvalueObject: BaseObject {
     var localVarIndex: Index?
@@ -76,8 +78,8 @@ class UpvalueObject: BaseObject {
     }
 }
 
-
-/// 闭包对象
+/// 编译时和运行时结构
+/// 闭包对象，指代定义在一个编译单元内的另一个编译单元
 public class ClosureObject: BaseObject {
     var fn: FnObject
     var upvalues: [UpvalueObject]
@@ -89,10 +91,15 @@ public class ClosureObject: BaseObject {
     }
 }
 
+/// 运行时结构
 /// 调用框架
 class CallFrame {
     var ip: Index
+    
+    /// 栈帧中运行的函数，可是函数有可能有upvalue，故用闭包对象兼容
     var closure: ClosureObject
+    
+    /// 栈帧中运行的函数对应的运行时栈，其存在于线程的运行时栈中，故此处指代在所在线程运行时栈中的索引为自己的栈开始处
     var stackStart: Index
     init(closure: ClosureObject, stackStart: Index, ip: Index) {
         self.closure = closure
@@ -101,6 +108,7 @@ class CallFrame {
     }
 }
 
+/// 编译时和运行时结构
 class FnDebug {
     var name: String
     var line: Int

@@ -84,7 +84,7 @@ public func loadModule(virtual: Virtual, name: String, code: String)  -> ThreadO
         for i in 0..<coreModule.moduleVarNames.count {
             let name = coreModule.moduleVarNames[i]
             let value = coreModule.moduleVarValues[i]
-            module!.defineVar(virtual: virtual, name: name, value: value)
+            module!.defineModuleVar(virtual: virtual, name: name, value: value)
         }
     }
     

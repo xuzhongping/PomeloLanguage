@@ -10,6 +10,7 @@ import Cocoa
 
 public let InitialFrameNum = 4
 
+/// 编译时和运行时结构
 public class ThreadObject: BaseObject {
     var stack: [AnyValue]
     var stackCapacity: Int

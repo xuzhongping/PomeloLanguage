@@ -61,7 +61,7 @@ func compileImport(unit: CompilerUnit) {
         writeShortByteCode(unit: unit, code: .LOAD_CONSTANT, operand: varNameIndex)
         
         emitCall(unit: unit, argsNum: 2, name: "getModuleVariable(_,_)")
-        unit.defineVariable(index: varIndex)
+        unit.emitDefineVariable(index: varIndex)
         
         guard unit.curLexParser.matchCurToken(expected: .comma) else { break }
     }

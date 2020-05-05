@@ -8,6 +8,7 @@
 
 import Cocoa
 
+/// 运行时结构
 public class ListObject: BaseObject {
     var container: [Any]
     init(virtual: Virtual) {

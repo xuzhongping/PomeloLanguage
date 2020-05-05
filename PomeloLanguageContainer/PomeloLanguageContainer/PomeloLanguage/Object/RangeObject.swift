@@ -8,6 +8,7 @@
 
 import Cocoa
 
+/// 运行时结构
 public class RangeObject: BaseObject {
     var from: Int
     var to: Int

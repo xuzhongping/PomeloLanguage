@@ -8,6 +8,7 @@
 
 import Cocoa
 
+/// 编译时结构
 public class Signature {
     public enum SignatureType {
         case construct // 构造函数 xxx(_,...)
@@ -61,6 +62,7 @@ public class Signature {
     }
 }
 
+/// 编译时结构
 /// 符号绑定规则
 public struct SymbolBindRule {
     /// 绑定能力

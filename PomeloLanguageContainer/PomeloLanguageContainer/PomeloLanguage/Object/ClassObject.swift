@@ -9,7 +9,7 @@
 import Cocoa
 
 
-
+/// 编译时和运行时结构
 public class ClassObject: BaseObject {
     /// 基类
     var superClass: ClassObject?
@@ -58,12 +58,18 @@ public class ClassObject: BaseObject {
     
     public static func defineClass(virtual: Virtual, module: ModuleObject, name: String) -> ClassObject {
         let cls = ClassObject(rawClass: virtual, name: name, fieldNum: 0)
-        module.defineVar(virtual: virtual, name: name, value: AnyValue(value: cls))
+        module.defineModuleVar(virtual: virtual, name: name, value: AnyValue(value: cls))
         return cls
     }
     
     /// 绑定方法
     public func bindMethod(virtual: Virtual, index: Index, method: Method) {
+        let lastIndex = methods.count - 1
+        if lastIndex < index {
+            for _ in lastIndex..<index {
+                methods.append(Method(type: .none))
+            }
+        }
         methods[index] = method
     }
     

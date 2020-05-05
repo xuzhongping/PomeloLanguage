@@ -9,7 +9,7 @@
 import Cocoa
 
 /// 编译语句
-public func compileStatment(unit: CompilerUnit) {
+public func  compileStatment(unit: CompilerUnit) {
     if unit.curLexParser.matchCurToken(expected: .if_) {
         compileIfStatment(unit: unit)
         
@@ -230,25 +230,7 @@ public func compileContinue(unit: CompilerUnit) {
     writeShortByteCode(unit: unit, code: .LOOP, operand: loopBackOffset)
 }
 
-/// 销毁作用域scopeDepth之内的局部变量
-@discardableResult
-public func destroyLocalVar(unit: CompilerUnit, scopeDepth: Int) -> Int {
-    guard unit.scopeDepth > ScopeDepth.module else {
-        fatalError("module scope can`t exit!")
-    }
-    
-    var localIndex = unit.localVars.lastIndex
-    while localIndex >= 0 && unit.localVars[localIndex].scopeDepth >= scopeDepth {
-        if unit.localVars[localIndex].isUpvalue {
-            writeByte(unit: unit, byte: OP_CODE.CLOSE_UPVALUE.rawValue)
-        } else {
-            writeByte(unit: unit, byte: OP_CODE.POP.rawValue)
-        }
-        localIndex -= 1
-        unit.localVars.removeLast()
-    }
-    return unit.localVars.count - 1 - localIndex
-}
+
 
 /// 进入新的作用域
 func enterScope(unit: CompilerUnit) {

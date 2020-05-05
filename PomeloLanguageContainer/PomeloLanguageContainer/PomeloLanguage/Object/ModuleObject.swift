@@ -8,7 +8,9 @@
 
 import Cocoa
 
+
 /// 模块对象
+/// 编译时和运行时结构
 public class ModuleObject: BaseObject {            
     public var moduleVarNames: [String]
     public var moduleVarValues: [AnyValue]
@@ -24,12 +26,12 @@ public class ModuleObject: BaseObject {
     
     /// 定义模块变量
     @discardableResult
-    public func defineVar(virtual: Virtual, name: String, value: AnyValue)  -> Index {
+    public func defineModuleVar(virtual: Virtual, name: String, value: AnyValue)  -> Index {
         guard name.count <= maxIdLength else {
             fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
         }
         
-        var symbolIndex = Index.repeatDefine
+        var symbolIndex = Index.notFound
         if let nameIndex = moduleVarNames.firstIndex(of: name) {
             
             let oldValue = moduleVarValues[nameIndex]
@@ -37,7 +39,10 @@ public class ModuleObject: BaseObject {
             if oldValue.isPlaceholder() {
                 moduleVarValues[nameIndex] = value
                 symbolIndex = nameIndex
+            } else {
+                symbolIndex = Index.repeatDefine
             }
+            
         } else {
             moduleVarNames.append(name)
             moduleVarValues.append(value)
@@ -48,12 +53,13 @@ public class ModuleObject: BaseObject {
     }
     
     /// 声明模块变量,不做重定义检查
-    public func declareVar(virtual: Virtual, name: String, value: AnyValue) -> Index {
+    public func declareModuleVar(virtual: Virtual, name: String, value: AnyValue) -> Index {
         guard name.count <= maxIdLength else {
             fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
         }
         moduleVarNames.append(name)
         moduleVarValues.append(value)
+        
         return moduleVarNames.lastIndex
     }
     

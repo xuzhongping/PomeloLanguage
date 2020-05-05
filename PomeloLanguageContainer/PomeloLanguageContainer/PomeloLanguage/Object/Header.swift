@@ -8,6 +8,7 @@
 
 import Cocoa
 
+/// 编译时和运行时结构
 public class Header: NSObject {
     
     public enum ObjectType {

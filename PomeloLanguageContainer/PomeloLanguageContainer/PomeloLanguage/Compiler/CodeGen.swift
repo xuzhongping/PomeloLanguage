@@ -57,14 +57,6 @@ public func writeShortByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) 
 
 //MARK: EmitByteCode
 
-/// 生成加载常量的指令
-public func emitLoadConstant(unit: CompilerUnit, constant: AnyValue) {
-    let index = unit.addConstant(constant: constant)
-    writeShortByteCode(unit: unit,
-                       code: .LOAD_CONSTANT,
-                       operand: index)
-}
-
 
 /// 通过签名生成方法调用指令
 public func emitCallBySignature(unit: CompilerUnit, signature: Signature, opCode: OP_CODE) {
@@ -138,41 +130,7 @@ public func processParaList(unit: CompilerUnit, signature: Signature)  {
     }
 }
 
-/// 生成加载变量到栈的指令
-public func emitLoadVariable(unit: CompilerUnit, variable: Variable) {
-    switch variable.type {
-    case .local:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.LOAD_LOCAL_VAR,
-                      operand: variable.index)
-    case .upvalue:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.LOAD_UPVALUE,
-                      operand: variable.index)
-    case .module:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.LOAD_MODULE_VAR,
-                      operand: variable.index)
-    }
-}
 
-/// 生成从栈顶弹出数据到变量中存储的指令
-public func emitStoreVariable(unit: CompilerUnit, variable: Variable) {
-    switch variable.type {
-    case .local:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.STORE_LOCAL_VAR,
-                      operand: variable.index)
-    case .upvalue:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.STORE_UPVALUE,
-                      operand: variable.index)
-    case .module:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.STORE_MODULE_VAR,
-                      operand: variable.index)
-    }
-}
 
 /// 生成加载或存储变量的指令
 public func emitLoadOrStoreVariable(unit: CompilerUnit, assign: Bool, variable: Variable) {
@@ -474,7 +432,7 @@ public func compileId(unit: CompilerUnit, assign: Bool) {
         let name = "Fn \(value)"
         index = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: name)
         if index == Index.notFound {
-            index = unit.curLexParser.curModule.declareVar(virtual: unit.curLexParser.virtual, name: name, value: AnyValue.placeholder)
+            index = unit.curLexParser.curModule.declareModuleVar(virtual: unit.curLexParser.virtual, name: name, value: AnyValue.placeholder)
         }
     }
     emitLoadOrStoreVariable(unit: unit,
@@ -655,18 +613,31 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
         if isStatic {
             let localName = "Cls \(enclosingClassBK.name) \(name)"
             if unit.findLocalVar(name: localName) == Index.notFound {
+                // 将静态变量名声明为模块这个编译单元的局部变量
                 let index = unit.declareLocalVar(name: localName)
+                // 局部变量的值入栈
                 writeOpCode(unit: unit, code: .PUSH_NULL)
+                // 类体中scopeDepth为0
                 guard unit.scopeDepth == 0 else {
                     fatalError("should in class scope!")
                 }
+                // 定义上面的局部变量
+                unit.emitDefineVariable(index: index)
                 
-                unit.defineVariable(index: index)
                 
+//                // 下面的代码也可以这么写
+//                if unit.curLexParser.matchCurToken(expected: .assign) {
+//                    expression(unit: unit, rbp: .lowest)
+//                    writeByteCode(unit: unit,
+//                                  code: OP_CODE.STORE_LOCAL_VAR,
+//                                  operand: index)
+//                }
+                
+                // 获取刚刚声明的局部变量
                 guard let variable = unit.findVarFromLocalOrUpvalue(name: localName) else {
                     fatalError()
                 }
-                
+                // 静态域可在定义时赋值，如果有赋值操作，就将表达式的值从栈顶回写到局部变量中
                 if unit.curLexParser.matchCurToken(expected: .assign) {
                     expression(unit: unit, rbp: .lowest)
                     emitStoreVariable(unit: unit, variable: variable)
@@ -698,7 +669,7 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
         return
     }
     
-    // 不在类中，按模块中普通变量定义
+    // 不在类中，按普通变量定义
     if unit.curLexParser.matchCurToken(expected: .assign) {
         expression(unit: unit, rbp: .lowest)
     } else {
@@ -707,7 +678,7 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
     
     // 如果是局部变量，在上面expression已经入栈，如果是模块变量，在下面defineVariable定义
     let index = unit.declareVariable(name: name)
-    unit.defineVariable(index: index)
+    unit.emitDefineVariable(index: index)
 }
 
 /// 结束当前编译单元的编译工作

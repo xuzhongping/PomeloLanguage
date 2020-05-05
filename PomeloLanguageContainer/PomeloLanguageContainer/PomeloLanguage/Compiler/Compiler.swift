@@ -16,6 +16,7 @@ public let maxArgNum = 16
 public let maxSignLength = maxMethodNameLength + maxArgNum * 2 + 1
 public let maxFieldNum = 128
 
+/// 编译时结构
 public class Upvalue {
     var isEnclosingLocalVar: Bool
     var index: Index
@@ -25,6 +26,7 @@ public class Upvalue {
     }
 }
 
+/// 编译时结构
 public class LocalVar: NSObject {
     public var name: String?
     public var scopeDepth: Int
@@ -41,7 +43,7 @@ public class LocalVar: NSObject {
 }
 
 
-
+/// 编译时结构
 class Loop {
     var condStartIndex: Index
     var bodyStartIndex: Index
@@ -56,6 +58,7 @@ class Loop {
     }
 }
 
+/// 编译时结构
 /// 用于记录类编译时的信息
 public class ClassBookKeep {
     var name: String
@@ -74,8 +77,26 @@ public class ClassBookKeep {
     }
 }
 
+/// 编译时结构
+/// 仅用于内部变量查找用的结构
+public class Variable: NSObject {
+    public enum ScopeType {
+        case local
+        case upvalue
+        case module
+    }
+    var type: ScopeType
+    /// 此索引指向模块变量或局部变量或upvalue
+    var index: Index
+    init(type: ScopeType, index: Index) {
+        self.type = type
+        self.index = index
+    }
+}
 
 
+
+/// 编译时结构
 public class CompilerUnit: NSObject {
     
     /// 当前编译函数
@@ -88,7 +109,7 @@ public class CompilerUnit: NSObject {
     var upvalues: [Upvalue]
     
     /// 当前正在编译的代码所处作用域
-    var scopeDepth: Int
+    var scopeDepth: ScopeDepth
     
     /// 当前使用的slot个数
     var stackSlotNum: Int
@@ -141,12 +162,10 @@ public class CompilerUnit: NSObject {
 
 // MARK: 变量操作相关
 extension CompilerUnit {
-   
-
     
-    /// 添加局部变量
+    /// 声明局部变量
     @discardableResult
-    public func addLocalVar(name: String) -> Int {
+    public func addLocalVar(name: String) -> Index {
         let localVar = LocalVar(name: name)
         localVar.scopeDepth = scopeDepth
         localVar.isUpvalue = false
@@ -155,8 +174,8 @@ extension CompilerUnit {
         return localVars.lastIndex
     }
     
-    /// 声明并定义局部变量
-    public func declareLocalVar(name: String) -> Int {
+    /// 声明局部变量并检查是否重定义
+    public func declareLocalVar(name: String) -> Index {
         guard localVars.count >= maxLocalVarNum else {
            fatalError("the max length of local variable of one scope is \(maxLocalVarNum)")
         }
@@ -166,60 +185,13 @@ extension CompilerUnit {
             guard localVar.scopeDepth >= scopeDepth else {
                 break
             }
+            
+            // 检查重复定义
             guard localVar.name != name else {
                 fatalError("identifier \(name) redefinition!")
             }
         }
         return addLocalVar(name: name)
-    }
-   
-    @discardableResult
-    public func declareVariable(name: String) -> Int {
-        if scopeDepth == ScopeDepth.module {
-            let index = curLexParser.curModule.defineVar(virtual: curLexParser.virtual,
-                                                            name: name,
-                                                           value: AnyValue.placeholder)
-            if index == Index.repeatDefine {
-                fatalError("identifier \(name) redefinition!")
-            }
-        }
-        return declareLocalVar(name: name)
-    }
-    
-    public func defineVariable(index: Index) {
-        //局部变量已存储到栈中,无须处理.
-        //模块变量并不存储到栈中,因此将其写回相应位置
-        if scopeDepth == ScopeDepth.module {
-            writeByteCode(unit: self, code: .STORE_MODULE_VAR, operand: index)
-            writeOpCode(unit: self, code: .POP)
-        }
-    }
-    
-    /// 添加常量并返回索引
-    public func addConstant(constant: AnyValue) -> Int {
-        fn.constants.append(constant)
-        return fn.constants.lastIndex
-    }
-    
-    /// 查找包含enclosingClassBK的最近unit
-    public func getEnclosingClassBKUnit() -> CompilerUnit? {
-        var unit: CompilerUnit? = self
-        while unit != nil {
-            if unit?.enclosingClassBK != nil {
-                return unit
-            }
-            unit = unit?.enclosingUnit
-        }
-        return nil
-    }
-    
-    /// 查找包含当前unit的classBookKeep
-    /// 用于查找当前方法所属的类
-    public func getEnclosingClassBK() -> ClassBookKeep? {
-        if let unit = getEnclosingClassBKUnit() {
-            return unit.enclosingClassBK
-        }
-        return nil
     }
     
     /// 查找局部变量
@@ -227,7 +199,59 @@ extension CompilerUnit {
     public func findLocalVar(name: String) -> Index {
         return localVars.reversed().firstIndex { (localVar) -> Bool in localVar.name == name } ?? Index.notFound
     }
+   
     
+    
+    /// 添加常量
+    public func addConstant(constant: AnyValue) -> Int {
+        fn.constants.append(constant)
+        return fn.constants.lastIndex
+    }
+    
+
+    
+    /// 从局部变量和upvalue中查找符号name
+    public func findVarFromLocalOrUpvalue(name: String) -> Variable? {
+        var index = findLocalVar(name: name)
+        if index != Index.notFound {
+            return Variable(type: .local, index: index)
+        }
+        index = findUpvalue(name: name)
+        if index != Index.notFound {
+            return Variable(type: .upvalue, index: index)
+        }
+        return nil
+    }
+}
+
+extension CompilerUnit {
+    /// 根据作用域声明变量(模块变量或局部变量)
+    @discardableResult
+    public func declareVariable(name: String) -> Int {
+        if scopeDepth == ScopeDepth.module {
+            
+            let index = curLexParser.curModule.defineModuleVar(virtual: curLexParser.virtual, name: name, value: AnyValue.placeholder)
+            
+            if index == Index.repeatDefine {
+                fatalError("identifier \(name) redefinition!")
+            }
+            return index
+        }
+        return declareLocalVar(name: name)
+    }
+    
+    /// 生成根据作用域为变量赋值的指令
+    public func emitDefineVariable(index: Index) {
+        //局部变量已存储到栈中,无须处理.
+        //模块变量并不存储到栈中,因此将其写回相应位置
+        if scopeDepth == ScopeDepth.module {
+            writeByteCode(unit: self, code: .STORE_MODULE_VAR, operand: index)
+            writeOpCode(unit: self, code: .POP)
+        }
+    }
+}
+
+extension CompilerUnit {
     /// 添加upvalue
     public func addUpvalue(isEnclosingLocalVar: Bool, index: Index) -> Int {
         let index = upvalues.firstIndex { (upvalue) -> Bool in
@@ -264,37 +288,99 @@ extension CompilerUnit {
         }
         return Index.notFound
     }
+}
+
+extension CompilerUnit {
+    /// 查找包含enclosingClassBK的最近unit
+       public func getEnclosingClassBKUnit() -> CompilerUnit? {
+           var unit: CompilerUnit? = self
+           while unit != nil {
+               if unit?.enclosingClassBK != nil {
+                   return unit
+               }
+               unit = unit?.enclosingUnit
+           }
+           return nil
+       }
+       
+       /// 查找包含当前unit的classBookKeep
+       /// 用于查找当前方法所属的类
+       public func getEnclosingClassBK() -> ClassBookKeep? {
+           if let unit = getEnclosingClassBKUnit() {
+               return unit.enclosingClassBK
+           }
+           return nil
+       }
+       
+}
+
+/// 销毁作用域scopeDepth之内的局部变量
+@discardableResult
+public func destroyLocalVar(unit: CompilerUnit, scopeDepth: Int) -> Int {
+    guard unit.scopeDepth > ScopeDepth.module else {
+        fatalError("module scope can`t exit!")
+    }
     
-    /// 从局部变量和upvalue中查找符号name
-    public func findVarFromLocalOrUpvalue(name: String) -> Variable? {
-        var index = findLocalVar(name: name)
-        if index != Index.notFound {
-            return Variable(type: .local, index: index)
+    var localIndex = unit.localVars.lastIndex
+    while localIndex >= 0 && unit.localVars[localIndex].scopeDepth >= scopeDepth {
+        if unit.localVars[localIndex].isUpvalue {
+            writeByte(unit: unit, byte: OP_CODE.CLOSE_UPVALUE.rawValue)
+        } else {
+            writeByte(unit: unit, byte: OP_CODE.POP.rawValue)
         }
-        index = findUpvalue(name: name)
-        if index != Index.notFound {
-            return Variable(type: .upvalue, index: index)
-        }
-        return nil
+        localIndex -= 1
+    }
+    return unit.localVars.count - 1 - localIndex
+}
+
+
+
+
+
+
+/// 生成加载变量到栈的指令
+public func emitLoadVariable(unit: CompilerUnit, variable: Variable) {
+    switch variable.type {
+    case .local:
+        writeByteCode(unit: unit,
+                      code: OP_CODE.LOAD_LOCAL_VAR,
+                      operand: variable.index)
+    case .upvalue:
+        writeByteCode(unit: unit,
+                      code: OP_CODE.LOAD_UPVALUE,
+                      operand: variable.index)
+    case .module:
+        writeByteCode(unit: unit,
+                      code: OP_CODE.LOAD_MODULE_VAR,
+                      operand: variable.index)
     }
 }
 
-/// 仅用于内部变量查找用的结构
-public class Variable: NSObject {
-    public enum ScopeType {
-        case local
-        case upvalue
-        case module
-    }
-    var type: ScopeType
-    /// 此索引指向模块变量或局部变量或upvalue
-    var index: Index
-    init(type: ScopeType, index: Index) {
-        self.type = type
-        self.index = index
+/// 生成从栈顶弹出数据到变量中存储的指令
+public func emitStoreVariable(unit: CompilerUnit, variable: Variable) {
+    switch variable.type {
+    case .local:
+        writeByteCode(unit: unit,
+                      code: OP_CODE.STORE_LOCAL_VAR,
+                      operand: variable.index)
+    case .upvalue:
+        writeByteCode(unit: unit,
+                      code: OP_CODE.STORE_UPVALUE,
+                      operand: variable.index)
+    case .module:
+        writeByteCode(unit: unit,
+                      code: OP_CODE.STORE_MODULE_VAR,
+                      operand: variable.index)
     }
 }
 
+/// 生成加载常量的指令
+public func emitLoadConstant(unit: CompilerUnit, constant: AnyValue) {
+    let index = unit.addConstant(constant: constant)
+    writeShortByteCode(unit: unit,
+                       code: .LOAD_CONSTANT,
+                       operand: index)
+}
 
 
 
@@ -336,5 +422,4 @@ public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) {
         led(unit, assign)
     }
 }
-
 
