@@ -34,6 +34,7 @@
 		C0379512242CFD2100A5F27F /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FB242CFD2100A5F27F /* Error.swift */; };
 		C0379513242CFD2100A5F27F /* Alias.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FC242CFD2100A5F27F /* Alias.swift */; };
 		C0379514242CFD2100A5F27F /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FD242CFD2100A5F27F /* Extension.swift */; };
+		ED031C4224621DF1005A75EF /* Variable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED031C4124621DF1005A75EF /* Variable.swift */; };
 		ED7B78AA2442009E00DB2F2D /* CodeGenStatement.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7B78A92442009E00DB2F2D /* CodeGenStatement.swift */; };
 		ED7B78AC24421D4D00DB2F2D /* CodeGenObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7B78AB24421D4D00DB2F2D /* CodeGenObject.swift */; };
 		ED7B78AE24421EBD00DB2F2D /* CodeGenModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7B78AD24421EBD00DB2F2D /* CodeGenModule.swift */; };
@@ -98,6 +99,7 @@
 		C03794FB242CFD2100A5F27F /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		C03794FC242CFD2100A5F27F /* Alias.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alias.swift; sourceTree = "<group>"; };
 		C03794FD242CFD2100A5F27F /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
+		ED031C4124621DF1005A75EF /* Variable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variable.swift; sourceTree = "<group>"; };
 		ED7B78A92442009E00DB2F2D /* CodeGenStatement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenStatement.swift; sourceTree = "<group>"; };
 		ED7B78AB24421D4D00DB2F2D /* CodeGenObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenObject.swift; sourceTree = "<group>"; };
 		ED7B78AD24421EBD00DB2F2D /* CodeGenModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenModule.swift; sourceTree = "<group>"; };
@@ -213,6 +215,7 @@
 				ED7B78A92442009E00DB2F2D /* CodeGenStatement.swift */,
 				ED7B78AB24421D4D00DB2F2D /* CodeGenObject.swift */,
 				ED7B78AD24421EBD00DB2F2D /* CodeGenModule.swift */,
+				ED031C4124621DF1005A75EF /* Variable.swift */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
@@ -419,6 +422,7 @@
 				C0379501242CFD2100A5F27F /* ThreadObject.swift in Sources */,
 				C0379514242CFD2100A5F27F /* Extension.swift in Sources */,
 				ED81C2A9243109E00066CC67 /* CodeGen.swift in Sources */,
+				ED031C4224621DF1005A75EF /* Variable.swift in Sources */,
 				C0379502242CFD2100A5F27F /* ListObject.swift in Sources */,
 				C03794B9242CFCF500A5F27F /* ViewController.swift in Sources */,
 				C03794B7242CFCF500A5F27F /* AppDelegate.swift in Sources */,
