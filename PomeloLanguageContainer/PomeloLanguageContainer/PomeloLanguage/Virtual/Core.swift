@@ -56,6 +56,28 @@ public func buildCore(virtual: Virtual) {
     virtual.classOfClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
     
     executeModule(virtual: virtual, name: ModuleName.core, code: coreModuleCode)
+    
+    guard let boolClassObject = getClassFromModule(module: coreModule, name: "Bool") else {
+        fatalError()
+    }
+    virtual.boolClass = boolClassObject
+    virtual.boolClass.bindNativeMethod(virtual: virtual, selector: "toString", imp: nativeBoolToString(virtual:stack:argsStart:))
+    virtual.boolClass.bindNativeMethod(virtual: virtual, selector: "!", imp: nativeBoolNot(virtual:stack:argsStart:))
+    
+    guard let threadClassObject = getClassFromModule(module: coreModule, name: "Thread") else {
+        fatalError()
+    }
+    virtual.threadClass = threadClassObject
+    virtual.threadClass.header.cls?.bindNativeMethod(virtual: virtual, selector: "new(_)", imp: nativeThreadNew(virtual:stack:argsStart:))
+    virtual.threadClass.header.cls?.bindNativeMethod(virtual: virtual, selector: "abort(_)", imp: nativeThreadAbort(virtual:stack:argsStart:))
+    virtual.threadClass.header.cls?.bindNativeMethod(virtual: virtual, selector: "current", imp: nativeThreadCurrent(virtual:stack:argsStart:))
+    virtual.threadClass.header.cls?.bindNativeMethod(virtual: virtual, selector: "suspend()", imp: nativeThreadSuspend(virtual:stack:argsStart:))
+    virtual.threadClass.header.cls?.bindNativeMethod(virtual: virtual, selector: "yield(_)", imp: nativeThreadYieldWithArg(virtual:stack:argsStart:))
+    virtual.threadClass.header.cls?.bindNativeMethod(virtual: virtual, selector: "yield()", imp: nativeThreadYieldWithoutArg(virtual:stack:argsStart:))
+    
+    virtual.threadClass.bindNativeMethod(virtual: virtual, selector: "call()", imp: nativeThreadCallWithoutArg(virtual:stack:argsStart:))
+    virtual.threadClass.bindNativeMethod(virtual: virtual, selector: "call(_)", imp: nativeThreadCallWithArg(virtual:stack:argsStart:))
+    virtual.threadClass.bindNativeMethod(virtual: virtual, selector: "isDone", imp: nativeThreadIsDone(virtual:stack:argsStart:))
 }
 
 /// 获取一个模块
@@ -159,3 +181,38 @@ public func compileProgram(unit: CompilerUnit) {
         compileStatment(unit: unit)
     }
 }
+
+
+public func getClassFromModule(module: ModuleObject, name: String) -> ClassObject? {
+    guard let index = module.moduleVarNames.firstIndex(of: name) else {
+        return nil
+    }
+    return module.moduleVarValues[index].toClassObject()
+}
+
+public func switchThread(virtual: Virtual, nextThread: ThreadObject, stack:inout [AnyValue], argsStart: Index, withArg: Bool) -> Bool {
+    if nextThread.caller != nil {
+        fatalError("thread has been called!")
+    }
+    nextThread.caller = virtual.thread
+    if nextThread.usedFrameNum == 0 {
+        virtual.thread?.errorObject = AnyValue(value: "a finished thread can`t be switched to!")
+        return false
+    }
+    if nextThread.errorObject != nil {
+        virtual.thread?.errorObject = AnyValue(value: "a aborted thread can`t be switched to!")
+        return false
+    }
+    
+    if withArg {
+        virtual.thread?.esp -= 1
+    }
+    guard nextThread.esp > 0 else {
+        fatalError("esp should be greater than stack!")
+    }
+    nextThread.stack[nextThread.esp - 1] = withArg ? stack[argsStart + 1] : AnyValue(value: nil)
+    virtual.thread = nextThread
+    return false
+}
+
+
