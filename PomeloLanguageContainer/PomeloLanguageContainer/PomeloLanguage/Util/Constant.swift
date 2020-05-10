@@ -9,24 +9,41 @@
 import Cocoa
 
 
-// MARK: - Module Name
-public let ModuleNameCore = "Core"
+
+public typealias ModuleName = String
+
+extension ModuleName {
+    public static var core: ModuleName { "Core" }
+}
 
 
-// MARK: - Class Name
-public let ClassNameObject = "Object"
-public let ClassNameObjectMeta = "ObjectMeta"
+public typealias ClassName = String
 
-public let ClassNameClass = "Class"
+extension ClassName {
+    public static var object: ClassName { "Object" }
+    
+    public static var metaObject: ClassName { "MetaObject" }
+    
+    public static var cls: ClassName { "Class" }
+    
+    public static var string: ClassName { "String" }
+    
+    public static var map: ClassName { "Map" }
+    
+    public static var range: ClassName { "Range" }
+    
+    public static var list: ClassName { "List" }
+    
+    public static var null: ClassName { "Null" }
+    
+    public static var bool: ClassName { "Bool" }
+    
+    public static var num: ClassName { "Num" }
+    
+    public static var fn: ClassName { "Fn" }
+    
+    public static var thread: ClassName { "Thread" }
+}
 
-public let ClassNameString = "String"
-public let ClassNameMap = "Map"
-public let ClassNameRange = "Range"
-public let ClassNameList = "List"
-public let ClassNameNull = "Null"
-public let ClassNameBool = "Bool"
-public let ClassNameNum = "Num"
-public let ClassNameFn = "Fn"
-public let ClassNameThread = "Thread"
 
 

@@ -9,7 +9,7 @@
 import Cocoa
 
 /// 编译语句
-public func  compileStatment(unit: CompilerUnit) {
+public func compileStatment(unit: CompilerUnit) {
     if unit.curLexParser.matchCurToken(expected: .if_) {
         compileIfStatment(unit: unit)
         

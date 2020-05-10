@@ -15,14 +15,14 @@ import Cocoa
 public func buildCore(virtual: Virtual) {
     
     
-    let coreModule = ModuleObject(name: ModuleNameCore, virtual: virtual)
+    let coreModule = ModuleObject(name: ModuleName.core, virtual: virtual)
     
     let coreModuleCode = PoLoader.loadCore()
     
-    virtual.allModules[ModuleNameCore] = AnyValue(value: coreModule)
+    virtual.allModules[ModuleName.core] = AnyValue(value: coreModule)
     
     /// 创建Object类
-    virtual.objectClass = ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassNameObject)
+    virtual.objectClass = ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassName.object)
     
     /// 绑定原生方法
     virtual.objectClass.bindNativeMethod(virtual: virtual, selector: "!", imp: nativeObjectNot(virtual:stack:argsStart:))
@@ -34,7 +34,7 @@ public func buildCore(virtual: Virtual) {
     
     /// 创建Class类
    
-    virtual.classOfClass =  ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassNameClass)
+    virtual.classOfClass =  ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassName.cls)
     
     /// 绑定原生方法
     virtual.classOfClass.bindNativeMethod(virtual: virtual, selector: "name", imp: nativeClassGetName(virtual:stack:argsStart:))
@@ -44,7 +44,7 @@ public func buildCore(virtual: Virtual) {
     virtual.classOfClass.bindSuperClass(virtual: virtual, superClass: virtual.objectClass)
     
     /// 创建ObjectMeta类
-    let objectMetaClass = ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassNameObjectMeta)
+    let objectMetaClass = ClassObject.defineClass(virtual: virtual, module: coreModule, name: ClassName.metaObject)
     
     /// 绑定基类
     objectMetaClass.bindSuperClass(virtual: virtual, superClass: virtual.classOfClass)
@@ -56,7 +56,7 @@ public func buildCore(virtual: Virtual) {
     
     virtual.classOfClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
     
-    executeModule(virtual: virtual, name: ModuleNameCore, code: coreModuleCode)
+    executeModule(virtual: virtual, name: ModuleName.core, code: coreModuleCode)
 }
 
 /// 获取一个模块
@@ -67,7 +67,7 @@ public func getModule(virtual: Virtual, name: String) -> ModuleObject? {
 
 /// 获取核心模块
 public func getCoreModule(virtual: Virtual) -> ModuleObject? {
-    return getModule(virtual: virtual, name: ModuleNameCore)
+    return getModule(virtual: virtual, name: ModuleName.core)
 }
 
 

@@ -36,43 +36,29 @@ extension String {
 }
 
 extension Character {
-    public func isDigit() -> Bool {
-        return (self >= "0" && self <= "9")
-    }
-    public func isEof() -> Bool {
-        return self == "\0"
-    }
+    public func isDigit() -> Bool { (self >= "0" && self <= "9") }
+    
+    public func isEof() -> Bool { self == "\0" }
 }
 
 extension Index {
-    public static var notFound: Index {
-        return -1
-    }
-    
-    public static var repeatDefine: Index {
-        return -1
-    }
+    public static var notFound: Index { -1 }
+
+    public static var repeatDefine: Index { -1 }
 }
 
 extension Array {
-    public var lastIndex: Int {
-        return count - 1
-    }
+    public var lastIndex: Index { -1 }
 }
 
 extension ScopeDepth {
-    public static var module: ScopeDepth {
-        return -1
-    }
+    public static var module: ScopeDepth { -1 }
     
-    public static var normal: ScopeDepth {
-        return 0
-    }
+    public static var normal: ScopeDepth { 0 }
+
 }
 
 extension String {
     /// 小写字符开头便是局部变量
-    public var isLocalName: Bool {
-        return at(index: 0)?.isLowercase ?? false
-    }
+    public var isLocalName: Bool { at(index: 0)?.isLowercase ?? false }
 }

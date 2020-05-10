@@ -10,12 +10,12 @@ import Cocoa
 
 //MARK: Base
 @discardableResult
-public func writeByte(unit: CompilerUnit, byte: Byte) -> Int{
+public func writeByte(unit: CompilerUnit, byte: Byte) -> Index {
     #if DEBUG
     //TODO: 写入行号
-    if let token = unit.curLexParser.preToken {
-        unit.fn.byteStream.append(Byte(token.line))
-    }
+//    if let token = unit.curLexParser.preToken {
+//        unit.fn.byteStream.append(Byte(token.line))
+//    }
     #endif
     unit.fn.byteStream.append(byte)
     
@@ -23,40 +23,44 @@ public func writeByte(unit: CompilerUnit, byte: Byte) -> Int{
  }
 
 /// 写入操作码
-public func writeOpCode(unit: CompilerUnit, code: OP_CODE) {
+@discardableResult
+public func writeOpCode(unit: CompilerUnit, code: OP_CODE) -> Index {
     writeByte(unit: unit, byte: code.rawValue)
     unit.stackSlotNum += OP_CODE_SLOTS_USED[Int(code.rawValue)]
     unit.fn.maxStackSize = max(unit.fn.maxStackSize, unit.stackSlotNum)
+    return unit.fn.byteStream.lastIndex
 }
 
 /// 写入1字节的操作数
-public func writeByteOperand(unit: CompilerUnit, operand: Int) {
-    writeByte(unit: unit, byte: Byte(operand))
+@discardableResult
+public func writeByteOperand(unit: CompilerUnit, operand: Int) -> Index {
+    return writeByte(unit: unit, byte: Byte(operand))
 }
 
 /// 写入2字节操作数
-public func writeShortOperand(unit: CompilerUnit, operand: Int) {
+@discardableResult
+public func writeShortOperand(unit: CompilerUnit, operand: Int) -> Index {
     writeByte(unit: unit, byte: Byte((operand >> 8) & 0xff))
-    writeByte(unit: unit, byte: Byte(operand & 0xff))
+    return writeByte(unit: unit, byte: Byte(operand & 0xff))
 }
 
 /// 写入操作数为1字节的指令
 @discardableResult
-public func writeByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) -> Int {
+public func writeByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) -> Index {
     writeOpCode(unit: unit, code: code)
     writeByteOperand(unit: unit, operand: operand)
     return unit.fn.byteStream.lastIndex
 }
 
 /// 写入操作数为2字节的指令
-public func writeShortByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) {
+@discardableResult
+public func writeShortByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) -> Index {
     writeOpCode(unit: unit, code: code)
-    writeShortOperand(unit: unit, operand: operand)
+    return writeShortOperand(unit: unit, operand: operand)
 }
 
 
 //MARK: EmitByteCode
-
 
 /// 通过签名生成方法调用指令
 public func emitCallBySignature(unit: CompilerUnit, signature: Signature, opCode: OP_CODE) {

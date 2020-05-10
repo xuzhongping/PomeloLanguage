@@ -8,14 +8,6 @@
 
 import Cocoa
 
-public typealias SymbolTable = Dictionary
-
-public typealias SymbolList = Array
-
-public typealias SymbolSet = Set
-
-public typealias Symbol = String
-
 public typealias Selector = String
 
 public typealias Byte = UInt8
