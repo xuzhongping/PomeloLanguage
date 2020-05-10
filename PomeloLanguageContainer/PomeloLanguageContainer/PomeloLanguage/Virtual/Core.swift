@@ -78,6 +78,28 @@ public func buildCore(virtual: Virtual) {
     virtual.threadClass.bindNativeMethod(virtual: virtual, selector: "call()", imp: nativeThreadCallWithoutArg(virtual:stack:argsStart:))
     virtual.threadClass.bindNativeMethod(virtual: virtual, selector: "call(_)", imp: nativeThreadCallWithArg(virtual:stack:argsStart:))
     virtual.threadClass.bindNativeMethod(virtual: virtual, selector: "isDone", imp: nativeThreadIsDone(virtual:stack:argsStart:))
+    
+    guard let fnClassObject = getClassFromModule(module: coreModule, name: "Fn") else {
+        fatalError()
+    }
+    virtual.fnClass = fnClassObject
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call()")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)")
+    virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)")
 }
 
 /// 获取一个模块
@@ -214,5 +236,4 @@ public func switchThread(virtual: Virtual, nextThread: ThreadObject, stack:inout
     virtual.thread = nextThread
     return false
 }
-
 

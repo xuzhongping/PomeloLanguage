@@ -79,6 +79,12 @@ public class ClassObject: BaseObject {
         let methodIndex = ensureSymbolExist(virtual: virtual, symbolList: &virtual.allMethodNames, name: selector)
         bindMethod(virtual: virtual, index: methodIndex, method: method)
     }
+    
+    /// 绑定fn.call的重载方法
+    public func bindFnOverloadCall(virtual: Virtual, selector: String) {
+        let methodIndex = ensureSymbolExist(virtual: virtual, symbolList: &virtual.allMethodNames, name: selector)
+        bindMethod(virtual: virtual, index: methodIndex, method: Method(type: .call))
+    }
 
     
     public func bindSuperClass(virtual: Virtual, superClass: ClassObject) {

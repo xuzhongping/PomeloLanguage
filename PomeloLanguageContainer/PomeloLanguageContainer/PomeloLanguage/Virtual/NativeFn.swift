@@ -194,3 +194,11 @@ public func nativeThreadIsDone(virtual: Virtual, stack:inout [AnyValue], argsSta
     return true
 }
 
+public func nativeFnNew(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    guard let closureObject = stack[argsStart + 1].toClosureObject() else {
+        return false
+    }
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: closureObject))
+    return true
+}
+
