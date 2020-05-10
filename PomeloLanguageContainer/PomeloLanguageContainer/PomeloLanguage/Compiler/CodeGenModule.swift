@@ -57,7 +57,7 @@ func compileImport(unit: CompilerUnit) {
         guard let varName = unit.curLexParser.preToken?.value as? String else {
             fatalError()
         }
-        let varIndex = unit.declareVariable2(name: varName)
+        let varIndex = unit.declareVariable(name: varName)
         let varNameIndex = unit.defineConstant(constant: AnyValue(value: varName))
         
         unit.emitLoadVariable(variable: Variable(type: .module, index: systemModuleVarIndex))
@@ -66,7 +66,7 @@ func compileImport(unit: CompilerUnit) {
         
         emitCall(unit: unit, argsNum: 2, name: "getModuleVariable(_,_)")
         
-        unit.emitDefineVariable2(index: varIndex)
+        unit.emitDefineVariable(index: varIndex)
         
         guard unit.curLexParser.matchCurToken(expected: .comma) else { break }
     }

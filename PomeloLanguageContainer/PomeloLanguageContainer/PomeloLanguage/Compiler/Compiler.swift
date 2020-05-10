@@ -163,131 +163,131 @@ public class CompilerUnit: NSObject {
 // MARK: 变量操作相关
 extension CompilerUnit {
     
-    /// 声明局部变量
-    @discardableResult
-    public func addLocalVar(name: String) -> Index {
-        let localVar = LocalVar(name: name)
-        localVar.scopeDepth = scopeDepth
-        localVar.isUpvalue = false
-        localVars.append(localVar)
-        
-        return localVars.lastIndex
-    }
-    
-    /// 声明局部变量并检查是否重定义
-    public func declareLocalVar(name: String) -> Index {
-        guard localVars.count >= maxLocalVarNum else {
-           fatalError("the max length of local variable of one scope is \(maxLocalVarNum)")
-        }
-       
-        for localVar in localVars.reversed() {
-            // 只找自己作用域内的
-            guard localVar.scopeDepth >= scopeDepth else {
-                break
-            }
-            
-            // 检查重复定义
-            guard localVar.name != name else {
-                fatalError("identifier \(name) redefinition!")
-            }
-        }
-        return addLocalVar(name: name)
-    }
-    
-    /// 查找局部变量
-    /// 从内层向外层查
-    public func findLocalVar(name: String) -> Index {
-        return localVars.reversed().firstIndex { (localVar) -> Bool in localVar.name == name } ?? Index.notFound
-    }
-   
-    
-    
-    /// 添加常量
-    public func addConstant(constant: AnyValue) -> Int {
-        fn.constants.append(constant)
-        return fn.constants.lastIndex
-    }
-    
-
-    
-    /// 从局部变量和upvalue中查找符号name
-    public func findVarFromLocalOrUpvalue(name: String) -> Variable? {
-        var index = findLocalVar(name: name)
-        if index != Index.notFound {
-            return Variable(type: .local, index: index)
-        }
-        index = findUpvalue(name: name)
-        if index != Index.notFound {
-            return Variable(type: .upvalue, index: index)
-        }
-        return nil
-    }
+//    /// 声明局部变量
+//    @discardableResult
+//    public func addLocalVar(name: String) -> Index {
+//        let localVar = LocalVar(name: name)
+//        localVar.scopeDepth = scopeDepth
+//        localVar.isUpvalue = false
+//        localVars.append(localVar)
+//
+//        return localVars.lastIndex
+//    }
+//
+//    /// 声明局部变量并检查是否重定义
+//    public func declareLocalVar(name: String) -> Index {
+//        guard localVars.count >= maxLocalVarNum else {
+//           fatalError("the max length of local variable of one scope is \(maxLocalVarNum)")
+//        }
+//
+//        for localVar in localVars.reversed() {
+//            // 只找自己作用域内的
+//            guard localVar.scopeDepth >= scopeDepth else {
+//                break
+//            }
+//
+//            // 检查重复定义
+//            guard localVar.name != name else {
+//                fatalError("identifier \(name) redefinition!")
+//            }
+//        }
+//        return addLocalVar(name: name)
+//    }
+//
+//    /// 查找局部变量
+//    /// 从内层向外层查
+//    public func findLocalVar(name: String) -> Index {
+//        return localVars.reversed().firstIndex { (localVar) -> Bool in localVar.name == name } ?? Index.notFound
+//    }
+//
+//
+//
+//    /// 添加常量
+//    public func addConstant(constant: AnyValue) -> Int {
+//        fn.constants.append(constant)
+//        return fn.constants.lastIndex
+//    }
+//
+//
+//
+//    /// 从局部变量和upvalue中查找符号name
+//    public func findVarFromLocalOrUpvalue(name: String) -> Variable? {
+//        var index = findLocalVar(name: name)
+//        if index != Index.notFound {
+//            return Variable(type: .local, index: index)
+//        }
+//        index = findUpvalue(name: name)
+//        if index != Index.notFound {
+//            return Variable(type: .upvalue, index: index)
+//        }
+//        return nil
+//    }
 }
 
 extension CompilerUnit {
-    /// 根据作用域声明变量(模块变量或局部变量)
-    @discardableResult
-    public func declareVariable(name: String) -> Int {
-        if scopeDepth == ScopeDepth.module {
-            
-            let index = curLexParser.curModule.defineModuleVar(virtual: curLexParser.virtual, name: name, value: AnyValue.placeholder)
-            
-            if index == Index.repeatDefine {
-                fatalError("identifier \(name) redefinition!")
-            }
-            return index
-        }
-        return declareLocalVar(name: name)
-    }
-    
-    /// 生成根据作用域为变量赋值的指令
-    public func emitDefineVariable(index: Index) {
-        //局部变量已存储到栈中,无须处理.
-        //模块变量并不存储到栈中,因此将其写回相应位置
-        if scopeDepth == ScopeDepth.module {
-            writeByteCode(unit: self, code: .STORE_MODULE_VAR, operand: index)
-            writeOpCode(unit: self, code: .POP)
-        }
-    }
+//    /// 根据作用域声明变量(模块变量或局部变量)
+//    @discardableResult
+//    public func declareVariable(name: String) -> Int {
+//        if scopeDepth == ScopeDepth.module {
+//
+//            let index = curLexParser.curModule.defineModuleVar(virtual: curLexParser.virtual, name: name, value: AnyValue.placeholder)
+//
+//            if index == Index.repeatDefine {
+//                fatalError("identifier \(name) redefinition!")
+//            }
+//            return index
+//        }
+//        return declareLocalVar(name: name)
+//    }
+//
+//    /// 生成根据作用域为变量赋值的指令
+//    public func emitDefineVariable(index: Index) {
+//        //局部变量已存储到栈中,无须处理.
+//        //模块变量并不存储到栈中,因此将其写回相应位置
+//        if scopeDepth == ScopeDepth.module {
+//            writeByteCode(unit: self, code: .STORE_MODULE_VAR, operand: index)
+//            writeOpCode(unit: self, code: .POP)
+//        }
+//    }
 }
 
 extension CompilerUnit {
-    /// 添加upvalue
-    public func addUpvalue(isEnclosingLocalVar: Bool, index: Index) -> Int {
-        let index = upvalues.firstIndex { (upvalue) -> Bool in
-            
-            upvalue.index == index && upvalue.isEnclosingLocalVar == isEnclosingLocalVar
-            
-            } ?? Index.notFound
-        if index != Index.notFound {
-            return index
-        }
-        upvalues.append(Upvalue(index: index, isEnclosingLocalVar: isEnclosingLocalVar))
-        return upvalues.lastIndex
-    }
-    
-    /// 查找名为name的upvalue添加到upvalues中，返回其索引
-    public func findUpvalue(name: String) -> Index {
-        guard let enclosingUnit = enclosingUnit else {
-            return Index.notFound
-        }
-        
-        if !name.contains(" ") && enclosingUnit.enclosingClassBK != nil {
-            return Index.notFound
-        }
-        
-        let localIndex = enclosingUnit.findLocalVar(name: name)
-        if localIndex != Index.notFound {
-            enclosingUnit.localVars[localIndex].isUpvalue = true
-            return addUpvalue(isEnclosingLocalVar: true, index: localIndex)
-        }
-        
-        let upvalueIndex = enclosingUnit.findUpvalue(name: name)
-        if upvalueIndex != Index.notFound {
-            return addUpvalue(isEnclosingLocalVar: false, index: upvalueIndex)
-        }
-        return Index.notFound
-    }
+//    /// 添加upvalue
+//    public func addUpvalue(isEnclosingLocalVar: Bool, index: Index) -> Int {
+//        let index = upvalues.firstIndex { (upvalue) -> Bool in
+//
+//            upvalue.index == index && upvalue.isEnclosingLocalVar == isEnclosingLocalVar
+//
+//            } ?? Index.notFound
+//        if index != Index.notFound {
+//            return index
+//        }
+//        upvalues.append(Upvalue(index: index, isEnclosingLocalVar: isEnclosingLocalVar))
+//        return upvalues.lastIndex
+//    }
+//
+//    /// 查找名为name的upvalue添加到upvalues中，返回其索引
+//    public func findUpvalue(name: String) -> Index {
+//        guard let enclosingUnit = enclosingUnit else {
+//            return Index.notFound
+//        }
+//
+//        if !name.contains(" ") && enclosingUnit.enclosingClassBK != nil {
+//            return Index.notFound
+//        }
+//
+//        let localIndex = enclosingUnit.findLocalVar(name: name)
+//        if localIndex != Index.notFound {
+//            enclosingUnit.localVars[localIndex].isUpvalue = true
+//            return addUpvalue(isEnclosingLocalVar: true, index: localIndex)
+//        }
+//
+//        let upvalueIndex = enclosingUnit.findUpvalue(name: name)
+//        if upvalueIndex != Index.notFound {
+//            return addUpvalue(isEnclosingLocalVar: false, index: upvalueIndex)
+//        }
+//        return Index.notFound
+//    }
 }
 
 extension CompilerUnit {
@@ -314,24 +314,24 @@ extension CompilerUnit {
        
 }
 
-/// 销毁作用域scopeDepth之内的局部变量
-@discardableResult
-public func destroyLocalVar(unit: CompilerUnit, scopeDepth: Int) -> Int {
-    guard unit.scopeDepth > ScopeDepth.module else {
-        fatalError("module scope can`t exit!")
-    }
-    
-    var localIndex = unit.localVars.lastIndex
-    while localIndex >= 0 && unit.localVars[localIndex].scopeDepth >= scopeDepth {
-        if unit.localVars[localIndex].isUpvalue {
-            writeByte(unit: unit, byte: OP_CODE.CLOSE_UPVALUE.rawValue)
-        } else {
-            writeByte(unit: unit, byte: OP_CODE.POP.rawValue)
-        }
-        localIndex -= 1
-    }
-    return unit.localVars.count - 1 - localIndex
-}
+///// 销毁作用域scopeDepth之内的局部变量
+//@discardableResult
+//public func destroyLocalVar(unit: CompilerUnit, scopeDepth: Int) -> Int {
+//    guard unit.scopeDepth > ScopeDepth.module else {
+//        fatalError("module scope can`t exit!")
+//    }
+//
+//    var localIndex = unit.localVars.lastIndex
+//    while localIndex >= 0 && unit.localVars[localIndex].scopeDepth >= scopeDepth {
+//        if unit.localVars[localIndex].isUpvalue {
+//            writeByte(unit: unit, byte: OP_CODE.CLOSE_UPVALUE.rawValue)
+//        } else {
+//            writeByte(unit: unit, byte: OP_CODE.POP.rawValue)
+//        }
+//        localIndex -= 1
+//    }
+//    return unit.localVars.count - 1 - localIndex
+//}
 
 
 
@@ -376,7 +376,7 @@ public func emitStoreVariable(unit: CompilerUnit, variable: Variable) {
 
 /// 生成加载常量的指令
 public func emitLoadConstant(unit: CompilerUnit, constant: AnyValue) {
-    let index = unit.addConstant(constant: constant)
+    let index = unit.defineConstant(constant: constant)
     writeShortByteCode(unit: unit,
                        code: .LOAD_CONSTANT,
                        operand: index)

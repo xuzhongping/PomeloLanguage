@@ -14,10 +14,9 @@ import Cocoa
 
 public func buildCore(virtual: Virtual) {
     
-    
     let coreModule = ModuleObject(name: ModuleName.core, virtual: virtual)
     
-    let coreModuleCode = PoLoader.loadCore()
+    let coreModuleCode = Loader.loadCoreModule()
     
     virtual.allModules[ModuleName.core] = AnyValue(value: coreModule)
     

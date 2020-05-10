@@ -76,7 +76,7 @@ public func emitCallBySignature(unit: CompilerUnit, signature: Signature, opCode
     writeShortByteCode(unit: unit, code:opCode, operand: index)
     
     if opCode == .SUPER0 {
-        writeShortOperand(unit: unit, operand: unit.addConstant(constant: AnyValue.placeholder))
+        writeShortOperand(unit: unit, operand: unit.defineConstant(constant: AnyValue.placeholder))
     }
 }
 
@@ -149,7 +149,7 @@ public func emitLoadOrStoreVariable(unit: CompilerUnit, assign: Bool, variable: 
 
 /// 加载变量this到栈顶
 public func emitLoadThis(unit: CompilerUnit)  {
-    guard let thisVariable = unit.findVarFromLocalOrUpvalue(name: "this") else {
+    guard let thisVariable = unit.findVariable(name: "this") else {
         fatalError()
     }
     emitLoadVariable(unit: unit, variable: thisVariable)
@@ -379,10 +379,8 @@ public func compileId(unit: CompilerUnit, assign: Bool) {
     }
 
     /// 处理为局部变量和upvalue
-    if let variable = unit.findVarFromLocalOrUpvalue(name: value) {
-        emitLoadOrStoreVariable(unit: unit,
-                                assign: assign,
-                                variable: variable)
+    if let variable = unit.findVariable(name: value) {
+        emitLoadOrStoreVariable(unit: unit, assign: assign, variable: variable)
         return
     }
     
@@ -412,7 +410,7 @@ public func compileId(unit: CompilerUnit, assign: Bool) {
     /// 处理为静态域
     if let classBK = unit.getEnclosingClassBK() {
         let name = "Cls\(classBK.name) \(value)"
-        if let variable = unit.findVarFromLocalOrUpvalue(name: name) {
+        if let variable = unit.findVariable(name: name) {
             emitLoadOrStoreVariable(unit: unit,
                                     assign: assign,
                                     variable: variable)
@@ -436,7 +434,7 @@ public func compileId(unit: CompilerUnit, assign: Bool) {
         let name = "Fn \(value)"
         index = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: name)
         if index == Index.notFound {
-            index = unit.curLexParser.curModule.declareModuleVar(virtual: unit.curLexParser.virtual, name: name, value: AnyValue.placeholder)
+            index = unit.curLexParser.curModule.declareModuleVar(virtual: unit.curLexParser.virtual, name: name)
         }
     }
     emitLoadOrStoreVariable(unit: unit,
@@ -618,7 +616,7 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
             let localName = "Cls \(enclosingClassBK.name) \(name)"
             if unit.findLocalVar(name: localName) == Index.notFound {
                 // 将静态变量名声明为模块这个编译单元的局部变量
-                let localIndex = unit.declareLocalVar2(name: localName)
+                let localIndex = unit.declareLocalVar(name: localName)
                 // 局部变量的值入栈
                 writeOpCode(unit: unit, code: .PUSH_NULL)
                 // 类体中scopeDepth为0
@@ -669,8 +667,8 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
     }
     
     // 如果是局部变量，在上面expression已经入栈，如果是模块变量，在下面emitStoreVariable定义
-    let index = unit.declareVariable2(name: name)
-    unit.emitDefineVariable2(index: index)
+    let index = unit.declareVariable(name: name)
+    unit.emitDefineVariable(index: index)
 }
 
 /// 结束当前编译单元的编译工作
@@ -684,9 +682,8 @@ public func endCompile(unit: CompilerUnit) -> FnObject {
     if let enclosingUnit = unit.enclosingUnit {
         // 将当前编译单元的fn写入到父编译单元中作为常量
         unit.fn.upvalueNum = unit.upvalues.count
-        let index = enclosingUnit.addConstant(constant: AnyValue(value: unit.fn))
-        
-
+        let index = enclosingUnit.defineConstant(constant: AnyValue(value: unit.fn))
+  
         // 在父编译单元中写入指令创建闭包
         writeShortByteCode(unit: enclosingUnit,
                            code: .CREATE_CLOSURE,

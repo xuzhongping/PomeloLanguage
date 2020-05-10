@@ -11,7 +11,7 @@ import Cocoa
 // MARK: 模块变量相关操作
 extension ModuleObject {
     /// 声明模块变量
-    public func declareModuleVar2(virtual: Virtual, name: String) -> Index {
+    public func declareModuleVar(virtual: Virtual, name: String) -> Index {
         guard name.count <= maxIdLength else {
             fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
         }
@@ -24,7 +24,7 @@ extension ModuleObject {
     
     /// 定义模块变量
     @discardableResult
-    public func defineModuleVar2(virtual: Virtual, name: String, value: AnyValue)  -> Index {
+    public func defineModuleVar(virtual: Virtual, name: String, value: AnyValue)  -> Index {
         guard name.count <= maxIdLength else {
             fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
         }
@@ -50,7 +50,7 @@ extension ModuleObject {
 extension CompilerUnit {
     /// 声明局部变量
     @discardableResult
-    private func addLocalVar2(name: String) -> Index {
+    private func addLocalVar(name: String) -> Index {
         let localVar = LocalVar(name: name)
         localVar.scopeDepth = scopeDepth
         localVar.isUpvalue = false
@@ -59,7 +59,7 @@ extension CompilerUnit {
     }
     
     /// 声明局部变量并检查是否重定义
-    public func declareLocalVar2(name: String) -> Index {
+    public func declareLocalVar(name: String) -> Index {
         guard localVars.count >= maxLocalVarNum else {
            fatalError("the max length of local variable of one scope is \(maxLocalVarNum)")
         }
@@ -80,7 +80,7 @@ extension CompilerUnit {
     
     /// 查找局部变量
     /// 从内层向外层查
-    public func findLocalVar2(name: String) -> Index {
+    public func findLocalVar(name: String) -> Index {
         return localVars.reversed().firstIndex { (localVar) -> Bool in
             localVar.name == name
             } ?? Index.notFound
@@ -110,7 +110,7 @@ extension CompilerUnit {
 // MARK: upvalue相关操作
 extension CompilerUnit {
     /// 添加upvalue
-    public func addUpvalue2(isEnclosingLocalVar: Bool, index: Index) -> Int {
+    public func addUpvalue(isEnclosingLocalVar: Bool, index: Index) -> Index {
         let index = upvalues.firstIndex { (upvalue) -> Bool in
             
             upvalue.index == index && upvalue.isEnclosingLocalVar == isEnclosingLocalVar
@@ -124,7 +124,7 @@ extension CompilerUnit {
     }
     
     /// 查找名为name的upvalue添加到upvalues中，返回其索引
-    public func findUpvalue2(name: String) -> Index {
+    public func findUpvalue(name: String) -> Index {
         guard let enclosingUnit = enclosingUnit else {
             return Index.notFound
         }
@@ -151,9 +151,9 @@ extension CompilerUnit {
 extension CompilerUnit {
     /// 根据作用域声明变量(模块变量或局部变量)
     @discardableResult
-    public func declareVariable2(name: String) -> Int {
+    public func declareVariable(name: String) -> Int {
         if scopeDepth == ScopeDepth.module {
-            let index = curLexParser.curModule.declareModuleVar2(virtual: curLexParser.virtual, name: name)
+            let index = curLexParser.curModule.declareModuleVar(virtual: curLexParser.virtual, name: name)
             if index == Index.repeatDefine {
                 fatalError("identifier \(name) redefinition!")
             }
@@ -162,7 +162,7 @@ extension CompilerUnit {
         return declareLocalVar(name: name)
     }
     
-    public func emitDefineVariable2(index: Index) {
+    public func emitDefineVariable(index: Index) {
         if scopeDepth == ScopeDepth.module {
             writeShortByteCode(unit: self, code: .STORE_MODULE_VAR, operand: index)
             writeOpCode(unit: self, code: .POP)

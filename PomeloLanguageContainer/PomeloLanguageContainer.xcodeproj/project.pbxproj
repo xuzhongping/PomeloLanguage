@@ -34,7 +34,7 @@
 		C0379512242CFD2100A5F27F /* Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FB242CFD2100A5F27F /* Error.swift */; };
 		C0379513242CFD2100A5F27F /* Alias.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FC242CFD2100A5F27F /* Alias.swift */; };
 		C0379514242CFD2100A5F27F /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03794FD242CFD2100A5F27F /* Extension.swift */; };
-		ED031C4224621DF1005A75EF /* Variable.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED031C4124621DF1005A75EF /* Variable.swift */; };
+		ED031C4224621DF1005A75EF /* VariableAccess.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED031C4124621DF1005A75EF /* VariableAccess.swift */; };
 		ED7B78AA2442009E00DB2F2D /* CodeGenStatement.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7B78A92442009E00DB2F2D /* CodeGenStatement.swift */; };
 		ED7B78AC24421D4D00DB2F2D /* CodeGenObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7B78AB24421D4D00DB2F2D /* CodeGenObject.swift */; };
 		ED7B78AE24421EBD00DB2F2D /* CodeGenModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED7B78AD24421EBD00DB2F2D /* CodeGenModule.swift */; };
@@ -43,8 +43,9 @@
 		ED81C2A9243109E00066CC67 /* CodeGen.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A8243109E00066CC67 /* CodeGen.swift */; };
 		ED84C6102444C16F00A453DC /* sample.sp in Resources */ = {isa = PBXBuildFile; fileRef = ED84C60F2444C16F00A453DC /* sample.sp */; };
 		EDC1DECC244B219300FAEC97 /* Virtual.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1DECB244B219300FAEC97 /* Virtual.swift */; };
-		EDC1DECF244B46BB00FAEC97 /* core.po in Sources */ = {isa = PBXBuildFile; fileRef = EDC1DECE244B46BB00FAEC97 /* core.po */; };
-		EDC1DED1244B4AA600FAEC97 /* PoLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1DED0244B4AA600FAEC97 /* PoLoader.swift */; };
+		EDC2C5672468478100D82E61 /* sample.sp in Resources */ = {isa = PBXBuildFile; fileRef = ED84C60F2444C16F00A453DC /* sample.sp */; };
+		EDC2C5692468482F00D82E61 /* core.po in Resources */ = {isa = PBXBuildFile; fileRef = EDC2C5682468482E00D82E61 /* core.po */; };
+		EDC2C56B246848EA00D82E61 /* Reader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC2C56A246848EA00D82E61 /* Reader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,7 +100,7 @@
 		C03794FB242CFD2100A5F27F /* Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Error.swift; sourceTree = "<group>"; };
 		C03794FC242CFD2100A5F27F /* Alias.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alias.swift; sourceTree = "<group>"; };
 		C03794FD242CFD2100A5F27F /* Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
-		ED031C4124621DF1005A75EF /* Variable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variable.swift; sourceTree = "<group>"; };
+		ED031C4124621DF1005A75EF /* VariableAccess.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableAccess.swift; sourceTree = "<group>"; };
 		ED7B78A92442009E00DB2F2D /* CodeGenStatement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenStatement.swift; sourceTree = "<group>"; };
 		ED7B78AB24421D4D00DB2F2D /* CodeGenObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenObject.swift; sourceTree = "<group>"; };
 		ED7B78AD24421EBD00DB2F2D /* CodeGenModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenModule.swift; sourceTree = "<group>"; };
@@ -108,8 +109,8 @@
 		ED81C2A8243109E00066CC67 /* CodeGen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGen.swift; sourceTree = "<group>"; };
 		ED84C60F2444C16F00A453DC /* sample.sp */ = {isa = PBXFileReference; lastKnownFileType = text; name = sample.sp; path = PomeloLanguageContainer/PomeloLanguage/inc/sample.sp; sourceTree = SOURCE_ROOT; };
 		EDC1DECB244B219300FAEC97 /* Virtual.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
-		EDC1DECE244B46BB00FAEC97 /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = core.po; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = "<none>"; };
-		EDC1DED0244B4AA600FAEC97 /* PoLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoLoader.swift; sourceTree = "<group>"; };
+		EDC2C5682468482E00D82E61 /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = core.po; sourceTree = "<group>"; };
+		EDC2C56A246848EA00D82E61 /* Reader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,7 +216,7 @@
 				ED7B78A92442009E00DB2F2D /* CodeGenStatement.swift */,
 				ED7B78AB24421D4D00DB2F2D /* CodeGenObject.swift */,
 				ED7B78AD24421EBD00DB2F2D /* CodeGenModule.swift */,
-				ED031C4124621DF1005A75EF /* Variable.swift */,
+				ED031C4124621DF1005A75EF /* VariableAccess.swift */,
 			);
 			path = Compiler;
 			sourceTree = "<group>";
@@ -269,9 +270,9 @@
 		EDC1DECD244B46AC00FAEC97 /* inc */ = {
 			isa = PBXGroup;
 			children = (
+				EDC2C5682468482E00D82E61 /* core.po */,
 				ED84C60F2444C16F00A453DC /* sample.sp */,
-				EDC1DECE244B46BB00FAEC97 /* core.po */,
-				EDC1DED0244B4AA600FAEC97 /* PoLoader.swift */,
+				EDC2C56A246848EA00D82E61 /* Reader.swift */,
 			);
 			path = inc;
 			sourceTree = "<group>";
@@ -381,6 +382,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C03794BB242CFCF700A5F27F /* Assets.xcassets in Resources */,
+				EDC2C5692468482F00D82E61 /* core.po in Resources */,
 				C03794BE242CFCF700A5F27F /* Main.storyboard in Resources */,
 				ED84C6102444C16F00A453DC /* sample.sp in Resources */,
 			);
@@ -390,6 +392,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDC2C5672468478100D82E61 /* sample.sp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,7 +413,6 @@
 				C0379505242CFD2100A5F27F /* InstanceObject.swift in Sources */,
 				C0379503242CFD2100A5F27F /* Header.swift in Sources */,
 				C0379512242CFD2100A5F27F /* Error.swift in Sources */,
-				EDC1DECF244B46BB00FAEC97 /* core.po in Sources */,
 				C037950D242CFD2100A5F27F /* NativeFn.swift in Sources */,
 				C03794FE242CFD2100A5F27F /* ClassObject.swift in Sources */,
 				ED7B78AA2442009E00DB2F2D /* CodeGenStatement.swift in Sources */,
@@ -422,18 +424,18 @@
 				C0379501242CFD2100A5F27F /* ThreadObject.swift in Sources */,
 				C0379514242CFD2100A5F27F /* Extension.swift in Sources */,
 				ED81C2A9243109E00066CC67 /* CodeGen.swift in Sources */,
-				ED031C4224621DF1005A75EF /* Variable.swift in Sources */,
+				ED031C4224621DF1005A75EF /* VariableAccess.swift in Sources */,
 				C0379502242CFD2100A5F27F /* ListObject.swift in Sources */,
 				C03794B9242CFCF500A5F27F /* ViewController.swift in Sources */,
 				C03794B7242CFCF500A5F27F /* AppDelegate.swift in Sources */,
 				C03794FF242CFD2100A5F27F /* MapObject.swift in Sources */,
 				C0379500242CFD2100A5F27F /* RangeObject.swift in Sources */,
 				C0379510242CFD2100A5F27F /* Constant.swift in Sources */,
-				EDC1DED1244B4AA600FAEC97 /* PoLoader.swift in Sources */,
 				C0379513242CFD2100A5F27F /* Alias.swift in Sources */,
 				C0379511242CFD2100A5F27F /* Unicode.swift in Sources */,
 				C0379506242CFD2100A5F27F /* FunctionObject.swift in Sources */,
 				ED7B78AC24421D4D00DB2F2D /* CodeGenObject.swift in Sources */,
+				EDC2C56B246848EA00D82E61 /* Reader.swift in Sources */,
 				ED81C2A5242FAC640066CC67 /* Basic.swift in Sources */,
 				C037950C242CFD2100A5F27F /* Core.swift in Sources */,
 				C037950F242CFD2100A5F27F /* LexParser.swift in Sources */,

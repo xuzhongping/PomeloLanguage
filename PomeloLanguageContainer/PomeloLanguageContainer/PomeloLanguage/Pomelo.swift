@@ -38,7 +38,7 @@ class Pomelo {
     public func run(file: String) {
         let virtual = Virtual()
         
-        let code = PoLoader.loadModule(name: file)
+        let code = Loader.loadModule(name: file)
         
         let result = executeModule(virtual: virtual, name: file, code: code)
         print(result)

@@ -215,7 +215,7 @@ public func compileBreak(unit: CompilerUnit) {
     guard let loop = unit.curLoop else {
         fatalError("break should be used inside a loop!")
     }
-    destroyLocalVar(unit: unit, scopeDepth: loop.scopeDepth + 1)
+    unit.destroyLocalVar(scopeDepth: loop.scopeDepth + 1)
     emitInstrWithPlaceholder(unit: unit, opCode: .END)
 }
 
@@ -224,7 +224,7 @@ public func compileContinue(unit: CompilerUnit) {
     guard let loop = unit.curLoop else {
         fatalError("continue should be used inside a loop!")
     }
-    destroyLocalVar(unit: unit, scopeDepth: loop.scopeDepth + 1)
+    unit.destroyLocalVar(scopeDepth: loop.scopeDepth + 1)
     // 销毁局部变量，回到循环开始处
     let loopBackOffset = unit.fn.byteStream.count - loop.condStartIndex + 2
     writeShortByteCode(unit: unit, code: .LOOP, operand: loopBackOffset)
@@ -240,7 +240,7 @@ func enterScope(unit: CompilerUnit) {
 /// 退出作用域
 func leaveScope(unit: CompilerUnit) {
     if let _ = unit.enclosingUnit {
-        let destroyNum = destroyLocalVar(unit: unit, scopeDepth: unit.scopeDepth)
+        let destroyNum = unit.destroyLocalVar(scopeDepth: unit.scopeDepth)
         unit.stackSlotNum -= destroyNum
     }
     unit.scopeDepth -= 1
@@ -259,10 +259,10 @@ public func compileForStatment(unit: CompilerUnit) {
     expression(unit: unit, rbp: .lowest)
     
     unit.curLexParser.consumeCurToken(expected: .rightParen, message: "expect ')' after sequence!")
-    let seqSlot = unit.addLocalVar(name: "seq ")
+    let seqSlot = unit.declareLocalVar(name: "seq ")
     
     writeOpCode(unit: unit, code: .PUSH_NULL)
-    let iterSlot = unit.addLocalVar(name: "iter ")
+    let iterSlot = unit.declareLocalVar(name: "iter ")
     
     let loop = Loop()
     enterLoopSetting(unit: unit, loop: loop)
@@ -280,7 +280,7 @@ public func compileForStatment(unit: CompilerUnit) {
 
     enterScope(unit: unit)
     
-    unit.addLocalVar(name: loopVarName)
+    unit.declareLocalVar(name: loopVarName)
     compileLoopBody(unit: unit)
     
     leaveScope(unit: unit)

@@ -1,14 +1,14 @@
 //
-//  Loader.swift
+//  Reader.swift
 //  PomeloLanguageContainer
 //
-//  Created by 徐仲平 on 2020/4/18.
+//  Created by 徐仲平 on 2020/5/10.
 //  Copyright © 2020 xuzhongping. All rights reserved.
 //
 
 import Cocoa
 
-class PoLoader: NSObject {
+class Loader: NSObject {
     static private func loadCode(name: String, type: String) -> String {
         guard let file = Bundle.main.path(forResource: name, ofType: type) else {
             fatalError()
@@ -23,12 +23,14 @@ class PoLoader: NSObject {
         }
         return code
     }
-    
-    static public func loadCore() -> String {
-        return loadCode(name: "core", type: "po")
-    }
-    
+}
+
+extension Loader {
     static public func loadModule(name: String) -> String {
         return loadCode(name: name, type: "po")
+    }
+    
+    static public func loadCoreModule() -> String {
+        return loadModule(name: "core")
     }
 }

@@ -48,7 +48,7 @@ extension Index {
 }
 
 extension Array {
-    public var lastIndex: Index { -1 }
+    public var lastIndex: Index { count - 1 }
 }
 
 extension ScopeDepth {

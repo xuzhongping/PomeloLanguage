@@ -24,44 +24,44 @@ public class ModuleObject: BaseObject {
         super.init(virtual: virtual, type: .module, cls: nil)
     }
     
-    /// 定义模块变量
-    @discardableResult
-    public func defineModuleVar(virtual: Virtual, name: String, value: AnyValue)  -> Index {
-        guard name.count <= maxIdLength else {
-            fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
-        }
-        
-        var symbolIndex = Index.notFound
-        if let nameIndex = moduleVarNames.firstIndex(of: name) {
-            
-            let oldValue = moduleVarValues[nameIndex]
-            // 处理已声明未定义，除此之外就是重复定义
-            if oldValue.isPlaceholder() {
-                moduleVarValues[nameIndex] = value
-                symbolIndex = nameIndex
-            } else {
-                symbolIndex = Index.repeatDefine
-            }
-            
-        } else {
-            moduleVarNames.append(name)
-            moduleVarValues.append(value)
-            symbolIndex = moduleVarValues.lastIndex
-        }
-        
-        return symbolIndex
-    }
-    
-    /// 声明模块变量,不做重定义检查
-    public func declareModuleVar(virtual: Virtual, name: String, value: AnyValue) -> Index {
-        guard name.count <= maxIdLength else {
-            fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
-        }
-        moduleVarNames.append(name)
-        moduleVarValues.append(value)
-        
-        return moduleVarNames.lastIndex
-    }
+//    /// 定义模块变量
+//    @discardableResult
+//    public func defineModuleVar(virtual: Virtual, name: String, value: AnyValue)  -> Index {
+//        guard name.count <= maxIdLength else {
+//            fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
+//        }
+//
+//        var symbolIndex = Index.notFound
+//        if let nameIndex = moduleVarNames.firstIndex(of: name) {
+//
+//            let oldValue = moduleVarValues[nameIndex]
+//            // 处理已声明未定义，除此之外就是重复定义
+//            if oldValue.isPlaceholder() {
+//                moduleVarValues[nameIndex] = value
+//                symbolIndex = nameIndex
+//            } else {
+//                symbolIndex = Index.repeatDefine
+//            }
+//
+//        } else {
+//            moduleVarNames.append(name)
+//            moduleVarValues.append(value)
+//            symbolIndex = moduleVarValues.lastIndex
+//        }
+//
+//        return symbolIndex
+//    }
+//
+//    /// 声明模块变量,不做重定义检查
+//    public func declareModuleVar(virtual: Virtual, name: String, value: AnyValue) -> Index {
+//        guard name.count <= maxIdLength else {
+//            fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
+//        }
+//        moduleVarNames.append(name)
+//        moduleVarValues.append(value)
+//
+//        return moduleVarNames.lastIndex
+//    }
     
 }
 

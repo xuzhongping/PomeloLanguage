@@ -163,7 +163,7 @@ func compileClassDefinition(unit: CompilerUnit) {
         unit.emitLoadVariable(variable: variable)
     }
     
-    let index = unit.declareVariable2(name: className)
+    let index = unit.declareVariable(name: className)
     
     let classVar = Variable(type: .module, index: index)
     
@@ -220,7 +220,7 @@ func compileFunctionDefinition(unit: CompilerUnit) {
     }
     
     let fnName = "Fn \(name)"
-    let fnNameIndex = unit.declareVariable2(name: fnName)
+    let fnNameIndex = unit.declareVariable(name: fnName)
     
     let fnUnit = CompilerUnit(lexParser: unit.curLexParser, enclosingUnit: unit, isMethod: false)
     let tempFnSign = Signature(type: .method, name: "", argNum: 0)
@@ -236,7 +236,7 @@ func compileFunctionDefinition(unit: CompilerUnit) {
     compileBody(unit: fnUnit, isConstruct: false)
     
     endCompile(unit: unit)
-    unit.emitDefineVariable2(index: fnNameIndex)
+    unit.emitDefineVariable(index: fnNameIndex)
 }
 
 

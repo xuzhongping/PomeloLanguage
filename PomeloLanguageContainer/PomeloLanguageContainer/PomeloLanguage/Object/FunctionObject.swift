@@ -10,7 +10,7 @@ import Cocoa
 
 /// 编译时和运行时结构
 /// 方法对象
-public class Method {
+public class Method: NSObject {
     enum MethodType {
         case none
         /// 原生函数
@@ -39,6 +39,23 @@ public class Method {
     convenience init(scriptImp: ClosureObject) {
         self.init(type: .script)
         self.scriptImp = scriptImp
+    }
+    
+    public override var description: String {
+        var description = "<Method"
+        description.append("(type:")
+        switch type {
+        case .none:
+            description.append("none")
+        case .native:
+            description.append("native")
+        case .script:
+            description.append("script")
+        case .call:
+            description.append("call")
+        }
+        description.append(")>")
+        return description
     }
 }
 
