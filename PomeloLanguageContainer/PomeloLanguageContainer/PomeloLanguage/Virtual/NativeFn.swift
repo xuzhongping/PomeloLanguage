@@ -194,6 +194,7 @@ public func nativeThreadIsDone(virtual: Virtual, stack:inout [AnyValue], argsSta
     return true
 }
 
+/// 原生方法: Fn.new(_) 新建一个函数对象
 public func nativeFnNew(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
     guard let closureObject = stack[argsStart + 1].toClosureObject() else {
         return false
@@ -202,3 +203,33 @@ public func nativeFnNew(virtual: Virtual, stack:inout [AnyValue], argsStart: Ind
     return true
 }
 
+/// 原生方法: null取非
+public func nativeNullNot(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: true))
+    return true
+}
+
+/// 原生方法: null的字符串化
+public func nativeNullToString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: "null"))
+    return true
+}
+
+/// 原生方法: 将字符串转为数字
+public func nativeNumFromString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    guard let string = stack[argsStart].toString() else {
+        return false
+    }
+    guard let number = Double(string) else {
+        fatalError()
+    }
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: number))
+    return true
+}
+
+
+/// 原生方法: 返回圆周率
+public func nativeNumPi(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: Double.pi))
+    return true
+}

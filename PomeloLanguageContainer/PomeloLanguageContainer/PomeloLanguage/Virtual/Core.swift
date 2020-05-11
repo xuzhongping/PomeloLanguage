@@ -100,6 +100,12 @@ public func buildCore(virtual: Virtual) {
     virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_)")
     virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)")
     virtual.fnClass.bindFnOverloadCall(virtual: virtual, selector: "call(_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_)")
+    
+    guard let nullClassObject = getClassFromModule(module: coreModule, name: "Null") else {
+        fatalError()
+    }
+    nullClassObject.bindNativeMethod(virtual: virtual, selector: "!", imp: nativeNullNot(virtual:stack:argsStart:))
+    nullClassObject.bindNativeMethod(virtual: virtual, selector: "toString", imp: nativeNullToString(virtual:stack:argsStart:))
 }
 
 /// 获取一个模块
