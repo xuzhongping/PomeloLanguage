@@ -103,6 +103,13 @@ extension AnyValue {
        }
        return obj
     }
+    
+    public func toNum() -> Double? {
+        guard let value = value as? Double else {
+            return nil
+        }
+        return value
+    }
 }
 
 extension AnyValue {
@@ -158,6 +165,10 @@ extension AnyValue {
     public func isPlaceholder() -> Bool {
         return self == AnyValue.placeholder
     }
+    
+    public func isNum() -> Bool {
+        return value is Double
+    }
 }
 
 extension AnyValue {
@@ -167,6 +178,8 @@ extension AnyValue {
             return virtual.stringClass
         case is Bool:
             return virtual.boolClass
+        case is Double:
+            return virtual.numClass
         case is ClassObject:
             return virtual.classOfClass
         case is InstanceObject:

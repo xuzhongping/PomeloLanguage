@@ -106,6 +106,51 @@ public func buildCore(virtual: Virtual) {
     }
     nullClassObject.bindNativeMethod(virtual: virtual, selector: "!", imp: nativeNullNot(virtual:stack:argsStart:))
     nullClassObject.bindNativeMethod(virtual: virtual, selector: "toString", imp: nativeNullToString(virtual:stack:argsStart:))
+    
+    guard let numClassObject = getClassFromModule(module: coreModule, name: "Num") else {
+        fatalError()
+    }
+    virtual.numClass = numClassObject
+    virtual.numClass.header.cls?.bindNativeMethod(virtual: virtual, selector: "fromString(_)", imp: nativeNumFromString(virtual:stack:argsStart:))
+    virtual.numClass.header.cls?.bindNativeMethod(virtual: virtual, selector: "pi", imp: nativeNumPi(virtual:stack:argsStart:))
+
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "+(_)", imp: nativeNumPlus(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "-(_)", imp: nativeNumMinus(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "*(_)", imp: nativeNumMul(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "/(_)", imp: nativeNumDiv(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: ">(_)", imp: nativeNumGt(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: ">=(_)", imp: nativeNumGe(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "<(_)", imp: nativeNumLt(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "<=(_)", imp: nativeNumLe(virtual:stack:argsStart:))
+    
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "&(_)", imp: nativeNumBitAnd(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "|(_)", imp: nativeNumBitOr(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "<<(_)", imp: nativeNumBitShiftLeft(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: ">>(_)", imp: nativeNumBitShiftRight(virtual:stack:argsStart:))
+    
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "abs", imp: nativeNumAbs(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "acos", imp: nativeNumAcos(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "asin", imp: nativeNumAsin(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "atan", imp: nativeNumAtan(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "ceil", imp: nativeNumCeil(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "cos", imp: nativeNumCos(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "floor", imp: nativeNumFloor(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "-", imp: nativeNumNegate(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "sin", imp: nativeNumSin(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "sqrt", imp: nativeNumSqrt(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "tan", imp: nativeNumTan(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "%(_)", imp: nativeNumMod(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "~", imp: nativeNumBitNot(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "..(_)", imp: nativeNumRange(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "atan(_)", imp: nativeNumAtan2(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "fraction", imp: nativeNumFraction(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "isInfinity", imp: nativeNumIsInfinity(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "isInteger", imp: nativeNumIsInteger(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "isNan", imp: nativeNumIsNan(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "toString", imp: nativeNumToString(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "truncate", imp: nativeNumTruncate(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "==(_)", imp: nativeNumEqual(virtual:stack:argsStart:))
+    virtual.numClass.bindNativeMethod(virtual: virtual, selector: "!=(_)", imp: nativeNumNotEqual(virtual:stack:argsStart:))
 }
 
 /// 获取一个模块
