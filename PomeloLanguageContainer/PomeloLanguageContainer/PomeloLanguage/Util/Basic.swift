@@ -16,7 +16,6 @@ public class BaseObject: NSObject{
     }
 }
 
-
 public class AnyValue: NSObject {
     private var value: Any?
     init(value: Any?) {

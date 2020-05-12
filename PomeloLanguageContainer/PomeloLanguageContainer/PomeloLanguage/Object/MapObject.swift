@@ -9,17 +9,11 @@
 import Cocoa
 
 public class MapObject: BaseObject {
-    var contaniner: [String: Any]
+    
+    var value: [String: Any]
     init(virtual: Virtual) {
-        //TODO: 设置MapClass
-        self.contaniner = [:]
+        self.value = [:]
         super.init(virtual: virtual, type: .map, cls: nil)
     }
-    public func set(key: String, value: Any) {
-        self.contaniner[key] = value
-    }
-    public func get(key: String) -> Any? {
-        return self.contaniner[key]
-    }
-    
+
 }

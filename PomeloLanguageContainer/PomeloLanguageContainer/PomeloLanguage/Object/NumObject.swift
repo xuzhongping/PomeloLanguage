@@ -9,5 +9,9 @@
 import Cocoa
 
 class NumObject: BaseObject {
-    
+    var value: Double
+    init(virtual: Virtual) {
+        self.value = 0
+        super.init(virtual: virtual, type: .list, cls: nil)
+    }
 }

@@ -10,12 +10,11 @@ import Cocoa
 
 /// 运行时结构
 public class RangeObject: BaseObject {
-    var from: Int
-    var to: Int
-    init(virtual: Virtual, from: Int, to: Int) {
+    var value: NSRange
+    
+    init(virtual: Virtual, from: Int, length: Int) {
         //TODO: 设置RangeClass
-        self.from = from
-        self.to = to
+        self.value = NSRange(location: from, length: length)
         super.init(virtual: virtual, type: .range, cls: nil)
     }
 }

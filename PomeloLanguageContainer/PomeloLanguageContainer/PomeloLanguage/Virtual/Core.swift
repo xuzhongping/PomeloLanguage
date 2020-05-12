@@ -55,7 +55,7 @@ public func buildCore(virtual: Virtual) {
     
     virtual.classOfClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
     
-    executeModule(virtual: virtual, name: ModuleName.core, code: coreModuleCode)
+//    executeModule(virtual: virtual, name: ModuleName.core, code: coreModuleCode)
     
     guard let boolClassObject = getClassFromModule(module: coreModule, name: "Bool") else {
         fatalError()
@@ -151,6 +151,14 @@ public func buildCore(virtual: Virtual) {
     virtual.numClass.bindNativeMethod(virtual: virtual, selector: "truncate", imp: nativeNumTruncate(virtual:stack:argsStart:))
     virtual.numClass.bindNativeMethod(virtual: virtual, selector: "==(_)", imp: nativeNumEqual(virtual:stack:argsStart:))
     virtual.numClass.bindNativeMethod(virtual: virtual, selector: "!=(_)", imp: nativeNumNotEqual(virtual:stack:argsStart:))
+    
+    guard let systemClassObject = getClassFromModule(module: coreModule, name: "System") else {
+        fatalError()
+    }
+    systemClassObject.bindNativeMethod(virtual: virtual, selector: "clock", imp: nativeSystemClock(virtual:stack:argsStart:))
+    systemClassObject.bindNativeMethod(virtual: virtual, selector: "importModule(_)", imp: nativeSystemImportModule(virtual:stack:argsStart:))
+    systemClassObject.bindNativeMethod(virtual: virtual, selector: "getModuleVariable(_,_)", imp: nativeSystemGetModuleVariable(virtual:stack:argsStart:))
+    systemClassObject.bindNativeMethod(virtual: virtual, selector: "writeString(_)", imp: nativeSystemWriteString(virtual:stack:argsStart:))
 }
 
 /// 获取一个模块
@@ -288,3 +296,25 @@ public func switchThread(virtual: Virtual, nextThread: ThreadObject, stack:inout
     return false
 }
 
+
+public func importModule(virtual: Virtual, moduleName: String) -> ThreadObject? {
+    if virtual.allMethodNames.contains(moduleName) {
+        return nil
+    }
+    
+    let code = Loader.loadModule(name: moduleName)
+    return loadModule(virtual: virtual, name: moduleName, code: code)
+}
+
+public func getModuleVariable(virtual: Virtual, moduleName: String, varName: String) -> AnyValue? {
+    guard let moduleObject = getModule(virtual: virtual, name: moduleName) else {
+        virtual.thread?.errorObject = AnyValue(value: "module \(moduleName) is not loaded")
+        return nil
+    }
+    
+    guard let index = moduleObject.moduleVarNames.firstIndex(of: moduleName) else {
+        virtual.thread?.errorObject = AnyValue(value: "variable \(varName) is not in module \(moduleName)")
+        return nil
+    }
+    return moduleObject.moduleVarValues[index]
+}

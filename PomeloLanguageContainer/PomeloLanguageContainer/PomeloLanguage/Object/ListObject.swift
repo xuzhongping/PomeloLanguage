@@ -10,17 +10,10 @@ import Cocoa
 
 /// 运行时结构
 public class ListObject: BaseObject {
-    var container: [Any]
+    var value: [Any]
     init(virtual: Virtual) {
-        //TODO: 设置ListClass
-        self.container = []
+        self.value = []
         super.init(virtual: virtual, type: .list, cls: nil)
     }
-    
-    public func removeAt(index: Int) {
-        self.container.remove(at: index)
-    }
-    public func insertAt(index: Int, elem: Any) {
-        self.container.insert(elem, at: index)
-    }
 }
+

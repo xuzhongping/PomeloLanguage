@@ -536,7 +536,7 @@ public func nativeNumRange(virtual: Virtual, stack:inout [AnyValue], argsStart: 
     guard let right = stack[argsStart + 1].toNum() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: RangeObject(virtual: virtual, from: Int(left), to: Int(right))))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: RangeObject(virtual: virtual, from: Int(left), length: Int(right - left))))
     return true
 }
 
@@ -633,5 +633,116 @@ public func nativeNumNotEqual(virtual: Virtual, stack:inout [AnyValue], argsStar
         return true
     }
     RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left != right))
+    return true
+}
+
+//MARK: List
+
+/// 原生方法: ListObject.new() 创建一个新的list
+public func nativeListNew(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: ListObject(virtual: virtual)))
+    return true
+}
+
+public func nativeListSubscript(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    guard let listObject = stack[argsStart].toListObject() else {
+        virtual.thread?.errorObject = AnyValue(value: "caller must be a list instance!")
+        return false
+    }
+    if let num = stack[argsStart + 1].toNum() {
+        guard Int(num) < listObject.value.count else {
+            return false
+        }
+        RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: listObject.value[Int(num)]))
+        return true
+    }
+    
+    guard let rangeObject = stack[argsStart + 1].toRangeObject() else {
+        virtual.thread?.errorObject = AnyValue(value: "subscript should be integer or range!")
+        return false
+    }
+    
+    let newListObject = ListObject(virtual: virtual)
+    for index in rangeObject.value.location..<rangeObject.value.length + rangeObject.value.location  {
+        newListObject.value.append(listObject.value[index])
+    }
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: newListObject))
+    return true
+}
+
+
+public func nativeListSubsciptSetter(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    guard let listObject = stack[argsStart].toListObject() else {
+        virtual.thread?.errorObject = AnyValue(value: "caller must be a list instance!")
+        return false
+    }
+    
+    guard let num = stack[argsStart + 1].toNum() else {
+        return false
+    }
+    guard Int(num) < listObject.value.count else {
+        return false
+    }
+    
+    listObject.value[Int(num)] = stack[argsStart + 2]
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: stack[argsStart + 2])
+    return true
+}
+
+public func nativeListAdd(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    return false
+}
+
+//MARK: System
+public func nativeSystemClock(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: Date.timeIntervalSinceReferenceDate))
+    return true
+}
+
+
+public func nativeSystemImportModule(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    guard let name = stack[argsStart + 1].toString() else {
+        return false
+    }
+    guard let nextThread = importModule(virtual: virtual, moduleName: name) else {
+        return false
+    }
+    
+    if virtual.thread?.errorObject != nil {
+        return false
+    }
+    
+    virtual.thread?.esp -= 1
+    
+    nextThread.caller = virtual.thread
+    virtual.thread = nextThread
+    return false
+}
+
+
+public func nativeSystemGetModuleVariable(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    guard let moduleName = stack[argsStart + 1].toString() else {
+        return false
+    }
+    guard let variableName = stack[argsStart + 2].toString() else {
+        return false
+    }
+    guard let variable = getModuleVariable(virtual: virtual, moduleName: moduleName, varName: variableName) else {
+        return false
+    }
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: variable))
+    return true
+}
+
+public func nativeSystemWriteString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    guard let string = stack[argsStart + 1].toString() else {
+        return false
+    }
+    if string.count == 0 {
+        fatalError("string isn`t terminated!")
+    }
+    print(string)
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: stack[argsStart + 1])
     return true
 }
