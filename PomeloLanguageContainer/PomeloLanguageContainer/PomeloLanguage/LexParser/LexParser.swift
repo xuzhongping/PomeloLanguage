@@ -114,7 +114,7 @@ public class LexParser: NSObject {
             Keyword(string: "class",    length: 5, type: .class_),
             Keyword(string: "is",       length: 2, type: .is_),
             Keyword(string: "static",   length: 6, type: .static_),
-            Keyword(string: "this",     length: 4, type: .var_),
+            Keyword(string: "this",     length: 4, type: .this),
             Keyword(string: "super",    length: 5, type: .super_),
             Keyword(string: "import",   length: 6, type: .import_)
         ]
@@ -148,7 +148,7 @@ public class LexParser: NSObject {
     
     private var expectationRightParenNum: Int = 0
     
-    public var line: Int = 0
+    public var line: Int = 1
     
     
     init(virtual: Virtual, moduleName: String, module: ModuleObject, code: String) {
@@ -175,9 +175,9 @@ public class LexParser: NSObject {
         status = .runing
         preToken = curToken
         curToken = nil
-        skipBlanks()
         
         while true {
+            skipBlanks()
             guard let char = self.curChar else {
                 status = .end
                 return
@@ -236,12 +236,7 @@ public class LexParser: NSObject {
             case "*":
                 curToken?.type = .mul
             case "/":
-                if matchNextChar(expected: "/") || matchNextChar(expected: "*") {
-                    skipBlanks()
-                    continue
-                } else {
-                    curToken?.type = .div
-                }
+                curToken?.type = .div
             case "%":
                 curToken?.type = .mod
             case "&":
@@ -294,11 +289,15 @@ public class LexParser: NSObject {
                     skipAline()
                     continue
                 }
+                if char == "#" {
+                    skipAline()
+                    continue
+                }
                 if char.isWholeNumber {
                     parseNum()
                     return
                 }
-                fatalError()
+                fatalError("未识别的符号\(char) \(line)")
             }
             break
         }
@@ -332,12 +331,18 @@ extension LexParser {
         }
     }
     
+    
     private func skipAline() {
-        while let character = curChar,character != "\0" {
+        while true {
+            guard let character = curChar,character != "\0" else {
+                break
+            }
             if character.isNewline {
                 line += 1
                 seekNext()
                 break
+            } else {
+                seekNext()
             }
         }
     }
@@ -369,7 +374,7 @@ extension LexParser {
     func isKeyword() -> Bool {
         for keyboard in LexParser.keyboardsTable {
             let subString = code.subString(range: NSRange(location: position, length: keyboard.length))
-            if subString == keyboard.string {
+            if subString == keyboard.string && code.at(index: position + keyboard.length)?.isWhitespace ?? false{
                 curToken?.type = keyboard.type
                 seek(offset: keyboard.length)
                 return true
@@ -383,7 +388,7 @@ extension LexParser {
         }
         
         var tempString = ""
-        while let character = self.curChar,character.isCased {
+        while let character = self.curChar,character.isCased || character == "_" {
             tempString.append(character)
             seekNext()
         }

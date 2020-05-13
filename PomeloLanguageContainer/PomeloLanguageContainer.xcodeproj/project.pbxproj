@@ -42,9 +42,9 @@
 		ED81C2A5242FAC640066CC67 /* Basic.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A4242FAC640066CC67 /* Basic.swift */; };
 		ED81C2A724307DA30066CC67 /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A624307DA30066CC67 /* Symbol.swift */; };
 		ED81C2A9243109E00066CC67 /* CodeGen.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED81C2A8243109E00066CC67 /* CodeGen.swift */; };
-		ED84C6102444C16F00A453DC /* sample.sp in Resources */ = {isa = PBXBuildFile; fileRef = ED84C60F2444C16F00A453DC /* sample.sp */; };
+		ED84C6102444C16F00A453DC /* sample.po in Resources */ = {isa = PBXBuildFile; fileRef = ED84C60F2444C16F00A453DC /* sample.po */; };
 		EDC1DECC244B219300FAEC97 /* Virtual.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC1DECB244B219300FAEC97 /* Virtual.swift */; };
-		EDC2C5672468478100D82E61 /* sample.sp in Resources */ = {isa = PBXBuildFile; fileRef = ED84C60F2444C16F00A453DC /* sample.sp */; };
+		EDC2C5672468478100D82E61 /* sample.po in Resources */ = {isa = PBXBuildFile; fileRef = ED84C60F2444C16F00A453DC /* sample.po */; };
 		EDC2C5692468482F00D82E61 /* core.po in Resources */ = {isa = PBXBuildFile; fileRef = EDC2C5682468482E00D82E61 /* core.po */; };
 		EDC2C56B246848EA00D82E61 /* Reader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC2C56A246848EA00D82E61 /* Reader.swift */; };
 /* End PBXBuildFile section */
@@ -109,9 +109,9 @@
 		ED81C2A4242FAC640066CC67 /* Basic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Basic.swift; sourceTree = "<group>"; };
 		ED81C2A624307DA30066CC67 /* Symbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
 		ED81C2A8243109E00066CC67 /* CodeGen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGen.swift; sourceTree = "<group>"; };
-		ED84C60F2444C16F00A453DC /* sample.sp */ = {isa = PBXFileReference; lastKnownFileType = text; name = sample.sp; path = PomeloLanguageContainer/PomeloLanguage/inc/sample.sp; sourceTree = SOURCE_ROOT; };
+		ED84C60F2444C16F00A453DC /* sample.po */ = {isa = PBXFileReference; lastKnownFileType = text; name = sample.po; path = PomeloLanguageContainer/PomeloLanguage/inc/sample.po; sourceTree = SOURCE_ROOT; };
 		EDC1DECB244B219300FAEC97 /* Virtual.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
-		EDC2C5682468482E00D82E61 /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = core.po; sourceTree = "<group>"; };
+		EDC2C5682468482E00D82E61 /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = core.po; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		EDC2C56A246848EA00D82E61 /* Reader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reader.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -274,7 +274,7 @@
 			isa = PBXGroup;
 			children = (
 				EDC2C5682468482E00D82E61 /* core.po */,
-				ED84C60F2444C16F00A453DC /* sample.sp */,
+				ED84C60F2444C16F00A453DC /* sample.po */,
 				EDC2C56A246848EA00D82E61 /* Reader.swift */,
 			);
 			path = inc;
@@ -387,7 +387,7 @@
 				C03794BB242CFCF700A5F27F /* Assets.xcassets in Resources */,
 				EDC2C5692468482F00D82E61 /* core.po in Resources */,
 				C03794BE242CFCF700A5F27F /* Main.storyboard in Resources */,
-				ED84C6102444C16F00A453DC /* sample.sp in Resources */,
+				ED84C6102444C16F00A453DC /* sample.po in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -395,7 +395,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EDC2C5672468478100D82E61 /* sample.sp in Resources */,
+				EDC2C5672468478100D82E61 /* sample.po in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

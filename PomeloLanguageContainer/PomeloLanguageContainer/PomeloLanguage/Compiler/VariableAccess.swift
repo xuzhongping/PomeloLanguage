@@ -60,7 +60,7 @@ extension CompilerUnit {
     
     /// 声明局部变量并检查是否重定义
     public func declareLocalVar(name: String) -> Index {
-        guard localVars.count >= maxLocalVarNum else {
+        guard localVars.count <= maxLocalVarNum else {
            fatalError("the max length of local variable of one scope is \(maxLocalVarNum)")
         }
        

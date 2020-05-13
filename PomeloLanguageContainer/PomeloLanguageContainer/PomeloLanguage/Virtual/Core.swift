@@ -55,7 +55,11 @@ public func buildCore(virtual: Virtual) {
     
     virtual.classOfClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
     
-//    executeModule(virtual: virtual, name: ModuleName.core, code: coreModuleCode)
+    
+    
+    executeModule(virtual: virtual, name: ModuleName.core, code: coreModuleCode)
+    
+    return
     
     guard let boolClassObject = getClassFromModule(module: coreModule, name: "Bool") else {
         fatalError()

@@ -315,11 +315,11 @@ public func emitInfixOperator(unit: CompilerUnit, assign: Bool) {
     let rbp = rule.lbp
     expression(unit: unit, rbp: rbp)
     
-    guard let symbol = rule.symbol else {
-        fatalError()
-    }
+//    guard let symbol = rule.symbol else {
+//        fatalError()
+//    }
     
-    let signature = Signature(type: .method, name: symbol, argNum: 1)
+    let signature = Signature(type: .method, name: rule.symbol ?? "", argNum: 1)
     emitCallBySignature(unit: unit, signature: signature, opCode: OP_CODE.CALL0)
 }
 
@@ -333,10 +333,10 @@ public func emitUnaryOperator(unit: CompilerUnit, assign: Bool) {
     }
     expression(unit: unit, rbp: SymbolBindRule.BindPower.unary)
     
-    guard let symbol = rule.symbol else {
-        fatalError()
-    }
-    emitCall(unit: unit, argsNum: 0, name: symbol)
+//    guard let symbol = rule.symbol else {
+//        fatalError()
+//    }
+    emitCall(unit: unit, argsNum: 0, name: rule.symbol ?? "")
 }
 
 
@@ -430,13 +430,14 @@ public func compileId(unit: CompilerUnit, assign: Bool) {
 
     /// 处理为模块变量
     var index = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: value)
-    if index == Index.notFound {
+    if index == nil {
         let name = "Fn \(value)"
         index = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: name)
-        if index == Index.notFound {
-            index = unit.curLexParser.curModule.declareModuleVar(virtual: unit.curLexParser.virtual, name: name)
+        if index == nil {
+            index = unit.curLexParser.curModule.declareModuleVar(virtual: unit.curLexParser.virtual, name: value)
         }
     }
+
     emitLoadOrStoreVariable(unit: unit,
                             assign: assign,
                             variable: Variable(type: .module, index: index!))
@@ -521,7 +522,7 @@ public func compileSubscript(unit: CompilerUnit, assign: Bool)  {
 /// 编译方法调用入口，所有调用的入口
 public func compileCallEntry(unit: CompilerUnit, assign: Bool)  {
     unit.curLexParser.consumeCurToken(expected: .id, message: "expect method name after '.'!")
-    guard let name = unit.curLexParser.curToken?.value as? String else {
+    guard let name = unit.curLexParser.preToken?.value as? String else {
         fatalError()
     }
     emitMethodCall(unit: unit, name: name, code: OP_CODE.CALL0, assign: assign)

@@ -59,9 +59,7 @@ func compileMethodDefinition(unit: CompilerUnit, classVar: Variable, isStatic: B
     guard let token = unit.curLexParser.curToken else {
         fatalError()
     }
-    guard let name = token.value as? String else {
-        fatalError()
-    }
+    let name = token.value as? String
     
     guard let enclosingClassBK = unit.enclosingClassBK else {
         fatalError()
@@ -73,7 +71,7 @@ func compileMethodDefinition(unit: CompilerUnit, classVar: Variable, isStatic: B
     
     enclosingClassBK.inStatic = isStatic
     
-    let sign = Signature(type: .getter, name: name, argNum: 0)
+    let sign = Signature(type: .getter, name: name ?? "", argNum: 0)
     unit.enclosingClassBK?.signature = sign
     unit.curLexParser.nextToken()
     
@@ -89,7 +87,7 @@ func compileMethodDefinition(unit: CompilerUnit, classVar: Variable, isStatic: B
     }
     
     let methodIndex = declareMethod(unit: unit, signStr: sign.toString())
-    compileBody(unit: unit, isConstruct: sign.type == .construct)
+    compileBody(unit: methodUnit, isConstruct: sign.type == .construct)
     
     endCompile(unit: unit)
     

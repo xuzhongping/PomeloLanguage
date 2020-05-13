@@ -20,13 +20,12 @@ public class Signature {
     }
     var type: SignatureType
     var name: String
-    var length: Int
     var argNum: Int
     public init(type: SignatureType, name: String, argNum: Int) {
         self.type = type
         self.name = name
         self.argNum = argNum
-        self.length = name.count
+
     }
     
     public func toString() -> String {
@@ -317,7 +316,6 @@ public func idMethodSignature(unit: CompilerUnit, signature: Signature) {
 
 public func subscriptMethodSignature(unit: CompilerUnit, signature: Signature) {
     signature.type = .subscriptGetter
-    signature.length = 0
     processParaList(unit: unit, signature: signature)
     unit.curLexParser.consumeCurToken(expected: .rightBracket, message: "expect ']' after index list!")
     trySetterSignature(unit: unit, signature: signature)

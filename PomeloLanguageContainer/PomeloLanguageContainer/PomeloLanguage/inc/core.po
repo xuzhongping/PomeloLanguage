@@ -71,7 +71,7 @@ class Sequence {
 
    join(sep) {
       var first = true
-      var result = \\
+      var result = ""
       for element (this) {
          if (!first) result = result + sep
          first = false
@@ -149,9 +149,9 @@ class StringByteSequence < Sequence {
       string = str
    }
 
-   [index] {
-      return string.byteAt_(index)
-   }
+#   [index] {
+#      return string.byteAt_(index)
+#   }
    iterate(iterator) {
       return string.iterateByte_(iterator)
    }
