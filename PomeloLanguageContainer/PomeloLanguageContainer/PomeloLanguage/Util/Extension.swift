@@ -36,9 +36,13 @@ extension String {
 }
 
 extension Character {
-    public func isDigit() -> Bool { (self >= "0" && self <= "9") }
     
-    public func isEof() -> Bool { self == "\0" }
+    public var isDigit: Bool { (self >= "0" && self <= "9") }
+    
+    public var isEof: Bool { self == "\0" }
+    
+    public var isAlnum: Bool { isNumber || isLetter}
+    
 }
 
 extension Index {

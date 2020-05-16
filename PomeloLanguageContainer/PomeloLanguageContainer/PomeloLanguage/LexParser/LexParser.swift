@@ -82,22 +82,14 @@ public class Token {
     var line: Int = 0
 }
 
-public class LexParser: NSObject {
-    public typealias Status = LexStatus
-    
-    public enum LexStatus {
-        case begin
-        case runing
-        case end
-    }
-    
-    private struct Keyword{
+public class LexMetaInfo {
+    public struct Keyword{
         var string: String
         var length: Int
         var type: Token.TokenType
     }
 
-    private static var keyboardsTable: [Keyword] {
+    public static var keyboards: [Keyword] {
         [
             Keyword(string: "var",      length: 3, type: .var_),
             Keyword(string: "fun",      length: 3, type: .func_),
@@ -120,66 +112,57 @@ public class LexParser: NSObject {
         ]
     }
 
-    public var virtual: Virtual
+}
+
+
+public class LexParser: NSObject {
     
+    
+    
+    public var virtual: Virtual
     /// 当前正在编译的模块
     public var curModule: ModuleObject
-    
     /// 当前编译单元
     public var curCompileUnit: CompilerUnit?
     
-    public var preToken: Token
+    public var line: Int = 1
     
-    public var curToken: Token
-    
-    private  var file: String?
-    
+    private var file: String?
     private var code: String
     
+    public var preToken: Token
+    public var curToken: Token
     private var position: Index = 0
     
     private var curChar: Character? {
-        get {
-            return code.at(index: position)
-        }
+        return code.at(index: position)
     }
     
-    private var expectationRightParenNum: Int = 0
+    private var expn: Int = 0
     
-    public var line: Int = 1
-    
-    
-    init(virtual: Virtual, moduleName: String, module: ModuleObject, code: String) {
+    init(virtual: Virtual, moduleName: String, module: ModuleObject, file: String?, code: String) {
         self.virtual = virtual
         self.curModule = module
+        self.file = file
         self.code = code
         self.preToken = Token()
         self.curToken = Token()
     }
     
-    convenience init?(virtual: Virtual, moduleName: String, module: ModuleObject, file: String) {
-        guard let handle = FileHandle(forReadingAtPath: file) else {
-            fatalError()
-        }
-        guard let code = String(data: handle.readDataToEndOfFile(), encoding: .utf8) else {
-            fatalError()
-        }
-        self.init(virtual: virtual,
-                  moduleName: moduleName,
-                  module: module,
-                  code: code)
-    }
+    
     
     public func nextToken() {
         preToken = curToken
         curToken = Token()
+        
         while true {
             skipBlanks()
             guard let char = self.curChar else {
                 curToken.type = .eof
                 return
             }
-            if char.isEof() {
+            
+            if char.isEof {
                 curToken.type = .eof
                 return
             }
@@ -191,15 +174,14 @@ public class LexParser: NSObject {
             case ":":
                 curToken.type = .colon
             case "(":
-                if expectationRightParenNum > 0 {
-                    expectationRightParenNum += 1
+                if expn > 0 {
+                    expn += 1
                 }
                 curToken.type = .leftParen
             case ")":
-                
-                if expectationRightParenNum > 0 {
-                    expectationRightParenNum -= 1
-                    if expectationRightParenNum == 0 {
+                if expn > 0 {
+                    expn -= 1
+                    if expn == 0 {
                         parseString()
                         return
                     }
@@ -214,13 +196,13 @@ public class LexParser: NSObject {
             case "}":
                 curToken.type = .rightBrace
             case ".":
-                if matchNextChar(expected: ".") {
+                if matchChar(expected: ".") {
                     curToken.type = .dotDouble
                 } else {
                     curToken.type = .dot
                 }
             case "=":
-                if matchNextChar(expected: "=") {
+                if matchChar(expected: "=") {
                     curToken.type = .equal
                 } else {
                     curToken.type = .assign
@@ -228,7 +210,12 @@ public class LexParser: NSObject {
             case "+":
                 curToken.type = .add
             case "-":
-                curToken.type = .sub
+                if lookNextChar()?.isDigit ?? false {
+                    parseNum()
+                    return
+                } else {
+                    curToken.type = .sub
+                }
             case "*":
                 curToken.type = .mul
             case "/":
@@ -236,13 +223,13 @@ public class LexParser: NSObject {
             case "%":
                 curToken.type = .mod
             case "&":
-                if matchNextChar(expected: "&") {
+                if matchChar(expected: "&") {
                     curToken.type = .logicAnd
                 } else {
                     curToken.type = .bitAnd
                 }
             case "|":
-                if matchNextChar(expected: "|") {
+                if matchChar(expected: "|") {
                     curToken.type = .logicOr
                 } else {
                     curToken.type = .bitOr
@@ -252,23 +239,23 @@ public class LexParser: NSObject {
             case "?":
                 curToken.type = .question
             case ">":
-                if matchNextChar(expected: "=") {
+                if matchChar(expected: "=") {
                     curToken.type = .greateEqual
-                } else if matchNextChar(expected: "<") {
+                } else if matchChar(expected: "<") {
                     curToken.type = .bitShiftLeft
                 } else {
                     curToken.type = .greate
                 }
             case "<":
-                if matchNextChar(expected: "=") {
+                if matchChar(expected: "=") {
                     curToken.type = .lessEqual
-                } else if matchNextChar(expected: "<") {
+                } else if matchChar(expected: "<") {
                     curToken.type = .bitShiftRight
                 } else {
                     curToken.type = .less
                 }
             case "!":
-                if matchNextChar(expected: "=") {
+                if matchChar(expected: "=") {
                     curToken.type = .notEqual
                 } else {
                     curToken.type = .logicNot
@@ -276,19 +263,20 @@ public class LexParser: NSObject {
             case "\"":
                 parseString()
                 return
+                
+            case "#":
+                skipAline()
+                continue
+                
+            case "_":
+                parseId()
+                return
             default:
-                if char.isCased || char == "_" {
+                if char.isCased {
                     parseId()
                     return
                 }
-                if char == "#" && matchNextChar(expected: "!") {
-                    skipAline()
-                    continue
-                }
-                if char == "#" {
-                    skipAline()
-                    continue
-                }
+                
                 if char.isWholeNumber {
                     parseNum()
                     return
@@ -297,50 +285,26 @@ public class LexParser: NSObject {
             }
             break
         }
-        seekNext()
+        advance()
     }
 }
 
 extension LexParser {
-    private func seekNext() {
-       seek(offset: 1)
+    
+    private func advance() {
+       advance(offset: 1)
     }
-   
-    private func seek(offset: Int) {
+    
+    private func advance(offset: Int) {
        position += offset
-   }
-    
-    private func matchNextChar(expected: Character) -> Bool {
-        if lookNextChar() == expected {
-            seekNext()
-            return true
-        }
-        return false
     }
     
-    private func skipBlanks() {
-        while let character = curChar, character.isWhitespace {
-            if character.isNewline {
-                line += 1
-            }
-            seekNext()
+    private func matchChar(expected: Character) -> Bool {
+        guard lookNextChar() == expected else {
+            return false
         }
-    }
-    
-    
-    private func skipAline() {
-        while true {
-            guard let character = curChar,character != "\0" else {
-                break
-            }
-            if character.isNewline {
-                line += 1
-                seekNext()
-                break
-            } else {
-                seekNext()
-            }
-        }
+        advance()
+        return true
     }
     
     public func consumeCurToken(expected: Token.TokenType, message: String) {
@@ -360,36 +324,66 @@ extension LexParser {
 }
 
 extension LexParser {
+    private func skipBlanks() {
+        while let character = curChar, character.isWhitespace {
+            if character.isNewline {
+                line += 1
+            }
+            advance()
+        }
+    }
+
+    private func skipAline() {
+        while true {
+            guard let character = curChar,character != "\0" else {
+                break
+            }
+            if character.isNewline {
+                line += 1
+                advance()
+                break
+            } else {
+                advance()
+            }
+        }
+    }
+}
+
+extension LexParser {
     private func lookNextChar() -> Character? {
         return code.at(index: position + 1)
     }
 }
 
+
+// MARK: 解析标识符
 extension LexParser {
     
-    func isKeyword() -> Bool {
-        for keyboard in LexParser.keyboardsTable {
-            let subString = code.subString(range: NSRange(location: position, length: keyboard.length))
-            if subString == keyboard.string && code.at(index: position + keyboard.length)?.isWhitespace ?? false{
-                curToken.type = keyboard.type
-                seek(offset: keyboard.length)
+    func detectKeyword() -> Bool {
+        for keyword in LexMetaInfo.keyboards {
+            let prefix = code.subString(range: NSRange(location: position, length: keyword.length))
+            let suffix = code.at(index: position + keyword.length)
+            if prefix == keyword.string && suffix?.isWhitespace ?? false{
+                curToken.type = keyword.type
+                advance(offset: keyword.length)
                 return true
             }
         }
         return false
     }
+    
     private func parseId() {
-        if isKeyword() {
+        if detectKeyword() {
             return
         }
         
-        var tempString = ""
-        while let character = self.curChar,character.isCased || character == "_" {
-            tempString.append(character)
-            seekNext()
+        var str = ""
+        while let character = self.curChar, character.isAlnum || character == "_" {
+            str.append(character)
+            advance()
         }
         
-        curToken.value = tempString
+        curToken.value = str
         curToken.type = .id
     }
 }
@@ -399,54 +393,63 @@ extension LexParser {
     
     /// 解析16进制数字
     private func parseHexNum() {
-        var tempString = ""
+        var str = ""
         while let character = self.curChar,character.isHexDigit {
-            tempString.append(character)
-            seekNext()
+            str.append(character)
+            advance()
         }
-        curToken.value = Int(tempString)
+        curToken.value = Int(str)
     }
     
     /// 解析10进制数字
     private func parseDecNum() {
-        var tempString = ""
-        while let character = self.curChar,character.isDigit() {
-            tempString.append(character)
-            seekNext()
+        var str = ""
+        
+        if let character = self.curChar, character == "-" {
+            str.append(character)
+            advance()
+        }
+        
+        while let character = self.curChar,character.isDigit {
+            str.append(character)
+            advance()
         }
         guard let character = self.curChar else {
-            curToken.value = Int(tempString)
+            curToken.value = Int(str)
             return
         }
-        guard character == "." && (lookNextChar()?.isDigit() ?? false) else {
-            curToken.value = Int(tempString)
+        
+        guard character == "." && (lookNextChar()?.isDigit ?? false) else {
+            curToken.value = Int(str)
             return
         }
-        tempString.append(".")
-        seekNext()
-        while let character = self.curChar,character.isDigit() {
-            tempString.append(character)
-            seekNext()
+        
+        str.append(".")
+        advance()
+        while let character = self.curChar,character.isDigit {
+            str.append(character)
+            advance()
         }
-        curToken.value = Double(tempString)
+        curToken.value = Double(str)
     }
     
     /// 解析8进制数字
     private func parseOctNum() {
-        var tempString = ""
+        var str = ""
         while let character = self.curChar,character >= "0",character < "8" {
-            tempString.append(character)
-            seekNext()
+            str.append(character)
+            advance()
         }
-        curToken.value = Int(tempString)
+        curToken.value = Int(str)
     }
     /// 解析数字
     private func parseNum() {
-        guard let character = self.curChar else { return }
-        if character == "0" && matchNextChar(expected: "x") {
-            seekNext()
+        guard let character = self.curChar else {
+            return
+        }
+        if character == "0" && lookNextChar() == "x" {
             parseHexNum()
-        } else if character == "0" && (lookNextChar()?.isHexDigit ?? false) {
+        } else if character == "0" && (lookNextChar()?.isDigit ?? false) {
             parseOctNum()
         } else {
             parseDecNum()
@@ -460,32 +463,32 @@ extension LexParser {
     private func parseString() {
         var tempString = ""
         while true {
-            seekNext()
+            advance()
             guard let character = self.curChar, character != "\0" else {
                 fatalError()
             }
             
             guard character != "\"" else {
                 curToken.type = .string
-                seekNext()
+                advance()
                 break
             }
             
             /// 处理内嵌表达式 %(...)
             if character == "%" {
-                if !matchNextChar(expected: "(") {
+                if !matchChar(expected: "(") {
                     fatalError()
                 }
-                if expectationRightParenNum > 0 {
+                if expn > 0 {
                     fatalError()
                 }
-                expectationRightParenNum = 1
+                expn = 1
                 curToken.type = .interpolation
                 break
             }
             
             if character == "\\" {
-                seekNext()
+                advance()
                 switch curChar {
                 case "0":
                     tempString.append("\\0")

@@ -104,7 +104,7 @@ public class Virtual: NSObject {
         allModules = [:]
         allMethodNames = []
         super.init()
-        buildCore(virtual: self)
+//        buildCore(virtual: self)
     }
     
     /// 为closure在thread中创建运行时栈

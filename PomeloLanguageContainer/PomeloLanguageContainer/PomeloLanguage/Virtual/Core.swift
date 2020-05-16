@@ -242,6 +242,7 @@ public func compileModule(virtual: Virtual, module: ModuleObject, code: String) 
     let lexParser = LexParser(virtual: virtual,
                               moduleName: name,
                               module: module,
+                              file: name,
                               code: code)
 
     let moduleUnit = CompilerUnit(lexParser: lexParser,
