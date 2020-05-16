@@ -387,9 +387,9 @@ public func emitLoadConstant(unit: CompilerUnit, constant: AnyValue) {
 
 /// 语法分析核心
 public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) {
-    guard let curToken = unit.curLexParser.curToken else {
-        fatalError()
-    }
+
+    let curToken = unit.curLexParser.curToken
+    
     
     guard let nud = SymbolBindRule.rulues[curToken.type]?.nud else {
         fatalError("nud is null")
@@ -402,9 +402,7 @@ public func expression(unit: CompilerUnit, rbp: SymbolBindRule.BindPower) {
     nud(unit,assign)
 
     while true {
-        guard let token = unit.curLexParser.curToken else {
-            break
-        }
+        let token = unit.curLexParser.curToken
         
         guard let lbp = SymbolBindRule.rulues[token.type]?.lbp else {
             break

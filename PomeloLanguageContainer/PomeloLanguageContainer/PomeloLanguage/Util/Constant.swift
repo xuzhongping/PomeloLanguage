@@ -43,6 +43,10 @@ extension ClassName {
     public static var fn: ClassName { "Fn" }
     
     public static var thread: ClassName { "Thread" }
+    
+    public static var module: ClassName { "Module" }
+    
+    public static var system: ClassName { "System" }
 }
 
 

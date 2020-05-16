@@ -199,9 +199,7 @@ func getBytesOfByteCode(byteStream: [Byte], constants: [AnyValue], ip: Index) ->
 
 /// 编译return语句
 public func compileReturn(unit: CompilerUnit) {
-    guard let token = unit.curLexParser.curToken else {
-        fatalError()
-    }
+    let token = unit.curLexParser.curToken
     if token.type == .rightBrace {
         writeOpCode(unit: unit, code: .PUSH_NULL)
     } else {
@@ -250,7 +248,7 @@ public func compileForStatment(unit: CompilerUnit) {
     enterScope(unit: unit)
     unit.curLexParser.consumeCurToken(expected: .id, message: "expect variable after for!")
     
-    guard let loopVarName = unit.curLexParser.preToken?.value as? String else {
+    guard let loopVarName = unit.curLexParser.preToken.value as? String else {
         fatalError()
     }
     

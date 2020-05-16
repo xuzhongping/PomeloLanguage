@@ -56,9 +56,7 @@ func emitCreateInstance(unit: CompilerUnit, sign: Signature, constructorIndex: I
 
 /// 编译方法定义
 func compileMethodDefinition(unit: CompilerUnit, classVar: Variable, isStatic: Bool) {
-    guard let token = unit.curLexParser.curToken else {
-        fatalError()
-    }
+    let token = unit.curLexParser.curToken
     let name = token.value as? String
     
     guard let enclosingClassBK = unit.enclosingClassBK else {
@@ -143,7 +141,7 @@ func compileClassDefinition(unit: CompilerUnit) {
     }
     
     unit.curLexParser.consumeCurToken(expected: .id, message: "keyword class should follow by class name!")
-    guard let className = unit.curLexParser.preToken?.value as? String else {
+    guard let className = unit.curLexParser.preToken.value as? String else {
         fatalError()
     }
     
@@ -178,9 +176,6 @@ func compileClassDefinition(unit: CompilerUnit) {
     enterScope(unit: unit)
     
     while !unit.curLexParser.matchCurToken(expected: .rightBrace) {
-        if unit.curLexParser.status == .end {
-            fatalError()
-        }
         compileClassBody(unit: unit, classVar: classVar)
     }
     
@@ -213,7 +208,7 @@ func compileFunctionDefinition(unit: CompilerUnit) {
     
     unit.curLexParser.consumeCurToken(expected: .id, message: "missing function name!")
     
-    guard let name = unit.curLexParser.preToken?.value as? String else {
+    guard let name = unit.curLexParser.preToken.value as? String else {
         fatalError()
     }
     

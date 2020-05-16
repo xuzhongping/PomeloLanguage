@@ -244,7 +244,7 @@ public func infixMethodSignature(unit: CompilerUnit, signature: Signature) {
     unit.curLexParser.consumeCurToken(expected: .id, message: "中缀运算符后非变量名")
 
     //TODO: 需要处理字面量值,比如数字等
-    guard let name = unit.curLexParser.preToken?.value as? String else {
+    guard let name = unit.curLexParser.preToken.value as? String else {
         fatalError("参数非变量名")
     }
 
@@ -273,7 +273,7 @@ public func trySetterSignature(unit: CompilerUnit,signature: Signature) -> Bool 
     }
     unit.curLexParser.consumeCurToken(expected: .leftParen, message: "=后非(")
     unit.curLexParser.consumeCurToken(expected: .id, message: "非id")
-    guard let name = unit.curLexParser.preToken?.value as? String else {
+    guard let name = unit.curLexParser.preToken.value as? String else {
         fatalError("参数非变量名")
     }
     unit.declareVariable(name: name)

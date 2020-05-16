@@ -26,11 +26,11 @@ func compileImport(unit: CompilerUnit) {
     
     unit.curLexParser.consumeCurToken(expected: .id, message: "expect module name after export!")
     
-    guard let moduleName = unit.curLexParser.preToken?.value as? String else {
+    guard let moduleName = unit.curLexParser.preToken.value as? String else {
         fatalError()
     }
     
-    if let value = unit.curLexParser.curToken?.value as? String, value == "." {
+    if let value = unit.curLexParser.curToken.value as? String, value == "." {
         unit.curLexParser.nextToken()
         unit.curLexParser.nextToken()
     }
@@ -54,7 +54,7 @@ func compileImport(unit: CompilerUnit) {
     // 循环编译导入的模块变量，以逗号分隔
     while true {
         unit.curLexParser.consumeCurToken(expected: .id, message: "expect variable name after 'for' in import!")
-        guard let varName = unit.curLexParser.preToken?.value as? String else {
+        guard let varName = unit.curLexParser.preToken.value as? String else {
             fatalError()
         }
         let varIndex = unit.declareVariable(name: varName)

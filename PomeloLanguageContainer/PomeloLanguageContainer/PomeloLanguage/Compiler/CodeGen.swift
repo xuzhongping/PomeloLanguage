@@ -93,9 +93,7 @@ public func emitCall(unit: CompilerUnit, argsNum: Int, name: String) {
 
 /// 为实参列表各个参数生成加载实参的指令
 public func processArgList(unit: CompilerUnit, signature: Signature) {
-    guard let token = unit.curLexParser.curToken else {
-        fatalError()
-    }
+    let token = unit.curLexParser.curToken
     guard token.type != .rightParen, token.type != .rightBracket else {
         fatalError("empty argument list")
     }
@@ -112,9 +110,7 @@ public func processArgList(unit: CompilerUnit, signature: Signature) {
 
 /// 声明形参列表中的各个形参
 public func processParaList(unit: CompilerUnit, signature: Signature)  {
-    guard let token = unit.curLexParser.curToken else {
-        fatalError()
-    }
+    let token = unit.curLexParser.curToken
     guard token.type != .rightParen, token.type != .rightBracket else {
         fatalError("empty argument list")
     }
@@ -126,7 +122,7 @@ public func processParaList(unit: CompilerUnit, signature: Signature)  {
         }
         unit.curLexParser.consumeCurToken(expected: .id, message: "中缀运算符后非变量名")
         //TODO: 需要处理字面量值,比如数字等
-        guard let name = unit.curLexParser.preToken?.value as? String else {
+        guard let name = unit.curLexParser.preToken.value as? String else {
             fatalError()
         }
         unit.declareVariable(name: name)
@@ -225,7 +221,7 @@ public func emitMethodCall(unit: CompilerUnit, name: String, code: OP_CODE, assi
 
 /// 生成数字和字符串.nud()字面量指令
 public func compileLiteral(unit: CompilerUnit, assign: Bool) {
-    guard let value = unit.curLexParser.preToken?.value else {
+    guard let value = unit.curLexParser.preToken.value else {
         fatalError()
     }
     emitLoadConstant(unit: unit, constant: AnyValue(value: value))
@@ -263,7 +259,7 @@ public func compileStringInterpolation(unit: CompilerUnit, assgin: Bool) {
 
 /// 编译bool生成指令
 public func compileBoolean(unit: CompilerUnit, assign: Bool) {
-    let opCode = unit.curLexParser.preToken?.type == Token.TokenType.true_ ? OP_CODE.PUSH_TRUE: OP_CODE.PUSH_FALSE
+    let opCode = unit.curLexParser.preToken.type == Token.TokenType.true_ ? OP_CODE.PUSH_TRUE: OP_CODE.PUSH_FALSE
     writeOpCode(unit: unit, code: opCode)
 }
 
@@ -286,7 +282,7 @@ public func compileSuper(unit: CompilerUnit, assign: Bool)  {
     // 调用形式super.method()
     if unit.curLexParser.matchCurToken(expected: .dot) {
         unit.curLexParser.consumeCurToken(expected: .id, message: ".后必须跟方法名")
-        guard let value = unit.curLexParser.preToken?.value as? String else {
+        guard let value = unit.curLexParser.preToken.value as? String else {
             fatalError()
         }
         emitMethodCall(unit: unit,
@@ -306,9 +302,7 @@ public func compileSuper(unit: CompilerUnit, assign: Bool)  {
 
 /// 中缀运算符.led方法
 public func emitInfixOperator(unit: CompilerUnit, assign: Bool) {
-    guard let curToken = unit.curLexParser.curToken else {
-        return
-    }
+    let curToken = unit.curLexParser.curToken
     guard let rule = SymbolBindRule.rulues[curToken.type] else {
         return
     }
@@ -325,9 +319,7 @@ public func emitInfixOperator(unit: CompilerUnit, assign: Bool) {
 
 /// 前缀运算符.nud方法，如-、!等
 public func emitUnaryOperator(unit: CompilerUnit, assign: Bool) {
-    guard let preToken = unit.curLexParser.preToken else {
-        return
-    }
+    let preToken = unit.curLexParser.preToken
     guard let rule = SymbolBindRule.rulues[preToken.type] else {
         return
     }
@@ -343,9 +335,7 @@ public func emitUnaryOperator(unit: CompilerUnit, assign: Bool) {
 //MARK: Compile
 /// 编译标识符的引用
 public func compileId(unit: CompilerUnit, assign: Bool) {
-    guard let token = unit.curLexParser.preToken else {
-        fatalError()
-    }
+    let token = unit.curLexParser.preToken
     guard let value = token.value as? String else {
         fatalError()
     }
@@ -449,9 +439,6 @@ public func compileBlock(unit: CompilerUnit)  {
         if unit.curLexParser.matchCurToken(expected: .rightBrace) {
             break
         }
-        if unit.curLexParser.status == LexParser.LexStatus.end {
-            fatalError("expect ')' at the end of block!")
-        }
         compileProgram(unit: unit)
     }
 }
@@ -483,9 +470,7 @@ public func compileListLiteral(unit: CompilerUnit, assgin: Bool)  {
     emitCall(unit: unit, argsNum: 0, name: "new()")
     
     while true {
-        guard let token = unit.curLexParser.curToken else {
-            fatalError()
-        }
+        let token = unit.curLexParser.curToken
         // 空list
         if token.type == .rightBracket {
             break
@@ -522,7 +507,7 @@ public func compileSubscript(unit: CompilerUnit, assign: Bool)  {
 /// 编译方法调用入口，所有调用的入口
 public func compileCallEntry(unit: CompilerUnit, assign: Bool)  {
     unit.curLexParser.consumeCurToken(expected: .id, message: "expect method name after '.'!")
-    guard let name = unit.curLexParser.preToken?.value as? String else {
+    guard let name = unit.curLexParser.preToken.value as? String else {
         fatalError()
     }
     emitMethodCall(unit: unit, name: name, code: OP_CODE.CALL0, assign: assign)
@@ -533,9 +518,7 @@ public func compileMapLiteral(unit: CompilerUnit, assign: Bool)  {
     emitLoadModuleVar(unit: unit, name: "Map")
     emitCall(unit: unit, argsNum: 0, name: "new()")
     while true {
-        guard let token = unit.curLexParser.curToken else {
-            fatalError()
-        }
+        let token = unit.curLexParser.curToken
         // 空map
         if token.type == .rightBrace {
             break
@@ -598,12 +581,10 @@ public func compileCondition(unit: CompilerUnit, assign: Bool) {
 public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
     unit.curLexParser.consumeCurToken(expected: .id, message: "missing variable name!")
     
-    guard let name = unit.curLexParser.preToken?.value as? String else {
+    guard let name = unit.curLexParser.preToken.value as? String else {
         fatalError()
     }
-    guard let token = unit.curLexParser.curToken else {
-        fatalError()
-    }
+    let token = unit.curLexParser.curToken
     
     if token.type == .comma {
         fatalError("'var' only support declaring a variable.")

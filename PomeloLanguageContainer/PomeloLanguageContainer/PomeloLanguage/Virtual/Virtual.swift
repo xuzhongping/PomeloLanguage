@@ -58,19 +58,35 @@ public class Virtual: NSObject {
     /// Module类
     var moduleClass: ClassObject!
     
+    var systemClass: ClassObject!
+    
     /// 内建类
-    var builtinClasses: [ClassObject] {
-        [stringClass,
-         mapClass,
-         rangeClass,
-         listClass,
-         nullClass,
-         boolClass,
-         numClass,
-         fnClass,
-         threadClass,
-         moduleClass
-        ]
+//    var builtinClasses: [String] {
+//        return ["stringClass",
+//                mapClass,
+//                rangeClass,
+//                listClass,
+//                nullClass,
+//                boolClass,
+//                numClass,
+//                fnClass,
+//                threadClass,
+//                moduleClass,
+//                systemClass
+//            ]
+    var builtinClasses: [ClassName] {
+        return [ClassName.string,
+                ClassName.map,
+                ClassName.range,
+                ClassName.list,
+                ClassName.null,
+                ClassName.bool,
+                ClassName.num,
+                ClassName.fn,
+                ClassName.thread,
+                ClassName.module,
+                ClassName.system
+                ]
     }
     
     /// 所有模块
@@ -116,7 +132,7 @@ public class Virtual: NSObject {
     
     /// 校验基类合法性
     public func validateSuperClass(name: String, superClass: ClassObject, fieldNum: Int)  {
-        if builtinClasses.contains(superClass) {
+        if builtinClasses.contains(superClass.name) {
             fatalError("superClass mustn`t be a buildin class!")
         }
         if superClass.fieldNum + fieldNum > maxFieldNum {
@@ -136,16 +152,19 @@ public class Virtual: NSObject {
         var opCode: OP_CODE?
         
         func push(value: AnyValue) {
-            curThread.stack[curThread.esp] = value
+            curThread.stack.append(value)
             curThread.esp += 1
         }
         
         func pop() -> AnyValue? {
+            let value = curThread.stack.last
+            curThread.stack.removeLast()
             curThread.esp -= 1
-            return curThread.stack[curThread.esp]
+            return value
         }
         
         func drop() {
+            curThread.stack.removeLast()
             curThread.esp -= 1
         }
         

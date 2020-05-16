@@ -128,11 +128,9 @@ public class LexParser: NSObject {
     /// 当前编译单元
     public var curCompileUnit: CompilerUnit?
     
-    public var status: Status
+    public var preToken: Token
     
-    public var preToken: Token?
-    
-    public var curToken: Token?
+    public var curToken: Token
     
     private  var file: String?
     
@@ -155,7 +153,8 @@ public class LexParser: NSObject {
         self.virtual = virtual
         self.curModule = module
         self.code = code
-        self.status = .begin
+        self.preToken = Token()
+        self.curToken = Token()
     }
     
     convenience init?(virtual: Virtual, moduleName: String, module: ModuleObject, file: String) {
@@ -172,110 +171,107 @@ public class LexParser: NSObject {
     }
     
     public func nextToken() {
-        status = .runing
         preToken = curToken
-        curToken = nil
-        
+        curToken = Token()
         while true {
             skipBlanks()
             guard let char = self.curChar else {
-                status = .end
+                curToken.type = .eof
                 return
             }
             if char.isEof() {
-                status = .end
+                curToken.type = .eof
                 return
             }
-            curToken = Token()
+            
             switch char {
             case ",":
-                curToken?.type = .comma
-                curToken?.value = ","
+                curToken.type = .comma
+                curToken.value = ","
             case ":":
-                curToken?.type = .colon
+                curToken.type = .colon
             case "(":
-                curToken?.type = .leftParen
-                expectationRightParenNum += 1
-            case ")":
                 if expectationRightParenNum > 0 {
-                    curToken?.type = .rightParen
-                    break
+                    expectationRightParenNum += 1
                 }
+                curToken.type = .leftParen
+            case ")":
                 
-                expectationRightParenNum -= 1
-                if expectationRightParenNum == 0 {
-                    curToken?.type = .rightParen
-                } else {
-                    parseString()
-                    return
+                if expectationRightParenNum > 0 {
+                    expectationRightParenNum -= 1
+                    if expectationRightParenNum == 0 {
+                        parseString()
+                        return
+                    }
                 }
+                curToken.type = .rightParen
             case "[":
-                curToken?.type = .leftBracket
+                curToken.type = .leftBracket
             case "]":
-                curToken?.type = .rightBracket
+                curToken.type = .rightBracket
             case "{":
-                curToken?.type = .leftBrace
+                curToken.type = .leftBrace
             case "}":
-                curToken?.type = .rightBrace
+                curToken.type = .rightBrace
             case ".":
                 if matchNextChar(expected: ".") {
-                    curToken?.type = .dotDouble
+                    curToken.type = .dotDouble
                 } else {
-                    curToken?.type = .dot
+                    curToken.type = .dot
                 }
             case "=":
                 if matchNextChar(expected: "=") {
-                    curToken?.type = .equal
+                    curToken.type = .equal
                 } else {
-                    curToken?.type = .assign
+                    curToken.type = .assign
                 }
             case "+":
-                curToken?.type = .add
+                curToken.type = .add
             case "-":
-                curToken?.type = .sub
+                curToken.type = .sub
             case "*":
-                curToken?.type = .mul
+                curToken.type = .mul
             case "/":
-                curToken?.type = .div
+                curToken.type = .div
             case "%":
-                curToken?.type = .mod
+                curToken.type = .mod
             case "&":
                 if matchNextChar(expected: "&") {
-                    curToken?.type = .logicAnd
+                    curToken.type = .logicAnd
                 } else {
-                    curToken?.type = .bitAnd
+                    curToken.type = .bitAnd
                 }
             case "|":
                 if matchNextChar(expected: "|") {
-                    curToken?.type = .logicOr
+                    curToken.type = .logicOr
                 } else {
-                    curToken?.type = .bitOr
+                    curToken.type = .bitOr
                 }
             case "~":
-                curToken?.type = .bitNot
+                curToken.type = .bitNot
             case "?":
-                curToken?.type = .question
+                curToken.type = .question
             case ">":
                 if matchNextChar(expected: "=") {
-                    curToken?.type = .greateEqual
+                    curToken.type = .greateEqual
                 } else if matchNextChar(expected: "<") {
-                    curToken?.type = .bitShiftLeft
+                    curToken.type = .bitShiftLeft
                 } else {
-                    curToken?.type = .greate
+                    curToken.type = .greate
                 }
             case "<":
                 if matchNextChar(expected: "=") {
-                    curToken?.type = .lessEqual
+                    curToken.type = .lessEqual
                 } else if matchNextChar(expected: "<") {
-                    curToken?.type = .bitShiftRight
+                    curToken.type = .bitShiftRight
                 } else {
-                    curToken?.type = .less
+                    curToken.type = .less
                 }
             case "!":
                 if matchNextChar(expected: "=") {
-                    curToken?.type = .notEqual
+                    curToken.type = .notEqual
                 } else {
-                    curToken?.type = .logicNot
+                    curToken.type = .logicNot
                 }
             case "\"":
                 parseString()
@@ -348,14 +344,14 @@ extension LexParser {
     }
     
     public func consumeCurToken(expected: Token.TokenType, message: String) {
-        guard curToken?.type == expected else {
+        guard curToken.type == expected else {
             fatalError(message)
         }
         nextToken()
     }
     
     public func matchCurToken(expected: Token.TokenType) -> Bool {
-        guard curToken?.type == expected else {
+        guard curToken.type == expected else {
             return false
         }
         nextToken()
@@ -375,7 +371,7 @@ extension LexParser {
         for keyboard in LexParser.keyboardsTable {
             let subString = code.subString(range: NSRange(location: position, length: keyboard.length))
             if subString == keyboard.string && code.at(index: position + keyboard.length)?.isWhitespace ?? false{
-                curToken?.type = keyboard.type
+                curToken.type = keyboard.type
                 seek(offset: keyboard.length)
                 return true
             }
@@ -393,8 +389,8 @@ extension LexParser {
             seekNext()
         }
         
-        curToken?.value = tempString
-        curToken?.type = .id
+        curToken.value = tempString
+        curToken.type = .id
     }
 }
 
@@ -408,7 +404,7 @@ extension LexParser {
             tempString.append(character)
             seekNext()
         }
-        curToken?.value = Int(tempString)
+        curToken.value = Int(tempString)
     }
     
     /// 解析10进制数字
@@ -419,11 +415,11 @@ extension LexParser {
             seekNext()
         }
         guard let character = self.curChar else {
-            curToken?.value = Int(tempString)
+            curToken.value = Int(tempString)
             return
         }
         guard character == "." && (lookNextChar()?.isDigit() ?? false) else {
-            curToken?.value = Int(tempString)
+            curToken.value = Int(tempString)
             return
         }
         tempString.append(".")
@@ -432,7 +428,7 @@ extension LexParser {
             tempString.append(character)
             seekNext()
         }
-        curToken?.value = Double(tempString)
+        curToken.value = Double(tempString)
     }
     
     /// 解析8进制数字
@@ -442,12 +438,11 @@ extension LexParser {
             tempString.append(character)
             seekNext()
         }
-        curToken?.value = Int(tempString)
+        curToken.value = Int(tempString)
     }
     /// 解析数字
     private func parseNum() {
         guard let character = self.curChar else { return }
-        guard let token = self.curToken else { return }
         if character == "0" && matchNextChar(expected: "x") {
             seekNext()
             parseHexNum()
@@ -456,7 +451,7 @@ extension LexParser {
         } else {
             parseDecNum()
         }
-        token.type = .num
+        curToken.type = .num
     }
 }
 
@@ -471,7 +466,7 @@ extension LexParser {
             }
             
             guard character != "\"" else {
-                curToken?.type = .string
+                curToken.type = .string
                 seekNext()
                 break
             }
@@ -485,7 +480,7 @@ extension LexParser {
                     fatalError()
                 }
                 expectationRightParenNum = 1
-                curToken?.type = .interpolation
+                curToken.type = .interpolation
                 break
             }
             
@@ -520,7 +515,7 @@ extension LexParser {
                 tempString.append(character)
             }
         }
-        curToken?.value = tempString
+        curToken.value = tempString
     }
 }
 

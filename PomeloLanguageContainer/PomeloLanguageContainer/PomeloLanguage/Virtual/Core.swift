@@ -56,10 +56,8 @@ public func buildCore(virtual: Virtual) {
     virtual.classOfClass.bindMetaClass(virtual: virtual, metaClass: virtual.classOfClass)
     
     
-    
     executeModule(virtual: virtual, name: ModuleName.core, code: coreModuleCode)
     
-    return
     
     guard let boolClassObject = getClassFromModule(module: coreModule, name: "Bool") else {
         fatalError()
@@ -159,10 +157,45 @@ public func buildCore(virtual: Virtual) {
     guard let systemClassObject = getClassFromModule(module: coreModule, name: "System") else {
         fatalError()
     }
+    virtual.systemClass = systemClassObject
     systemClassObject.bindNativeMethod(virtual: virtual, selector: "clock", imp: nativeSystemClock(virtual:stack:argsStart:))
     systemClassObject.bindNativeMethod(virtual: virtual, selector: "importModule(_)", imp: nativeSystemImportModule(virtual:stack:argsStart:))
     systemClassObject.bindNativeMethod(virtual: virtual, selector: "getModuleVariable(_,_)", imp: nativeSystemGetModuleVariable(virtual:stack:argsStart:))
     systemClassObject.bindNativeMethod(virtual: virtual, selector: "writeString(_)", imp: nativeSystemWriteString(virtual:stack:argsStart:))
+    
+    guard let stringClassObject = getClassFromModule(module: coreModule, name: "String") else {
+        fatalError()
+    }
+    virtual.stringClass = stringClassObject
+    
+    guard let mapClassObject = getClassFromModule(module: coreModule, name: "Map") else {
+        fatalError()
+    }
+    virtual.mapClass = mapClassObject
+
+    guard let rangeClassObject = getClassFromModule(module: coreModule, name: "Range") else {
+        fatalError()
+    }
+    virtual.rangeClass = rangeClassObject
+
+    
+    guard let listClassObject = getClassFromModule(module: coreModule, name: "List") else {
+       fatalError()
+    }
+    virtual.listClass = listClassObject
+    
+    
+//    stringClass,
+//    mapClass,
+//    rangeClass,
+//    listClass,
+//    nullClass,
+//    boolClass,
+//    numClass,
+//    fnClass,
+//    threadClass,
+//    moduleClass,
+//    systemClass
 }
 
 /// 获取一个模块
@@ -208,6 +241,7 @@ public func executeModule(virtual: Virtual, name: String, code: String) -> Virtu
         fatalError()
     }
     return virtual.executeInstruction(thread: threadObject)
+//    return .success
 }
 
 /// 编译Module(一个Pomelo脚本文件)
@@ -228,6 +262,7 @@ public func compileModule(virtual: Virtual, module: ModuleObject, code: String) 
     while !lexParser.matchCurToken(expected: .eof) {
         compileProgram(unit: moduleUnit)
     }
+
     
 //    print("there is something to do...")
 //    exit(0)
@@ -254,9 +289,7 @@ public func compileProgram(unit: CompilerUnit) {
         compileFunctionDefinition(unit: unit)
         
     } else if unit.curLexParser.matchCurToken(expected: .var_) {
-        guard let preToken = unit.curLexParser.preToken else {
-            fatalError()
-        }
+        let preToken = unit.curLexParser.preToken
         compileVarDefinition(unit: unit, isStatic: preToken.type == .static_)
         
     } else if unit.curLexParser.matchCurToken(expected: .import_) {
