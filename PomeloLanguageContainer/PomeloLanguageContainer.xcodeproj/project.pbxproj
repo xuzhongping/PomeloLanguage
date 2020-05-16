@@ -47,6 +47,9 @@
 		EDC2C5672468478100D82E61 /* sample.po in Resources */ = {isa = PBXBuildFile; fileRef = ED84C60F2444C16F00A453DC /* sample.po */; };
 		EDC2C5692468482F00D82E61 /* core.po in Resources */ = {isa = PBXBuildFile; fileRef = EDC2C5682468482E00D82E61 /* core.po */; };
 		EDC2C56B246848EA00D82E61 /* Reader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC2C56A246848EA00D82E61 /* Reader.swift */; };
+		EDD97F57246FD22200BF635B /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97F56246FD22200BF635B /* Command.swift */; };
+		EDD97F5D246FE65C00BF635B /* StringObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97F5C246FE65C00BF635B /* StringObject.swift */; };
+		EDD97F5F246FE67300BF635B /* BoolObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97F5E246FE67300BF635B /* BoolObject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,6 +116,9 @@
 		EDC1DECB244B219300FAEC97 /* Virtual.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
 		EDC2C5682468482E00D82E61 /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = core.po; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		EDC2C56A246848EA00D82E61 /* Reader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reader.swift; sourceTree = "<group>"; };
+		EDD97F56246FD22200BF635B /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
+		EDD97F5C246FE65C00BF635B /* StringObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringObject.swift; sourceTree = "<group>"; };
+		EDD97F5E246FE67300BF635B /* BoolObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,6 +212,8 @@
 				C03794EA242CFD2000A5F27F /* InstanceObject.swift */,
 				C03794EB242CFD2000A5F27F /* FunctionObject.swift */,
 				ED0A0C3F246A09F000F663D0 /* NumObject.swift */,
+				EDD97F5C246FE65C00BF635B /* StringObject.swift */,
+				EDD97F5E246FE67300BF635B /* BoolObject.swift */,
 			);
 			path = Object;
 			sourceTree = "<group>";
@@ -259,7 +267,8 @@
 		C0379515242CFD2C00A5F27F /* PomeloLanguage */ = {
 			isa = PBXGroup;
 			children = (
-				EDC1DECD244B46AC00FAEC97 /* inc */,
+				EDD97F55246FD1F200BF635B /* Client */,
+				EDC1DECD244B46AC00FAEC97 /* Inc */,
 				C03794ED242CFD2000A5F27F /* Compiler */,
 				C03794F6242CFD2000A5F27F /* LexParser */,
 				C03794E2242CFD2000A5F27F /* Object */,
@@ -270,14 +279,22 @@
 			path = PomeloLanguage;
 			sourceTree = "<group>";
 		};
-		EDC1DECD244B46AC00FAEC97 /* inc */ = {
+		EDC1DECD244B46AC00FAEC97 /* Inc */ = {
 			isa = PBXGroup;
 			children = (
 				EDC2C5682468482E00D82E61 /* core.po */,
 				ED84C60F2444C16F00A453DC /* sample.po */,
 				EDC2C56A246848EA00D82E61 /* Reader.swift */,
 			);
-			path = inc;
+			path = Inc;
+			sourceTree = "<group>";
+		};
+		EDD97F55246FD1F200BF635B /* Client */ = {
+			isa = PBXGroup;
+			children = (
+				EDD97F56246FD22200BF635B /* Command.swift */,
+			);
+			path = Client;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -348,6 +365,7 @@
 				TargetAttributes = {
 					C03794B2242CFCF500A5F27F = {
 						CreatedOnToolsVersion = 11.3.1;
+						LastSwiftMigration = 1130;
 					};
 					C03794C4242CFCF700A5F27F = {
 						CreatedOnToolsVersion = 11.3.1;
@@ -430,9 +448,12 @@
 				ED031C4224621DF1005A75EF /* VariableAccess.swift in Sources */,
 				C0379502242CFD2100A5F27F /* ListObject.swift in Sources */,
 				C03794B9242CFCF500A5F27F /* ViewController.swift in Sources */,
+				EDD97F5D246FE65C00BF635B /* StringObject.swift in Sources */,
 				ED0A0C40246A09F000F663D0 /* NumObject.swift in Sources */,
 				C03794B7242CFCF500A5F27F /* AppDelegate.swift in Sources */,
+				EDD97F5F246FE67300BF635B /* BoolObject.swift in Sources */,
 				C03794FF242CFD2100A5F27F /* MapObject.swift in Sources */,
+				EDD97F57246FD22200BF635B /* Command.swift in Sources */,
 				C0379500242CFD2100A5F27F /* RangeObject.swift in Sources */,
 				C0379510242CFD2100A5F27F /* Constant.swift in Sources */,
 				C0379513242CFD2100A5F27F /* Alias.swift in Sources */,
@@ -609,6 +630,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PomeloLanguageContainer/PomeloLanguageContainer.entitlements;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
@@ -622,6 +644,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -630,6 +655,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PomeloLanguageContainer/PomeloLanguageContainer.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -642,6 +668,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -664,6 +692,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PomeloLanguageContainer.app/Contents/MacOS/PomeloLanguageContainer";
 			};
@@ -686,6 +715,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = XZP.PomeloLanguageContainerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PomeloLanguageContainer.app/Contents/MacOS/PomeloLanguageContainer";
 			};

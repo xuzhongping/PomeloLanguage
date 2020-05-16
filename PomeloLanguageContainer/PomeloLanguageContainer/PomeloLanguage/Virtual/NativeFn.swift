@@ -89,21 +89,25 @@ private func RET_VALUE(stack:inout [AnyValue], argsStart: Index, ret: AnyValue) 
 
 /// 原生方法: 返回Bool值的字符串形式
 public func nativeBoolToString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toBool() else {
+    guard let value = stack[argsStart].toBoolObject() else {
         RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: "false"))
         return true
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: value ? "true" : "false"))
+    let retValue = AnyValue(value: StringObject(virtual: virtual, value: value.value ? "true" : "false"))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: Bool值取反
 public func nativeBoolNot(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toBool() else {
+    guard let value = stack[argsStart].toBoolObject() else {
         RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: true))
         return true
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: !value))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: !value.value))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: retValue))
     return true
 }
 
@@ -228,14 +232,15 @@ public func nativeNullToString(virtual: Virtual, stack:inout [AnyValue], argsSta
 
 /// 原生方法: 将字符串转为数字
 public func nativeNumFromString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let string = stack[argsStart].toString() else {
+    guard let string = stack[argsStart].toStringObject() else {
         return false
     }
-    guard let number = Double(string) else {
+    guard let number = Double(string.value) else {
         virtual.thread?.errorObject = AnyValue(value: "argument must be a number!")
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: number))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: number))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: retValue))
     return true
 }
 
@@ -248,127 +253,137 @@ public func nativeNumPi(virtual: Virtual, stack:inout [AnyValue], argsStart: Ind
 
 /// 原生方法: 加
 public func nativeNumPlus(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left + right))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: left.value + right.value))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 减
 public func nativeNumMinus(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left - right))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: left.value - right.value))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: 乘
 public func nativeNumMul(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left * right))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: left.value * right.value))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: 除
 public func nativeNumDiv(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left / right))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: left.value / right.value))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: 大于
 public func nativeNumGt(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left > right))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: left.value > right.value))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: 大于等于
 public func nativeNumGe(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left >= right))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: left.value >= right.value))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: 小于
 public func nativeNumLt(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left < right))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: left.value < right.value))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: 小于等于
 public func nativeNumLe(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left <= right))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: left.value <= right.value))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 位运算与
 public func nativeNumBitAnd(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: Int(left) & Int(right)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: Double(Int64(left.value) & Int64(right.value))))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 位运算或
 public func nativeNumBitOr(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: Int(left) | Int(right)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: Double(Int64(left.value) | Int64(right.value))))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
@@ -376,187 +391,206 @@ public func nativeNumBitOr(virtual: Virtual, stack:inout [AnyValue], argsStart: 
 
 /// 原生方法: 位运算左移
 public func nativeNumBitShiftLeft(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: Int(left) << Int(right)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: Double(Int64(left.value) << Int64(right.value))))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: 位运算右移
 public func nativeNumBitShiftRight(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: Int(left) >> Int(right)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: Double(Int64(left.value) >> Int64(right.value))))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 绝对值
 public func nativeNumAbs(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: abs(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: abs(value.value)))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: acos
 public func nativeNumAcos(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: acos(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: acos(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: asin
 public func nativeNumAsin(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: asin(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: asin(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: atan
 public func nativeNumAtan(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: atan(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: atan(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: ceil
 public func nativeNumCeil(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: ceil(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: ceil(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: cos
 public func nativeNumCos(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: cos(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: cos(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: floor
 public func nativeNumFloor(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: floor(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: floor(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: 负数
 public func nativeNumNegate(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: -(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: -(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: sin
 public func nativeNumSin(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: sin(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: sin(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: sqrt
 public func nativeNumSqrt(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: sqrt(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: sqrt(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: tan
 public func nativeNumTan(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: tan(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: tan(value.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 取模
 public func nativeNumMod(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: fmod(left, right)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: fmod(left.value, right.value)))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 取反
 public func nativeNumBitNot(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: ~uint(value)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: Double(~uint(value.value))))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: [from..to]
 public func nativeNumRange(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: RangeObject(virtual: virtual, from: Int(left), length: Int(right - left))))
+    let retValue = AnyValue(value: RangeObject(virtual: virtual, value: NSRange(location: Int(left.value), length: Int(right.value - left.value))))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: atan2
 public func nativeNumAtan2(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: atan2(left, right)))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: atan2(left.value, right.value)))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 /// 原生方法: 返回小数部分
 public func nativeNumFraction(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
 //    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: modf(value, <#T##UnsafeMutablePointer<Double>!#>)))
@@ -566,46 +600,54 @@ public func nativeNumFraction(virtual: Virtual, stack:inout [AnyValue], argsStar
 
 /// 原生方法: 是否无穷大，不区分正负
 public func nativeNumIsInfinity(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: value == Double.infinity))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: value.value == Double.infinity))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 是否是数字
 public func nativeNumIsInteger(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    if value.isNaN || value.isInfinite {
+    if value.value.isNaN || value.value.isInfinite {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: trunc(value) == value ))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: trunc(value.value) == value.value))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 是否为nan
 public func nativeNumIsNan(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: value.isNaN))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: value.value.isNaN))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 转换为字符串
 public func nativeNumToString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: String(value)))
+    let retValue = AnyValue(value: StringObject(virtual: virtual, value: String(value.value)))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 取整数部分
 public func nativeNumTruncate(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let value = stack[argsStart].toNum() else {
+    guard let value = stack[argsStart].toNumObject() else {
         return false
     }
 //    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: modf(<#T##Double#>, <#T##UnsafeMutablePointer<Double>!#>)))
@@ -614,22 +656,24 @@ public func nativeNumTruncate(virtual: Virtual, stack:inout [AnyValue], argsStar
 
 /// 原生方法: 判断两个数字是否相等
 public func nativeNumEqual(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left == right))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: left.value == right.value))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 判断两个数字是否不相等
 public func nativeNumNotEqual(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let left = stack[argsStart].toNum() else {
+    guard let left = stack[argsStart].toNumObject() else {
         return false
     }
-    guard let right = stack[argsStart + 1].toNum() else {
+    guard let right = stack[argsStart + 1].toNumObject() else {
         return true
     }
     RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left != right))
@@ -649,11 +693,11 @@ public func nativeListSubscript(virtual: Virtual, stack:inout [AnyValue], argsSt
         virtual.thread?.errorObject = AnyValue(value: "caller must be a list instance!")
         return false
     }
-    if let num = stack[argsStart + 1].toNum() {
-        guard Int(num) < listObject.value.count else {
+    if let num = stack[argsStart + 1].toNumObject() {
+        guard Int(num.value) < listObject.value.count else {
             return false
         }
-        RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: listObject.value[Int(num)]))
+        RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: listObject.value[Int(num.value)]))
         return true
     }
     
@@ -677,14 +721,14 @@ public func nativeListSubsciptSetter(virtual: Virtual, stack:inout [AnyValue], a
         return false
     }
     
-    guard let num = stack[argsStart + 1].toNum() else {
+    guard let num = stack[argsStart + 1].toNumObject() else {
         return false
     }
-    guard Int(num) < listObject.value.count else {
+    guard Int(num.value) < listObject.value.count else {
         return false
     }
     
-    listObject.value[Int(num)] = stack[argsStart + 2]
+    listObject.value[Int(num.value)] = stack[argsStart + 2]
     
     RET_VALUE(stack: &stack, argsStart: argsStart, ret: stack[argsStart + 2])
     return true
@@ -696,16 +740,18 @@ public func nativeListAdd(virtual: Virtual, stack:inout [AnyValue], argsStart: I
 
 //MARK: System
 public func nativeSystemClock(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: Date.timeIntervalSinceReferenceDate))
+    let retValue = AnyValue(value: NumObject(virtual: virtual, value: Date.timeIntervalSinceReferenceDate))
+    
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 
 public func nativeSystemImportModule(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let name = stack[argsStart + 1].toString() else {
+    guard let name = stack[argsStart + 1].toStringObject() else {
         return false
     }
-    guard let nextThread = importModule(virtual: virtual, moduleName: name) else {
+    guard let nextThread = importModule(virtual: virtual, moduleName: name.value) else {
         return false
     }
     
@@ -722,13 +768,13 @@ public func nativeSystemImportModule(virtual: Virtual, stack:inout [AnyValue], a
 
 
 public func nativeSystemGetModuleVariable(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let moduleName = stack[argsStart + 1].toString() else {
+    guard let moduleName = stack[argsStart + 1].toStringObject() else {
         return false
     }
-    guard let variableName = stack[argsStart + 2].toString() else {
+    guard let variableName = stack[argsStart + 2].toStringObject() else {
         return false
     }
-    guard let variable = getModuleVariable(virtual: virtual, moduleName: moduleName, varName: variableName) else {
+    guard let variable = getModuleVariable(virtual: virtual, moduleName: moduleName.value, varName: variableName.value) else {
         return false
     }
     RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: variable))
@@ -736,10 +782,10 @@ public func nativeSystemGetModuleVariable(virtual: Virtual, stack:inout [AnyValu
 }
 
 public func nativeSystemWriteString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    guard let string = stack[argsStart + 1].toString() else {
+    guard let string = stack[argsStart + 1].toStringObject() else {
         return false
     }
-    if string.count == 0 {
+    if string.value.count == 0 {
         fatalError("string isn`t terminated!")
     }
     print(string)

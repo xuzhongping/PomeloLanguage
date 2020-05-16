@@ -13,7 +13,7 @@ public class ListObject: BaseObject {
     var value: [Any]
     init(virtual: Virtual) {
         self.value = []
-        super.init(virtual: virtual, type: .list, cls: nil)
+        super.init(virtual: virtual, type: .list, cls: virtual.listClass)
     }
 }
 

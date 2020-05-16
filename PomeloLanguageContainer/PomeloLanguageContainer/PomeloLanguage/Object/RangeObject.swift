@@ -12,9 +12,8 @@ import Cocoa
 public class RangeObject: BaseObject {
     var value: NSRange
     
-    init(virtual: Virtual, from: Int, length: Int) {
-        //TODO: 设置RangeClass
-        self.value = NSRange(location: from, length: length)
-        super.init(virtual: virtual, type: .range, cls: nil)
+    init(virtual: Virtual, value: NSRange) {
+        self.value = value
+        super.init(virtual: virtual, type: .range, cls: virtual.rangeClass)
     }
 }

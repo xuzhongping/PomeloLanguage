@@ -8,10 +8,10 @@
 
 import Cocoa
 
-class NumObject: BaseObject {
+public class NumObject: BaseObject {
     var value: Double
-    init(virtual: Virtual) {
-        self.value = 0
-        super.init(virtual: virtual, type: .list, cls: nil)
+    init(virtual: Virtual, value: Double) {
+        self.value = value
+        super.init(virtual: virtual, type: .num, cls: virtual.numClass)
     }
 }

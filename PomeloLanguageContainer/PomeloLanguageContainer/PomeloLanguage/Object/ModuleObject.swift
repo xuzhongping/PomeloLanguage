@@ -21,7 +21,7 @@ public class ModuleObject: BaseObject {
         self.moduleVarNames = []
         self.moduleVarValues = []
         
-        super.init(virtual: virtual, type: .module, cls: nil)
+        super.init(virtual: virtual, type: .module, cls: virtual.moduleClass)
     }
     
 //    /// 定义模块变量

@@ -60,6 +60,7 @@ public class Virtual: NSObject {
     
     var systemClass: ClassObject!
     
+    
     /// 内建类
 //    var builtinClasses: [String] {
 //        return ["stringClass",
@@ -515,7 +516,7 @@ public class Virtual: NSObject {
                     fatalError()
                 }
                 // 为null或为false时才为假，不包含0
-                if condition.isNull() || condition.toBool() == false {
+                if condition.isNull() || condition.toBoolObject()?.value == false {
                     ip += offset
                 }
                 
@@ -526,7 +527,7 @@ public class Virtual: NSObject {
                 guard let condition = peek() else {
                     fatalError()
                 }
-                if condition.isNull() || condition.toBool() == false {
+                if condition.isNull() || condition.toBoolObject()?.value == false {
                     ip += offset
                 } else {
                     drop()
@@ -539,7 +540,7 @@ public class Virtual: NSObject {
                 guard let condition = peek() else {
                     fatalError()
                 }
-                if condition.isNull() || condition.toBool() == false {
+                if condition.isNull() || condition.toBoolObject()?.value == false {
                     drop()
                 } else {
                     ip += offset
@@ -560,7 +561,11 @@ public class Virtual: NSObject {
                 closedUpvalue(thread: curThread, lastIndex: stackStartIndex)
                 if curThread.usedFrameNum == 0 {
                     guard let callerThread = curThread.caller else {
-                        curThread.stack[stackStartIndex] = retValue
+                        if curThread.stack.count == stackStartIndex {
+                            curThread.stack.append(retValue)
+                        } else {
+                            curThread.stack[stackStartIndex] = retValue
+                        }
                         curThread.esp = stackStartIndex + 1
                         return .success
                     }
@@ -634,7 +639,7 @@ public class Virtual: NSObject {
                 guard let superClass = curThread.stack[curThread.esp - 1].toClassObject() else {
                     fatalError()
                 }
-                guard let className = curThread.stack[curThread.esp - 2].toString() else {
+                guard let className = curThread.stack[curThread.esp - 2].toStringObject()?.value else {
                     fatalError()
                 }
                 
@@ -647,7 +652,7 @@ public class Virtual: NSObject {
                 validateSuperClass(name: className, superClass: superClass, fieldNum: Int(filedNum))
                 let classObject = ClassObject(virtual: self, name: className, fieldNum: Int(filedNum), superClass: superClass)
                 thread.stack[stackStartIndex] = AnyValue(value: classObject)
-                
+                print("CREATE_CLASS_\(className)")
             case .INSTANCE_METHOD,
                  .STATIC_METHOD:
                 
@@ -668,7 +673,6 @@ public class Virtual: NSObject {
             
             case .END:
                 return .success
-                
             }
         }
     }

@@ -36,7 +36,7 @@ public class ThreadObject: BaseObject {
         frameCapacity = InitialFrameNum
         
         openUpvalues = []
-        super.init(virtual: virtual, type: .thread, cls: nil)
+        super.init(virtual: virtual, type: .thread, cls: virtual.threadClass)
     
         resetThread(closure: closure)
     }

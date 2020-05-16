@@ -62,3 +62,4 @@ extension String {
     /// 小写字符开头便是局部变量
     public var isLocalName: Bool { at(index: 0)?.isLowercase ?? false }
 }
+

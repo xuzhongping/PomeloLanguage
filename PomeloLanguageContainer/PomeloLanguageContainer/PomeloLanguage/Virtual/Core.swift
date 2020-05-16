@@ -154,6 +154,7 @@ public func buildCore(virtual: Virtual) {
     virtual.numClass.bindNativeMethod(virtual: virtual, selector: "==(_)", imp: nativeNumEqual(virtual:stack:argsStart:))
     virtual.numClass.bindNativeMethod(virtual: virtual, selector: "!=(_)", imp: nativeNumNotEqual(virtual:stack:argsStart:))
     
+    
     guard let systemClassObject = getClassFromModule(module: coreModule, name: "System") else {
         fatalError()
     }
@@ -163,6 +164,8 @@ public func buildCore(virtual: Virtual) {
     systemClassObject.bindNativeMethod(virtual: virtual, selector: "getModuleVariable(_,_)", imp: nativeSystemGetModuleVariable(virtual:stack:argsStart:))
     systemClassObject.bindNativeMethod(virtual: virtual, selector: "writeString(_)", imp: nativeSystemWriteString(virtual:stack:argsStart:))
     
+    
+    return
     guard let stringClassObject = getClassFromModule(module: coreModule, name: "String") else {
         fatalError()
     }
@@ -184,18 +187,6 @@ public func buildCore(virtual: Virtual) {
     }
     virtual.listClass = listClassObject
     
-    
-//    stringClass,
-//    mapClass,
-//    rangeClass,
-//    listClass,
-//    nullClass,
-//    boolClass,
-//    numClass,
-//    fnClass,
-//    threadClass,
-//    moduleClass,
-//    systemClass
 }
 
 /// 获取一个模块
@@ -241,7 +232,6 @@ public func executeModule(virtual: Virtual, name: String, code: String) -> Virtu
         fatalError()
     }
     return virtual.executeInstruction(thread: threadObject)
-//    return .success
 }
 
 /// 编译Module(一个Pomelo脚本文件)

@@ -11,9 +11,9 @@ import Cocoa
 public class MapObject: BaseObject {
     
     var value: [String: Any]
-    init(virtual: Virtual) {
-        self.value = [:]
-        super.init(virtual: virtual, type: .map, cls: nil)
+    init(virtual: Virtual, value: [String: Any]) {
+        self.value = value
+        super.init(virtual: virtual, type: .map, cls: virtual.mapClass)
     }
 
 }

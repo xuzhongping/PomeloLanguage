@@ -81,7 +81,7 @@ public class FnObject: BaseObject {
         self.constants = []
         self.upvalueNum = 0
         self.argNum = 0
-        super.init(virtual: virtual, type: .function, cls: nil)
+        super.init(virtual: virtual, type: .function, cls: virtual.fnClass)
     }
 }
 

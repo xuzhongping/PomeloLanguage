@@ -13,17 +13,22 @@ public class Header: NSObject {
     
     public enum ObjectType {
         case none
-        case class_
-        case list
-        case map
-        case module
+        case num
+        case bool
         case range
         case string
+        case list
+        case map
+    
         case upValue
+        
+        case class_
+        case instance
+        
         case function
         case closure
-        case instance
         case thread
+        case module
     }
     
     var type: ObjectType
@@ -35,10 +40,10 @@ public class Header: NSObject {
         self.type = type
         self.cls = cls
         self.dark = false
+        
         if let header = virtual.allObjectHeader {
             self.next = header
         }
-//        virtual.allObjectHeader = self
     }
 }
 

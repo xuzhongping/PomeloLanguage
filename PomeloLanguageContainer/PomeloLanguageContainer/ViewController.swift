@@ -12,7 +12,8 @@ class ViewController: NSViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        Pomelo.run(file: "sample")
+//        Pomelo.run(file: "sample")
+        Command().run()
     }
 
     override var representedObject: Any? {

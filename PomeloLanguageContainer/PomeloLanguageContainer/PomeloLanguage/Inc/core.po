@@ -3,6 +3,42 @@ class Bool {}
 class Num {}
 class Fn {}
 class Thread {}
+    
+class System {
+   static print() {
+      writeString_("\n")
+   }
+
+   static print(obj) {
+      writeObject_(obj)
+      writeString_("\n")
+      return obj
+   }
+
+   static printAll(sequence) {
+      for object (sequence) writeObject_(object)
+      writeString_("\n")
+   }
+
+   static write(obj) {
+      writeObject_(obj)
+      return obj
+   }
+
+   static writeAll(sequence) {
+      for object (sequence) writeObject_(object)
+   }
+
+   static writeObject_(obj) {
+      var str = obj.toString
+      if (str is String) {
+         writeString_(str)
+      } else {
+         writeString_("[invalid toString]")
+      }
+   }
+}
+
 
 class Sequence {
    all(f) {
@@ -264,37 +300,3 @@ class MapValueSequence < Sequence {
 
 class Range < Sequence {}
 
-class System {
-   static print() {
-      writeString_("\n")
-   }
-
-   static print(obj) {
-      writeObject_(obj)
-      writeString_("\n")
-      return obj
-   }
-
-   static printAll(sequence) {
-      for object (sequence) writeObject_(object)
-      writeString_("\n")
-   }
-
-   static write(obj) {
-      writeObject_(obj)
-      return obj
-   }
-
-   static writeAll(sequence) {
-      for object (sequence) writeObject_(object)
-   }
-
-   static writeObject_(obj) {
-      var str = obj.toString
-      if (str is String) {
-         writeString_(str)
-      } else {
-         writeString_("[invalid toString]")
-      }
-   }
-}

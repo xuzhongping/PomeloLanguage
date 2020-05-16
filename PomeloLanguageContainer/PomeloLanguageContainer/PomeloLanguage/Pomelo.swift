@@ -47,7 +47,9 @@ class Pomelo {
     
     /// 运行脚本字符串
     /// - Parameter cli: 命令行中的输入
-    public static func run(cli: String) {
-        
+    public static func run(code: String) {
+        let virtual = Virtual()
+        let result = executeModule(virtual: virtual, name: "Command", code: code)
+//        print(result)
     }
 }

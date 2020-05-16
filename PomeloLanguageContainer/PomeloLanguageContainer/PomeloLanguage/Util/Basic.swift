@@ -21,22 +21,29 @@ public class AnyValue: NSObject {
     init(value: Any?) {
         self.value = value
     }
+    
+    public override var description: String {
+        var description = "<AnyValue"
+        description.append("(value:\(value ?? "null")")
+        description.append(")>")
+        return description
+    }
 }
 
 extension AnyValue {
     
-    public func toString() -> String? {
-        guard let obj = value as? String else {
+    public func toStringObject() -> StringObject? {
+        guard let obj = value as? StringObject else {
             return nil
         }
         return obj
     }
     
-    public func toBool() -> Bool? {
-        guard let bool = value as? Bool else {
+    public func toBoolObject() -> BoolObject? {
+        guard let obj = value as? BoolObject else {
             return nil
         }
-        return bool
+        return obj
     }
     
     public func toClassObject() -> ClassObject? {
@@ -103,8 +110,8 @@ extension AnyValue {
        return obj
     }
     
-    public func toNum() -> Double? {
-        guard let value = value as? Double else {
+    public func toNumObject() -> NumObject? {
+        guard let value = value as? NumObject else {
             return nil
         }
         return value
@@ -113,12 +120,12 @@ extension AnyValue {
 
 extension AnyValue {
     
-    public func isString() -> Bool {
-        return value is String
+    public func isStringObject() -> Bool {
+        return value is StringObject
     }
     
-    public func isBool() -> Bool {
-        return value is Bool
+    public func isBoolObject() -> Bool {
+        return value is BoolObject
     }
     
     public func isClassObject() -> Bool {
@@ -165,19 +172,19 @@ extension AnyValue {
         return self == AnyValue.placeholder
     }
     
-    public func isNum() -> Bool {
-        return value is Double
+    public func isNumObject() -> Bool {
+        return value is NumObject
     }
 }
 
 extension AnyValue {
     public func getClass(virtual: Virtual) -> ClassObject {
         switch value {
-        case is String:
+        case is StringObject:
             return virtual.stringClass
-        case is Bool:
+        case is BoolObject:
             return virtual.boolClass
-        case is Double:
+        case is NumObject:
             return virtual.numClass
         case is ClassObject:
             return virtual.classOfClass
