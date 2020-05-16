@@ -414,7 +414,7 @@ extension LexParser {
             str.append(character)
             advance()
         }
-        guard let character = self.curChar else {
+        guard let character = self.curChar, character != "\0" else {
             curToken.value = Int(str)
             return
         }
@@ -444,8 +444,8 @@ extension LexParser {
     }
     /// 解析数字
     private func parseNum() {
-        guard let character = self.curChar else {
-            return
+        guard let character = self.curChar, character != "\0" else {
+            fatalError()
         }
         if character == "0" && lookNextChar() == "x" {
             parseHexNum()
@@ -461,14 +461,14 @@ extension LexParser {
 // MARK: 解析字符串
 extension LexParser {
     private func parseString() {
-        var tempString = ""
+        var str = ""
         while true {
             advance()
             guard let character = self.curChar, character != "\0" else {
                 fatalError()
             }
             
-            guard character != "\"" else {
+            if character == "\"" {
                 curToken.type = .string
                 advance()
                 break
@@ -484,6 +484,7 @@ extension LexParser {
                 }
                 expn = 1
                 curToken.type = .interpolation
+                advance()
                 break
             }
             
@@ -491,34 +492,34 @@ extension LexParser {
                 advance()
                 switch curChar {
                 case "0":
-                    tempString.append("\\0")
+                    str.append("\\0")
                 case "a":
-                    tempString.append("\\a")
+                    str.append("\\a")
                 case "b":
-                    tempString.append("\\b")
+                    str.append("\\b")
                 case "f":
-                    tempString.append("\\f")
+                    str.append("\\f")
                 case "n":
-                    tempString.append("\\n")
+                    str.append("\\n")
                 case "r":
-                    tempString.append("\\r")
+                    str.append("\\r")
                 case "t":
-                    tempString.append("\\t")
+                    str.append("\\t")
                 case "u":
                     //TODO: 需要处理unide
-                    tempString.append("\\u")
+                    str.append("\\u")
                 case "\"":
-                    tempString.append("\\b")
+                    str.append("\\b")
                 case "\\":
-                    tempString.append("\\")
+                    str.append("\\")
                 default:
                     fatalError()
                 }
             } else {
-                tempString.append(character)
+                str.append(character)
             }
         }
-        curToken.value = tempString
+        curToken.value = str
     }
 }
 

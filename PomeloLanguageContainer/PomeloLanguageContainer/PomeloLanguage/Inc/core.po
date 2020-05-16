@@ -228,8 +228,8 @@ class List < Sequence {
    }
 
    toString {
-      #return "[%(join(\",\"))]"
-      return ""
+      return "[%(join(","))]"
+#      return ""
    }
 
    +(other) {
@@ -262,8 +262,8 @@ class Map {
       for key (keys) {
          if (!first) result = result + ", "
          first = false
-#         result = result + "%(key): %(this[key])"
-         result = ""
+         result = result + "%(key): %(this[key])"
+#         result = ""
       }
 
       return result + "}"
