@@ -56,8 +56,8 @@ func emitCreateInstance(unit: CompilerUnit, sign: Signature, constructorIndex: I
     writeShortByteCode(unit: methodUnit,
                        code: opCode,
                        operand: constructorIndex)
-    writeOpCode(unit: unit, code: .RETURN)
-    endCompile(unit: unit)
+    writeOpCode(unit: methodUnit, code: .RETURN)
+    endCompile(unit: methodUnit)
 }
 
 /// 编译方法定义

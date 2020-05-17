@@ -8,7 +8,7 @@
 
 import Cocoa
 
-public func PLDebugPrint(_ msg: String) {
+public func PLDebugPrint(_ msg: Any) {
     #if DEBUG
     print(msg)
     #endif

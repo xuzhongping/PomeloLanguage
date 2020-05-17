@@ -153,11 +153,13 @@ public class Virtual: NSObject {
         var opCode: OP_CODE?
         
         func push(value: AnyValue) {
+            PLDebugPrint("push")
             curThread.stack.append(value)
             curThread.esp += 1
         }
         
         func pop() -> AnyValue? {
+            PLDebugPrint("pop")
             let value = curThread.stack.last
             curThread.stack.removeLast()
             curThread.esp -= 1
@@ -165,23 +167,28 @@ public class Virtual: NSObject {
         }
         
         func drop() {
+            PLDebugPrint("drop")
             curThread.stack.removeLast()
             curThread.esp -= 1
         }
         
         func peek() -> AnyValue? {
+            PLDebugPrint("peek")
             return curThread.stack[curThread.esp - 1]
         }
         
         func peek2() -> AnyValue? {
+            PLDebugPrint("peek2")
             return curThread.stack[curThread.esp - 2]
         }
         
         func setPeek(value: AnyValue) {
+            PLDebugPrint("setPeek")
             curThread.stack[curThread.esp - 1] = value
         }
         
         func setPeek2(value: AnyValue) {
+            PLDebugPrint("setPeek2")
             curThread.stack[curThread.esp - 2] = value
         }
         
@@ -289,7 +296,7 @@ public class Virtual: NSObject {
             guard let opCode = opCode else {
                 fatalError()
             }
-            
+            PLDebugPrint(opCode)
             switch opCode {
             case .LOAD_LOCAL_VAR:
                 guard let byte = readByte() else {
@@ -652,7 +659,6 @@ public class Virtual: NSObject {
                 validateSuperClass(name: className, superClass: superClass, fieldNum: Int(filedNum))
                 let classObject = ClassObject(virtual: self, name: className, fieldNum: Int(filedNum), superClass: superClass)
                 thread.stack[stackStartIndex] = AnyValue(value: classObject)
-                print("CREATE_CLASS_\(className)")
             case .INSTANCE_METHOD,
                  .STATIC_METHOD:
                 

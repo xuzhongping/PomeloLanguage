@@ -22,17 +22,18 @@ class Command: NSObject {
     func run(){
         print("pomelo")
         print("version: \(0.0)");
-        while true {
-            print(">> ", terminator: "")
-//            guard let line = scanf() else {
+//        while true {
+//            print(">> ", terminator: "")
+////            guard let line = scanf() else {
+////                break
+////            }
+//            let line = "System.print(1)"
+//            guard line != "exit" else {
 //                break
 //            }
-            let line = "System.print(1)"
-            guard line != "exit" else {
-                break
-            }
-            Pomelo.run(code: line)
-        }
+//
+//        }
+        Pomelo.run(code: "")
     }
     
     
