@@ -173,11 +173,13 @@ public class LexParser: NSObject {
                 curToken.value = ","
             case ":":
                 curToken.type = .colon
+                curToken.value = "."
             case "(":
                 if expn > 0 {
                     expn += 1
                 }
                 curToken.type = .leftParen
+                curToken.value = "("
             case ")":
                 if expn > 0 {
                     expn -= 1
@@ -187,78 +189,106 @@ public class LexParser: NSObject {
                     }
                 }
                 curToken.type = .rightParen
+                curToken.value = ")"
             case "[":
                 curToken.type = .leftBracket
+                curToken.value = "["
             case "]":
                 curToken.type = .rightBracket
+                curToken.value = "]"
             case "{":
                 curToken.type = .leftBrace
+                curToken.value = "{"
             case "}":
                 curToken.type = .rightBrace
+                curToken.value = "}"
             case ".":
                 if matchChar(expected: ".") {
                     curToken.type = .dotDouble
+                    curToken.value = ".."
                 } else {
                     curToken.type = .dot
+                    curToken.value = "."
                 }
             case "=":
                 if matchChar(expected: "=") {
                     curToken.type = .equal
+                    curToken.value = "=="
                 } else {
                     curToken.type = .assign
+                    curToken.value = "="
                 }
             case "+":
                 curToken.type = .add
+                curToken.value = "+"
             case "-":
                 if lookNextChar()?.isDigit ?? false {
                     parseNum()
                     return
                 } else {
                     curToken.type = .sub
+                    curToken.value = "-"
                 }
             case "*":
                 curToken.type = .mul
+                curToken.value = "*"
             case "/":
                 curToken.type = .div
+                curToken.value = "/"
             case "%":
                 curToken.type = .mod
+                curToken.value = "%"
             case "&":
                 if matchChar(expected: "&") {
                     curToken.type = .logicAnd
+                    curToken.value = "&&"
                 } else {
                     curToken.type = .bitAnd
+                    curToken.value = "&"
                 }
             case "|":
                 if matchChar(expected: "|") {
                     curToken.type = .logicOr
+                    curToken.value = "||"
                 } else {
                     curToken.type = .bitOr
+                    curToken.value = "|"
                 }
             case "~":
                 curToken.type = .bitNot
+                curToken.value = "~"
             case "?":
                 curToken.type = .question
+                curToken.value = "?"
             case ">":
                 if matchChar(expected: "=") {
                     curToken.type = .greateEqual
-                } else if matchChar(expected: "<") {
-                    curToken.type = .bitShiftLeft
+                    curToken.value = ">="
+                } else if matchChar(expected: ">") {
+                    curToken.type = .bitShiftRight
+                    curToken.value = ">>"
                 } else {
                     curToken.type = .greate
+                    curToken.value = ">"
                 }
             case "<":
                 if matchChar(expected: "=") {
                     curToken.type = .lessEqual
+                    curToken.value = "<="
                 } else if matchChar(expected: "<") {
-                    curToken.type = .bitShiftRight
+                    curToken.type = .bitShiftLeft
+                    curToken.value = "<<"
                 } else {
                     curToken.type = .less
+                    curToken.value = "<"
                 }
             case "!":
                 if matchChar(expected: "=") {
                     curToken.type = .notEqual
+                    curToken.value = "!="
                 } else {
                     curToken.type = .logicNot
+                    curToken.value = "!"
                 }
             case "\"":
                 parseString()

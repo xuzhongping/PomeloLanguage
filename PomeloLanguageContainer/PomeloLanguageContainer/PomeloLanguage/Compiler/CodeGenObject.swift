@@ -24,18 +24,24 @@ func declareMethod(unit: CompilerUnit, signStr: String) -> Int {
     guard let enclosingClassBK = unit.enclosingClassBK else {
         fatalError()
     }
-    var methods = enclosingClassBK.inStatic ? enclosingClassBK.staticMethods : enclosingClassBK.instanceMethods
-    if methods.contains(index) {
-        fatalError("repeat define method \(signStr) in class \(enclosingClassBK.name)")
-    }
     
-    methods.append(index)
+    if enclosingClassBK.inStatic {
+        if enclosingClassBK.staticMethods.contains(index) {
+            fatalError("repeat define method \(signStr) in class \(enclosingClassBK.name)")
+        }
+        enclosingClassBK.staticMethods.append(index)
+    } else {
+        if enclosingClassBK.instanceMethods.contains(index) {
+            fatalError("repeat define method \(signStr) in class \(enclosingClassBK.name)")
+        }
+        enclosingClassBK.instanceMethods.append(index)
+    }
     return index
 }
 
 /// 将方法索引指代的方法装入classVar指代的class.methods中
 func defineMethod(unit: CompilerUnit, classVar: Variable, isStatic: Bool, methodIndex: Int) {
-    emitLoadVariable(unit: unit, variable: classVar)
+    unit.emitLoadVariable(variable: classVar)
     let opCode = isStatic ? OP_CODE.STATIC_METHOD : OP_CODE.INSTANCE_METHOD
     writeShortByteCode(unit: unit, code: opCode, operand: methodIndex)
 }
@@ -78,6 +84,7 @@ func compileMethodDefinition(unit: CompilerUnit, classVar: Variable, isStatic: B
                                   isMethod: true)
     methodSign(methodUnit, sign)
     
+    PLDebugPrint("build method `\(sign.toString())` start")
     unit.curLexParser.consumeCurToken(expected: .leftBrace, message: "expect '{' at the beginning of method body.")
     
     if enclosingClassBK.inStatic && sign.type == .construct {
@@ -87,7 +94,7 @@ func compileMethodDefinition(unit: CompilerUnit, classVar: Variable, isStatic: B
     let methodIndex = declareMethod(unit: unit, signStr: sign.toString())
     compileBody(unit: methodUnit, isConstruct: sign.type == .construct)
     
-    endCompile(unit: unit)
+    endCompile(unit: methodUnit)
     
     defineMethod(unit: unit,
                  classVar: classVar,
@@ -104,6 +111,7 @@ func compileMethodDefinition(unit: CompilerUnit, classVar: Variable, isStatic: B
                            constructorIndex: methodIndex)
         defineMethod(unit: unit, classVar: classVar, isStatic: true, methodIndex: constructorIndex)
     }
+    PLDebugPrint("build method `\(sign.toString())` end")
 }
 
 /// 编译类体
@@ -136,6 +144,7 @@ func compileClassBody(unit: CompilerUnit, classVar: Variable) {
 
 /// 编译类定义
 func compileClassDefinition(unit: CompilerUnit) {
+    
     guard unit.scopeDepth == ScopeDepth.module else {
         fatalError("class definition must be in the module scope!")
     }
@@ -144,8 +153,9 @@ func compileClassDefinition(unit: CompilerUnit) {
     guard let className = unit.curLexParser.preToken.value as? String else {
         fatalError()
     }
+    PLDebugPrint("build class `\(className)` start")
     
-    let constantIndex = unit.defineConstant(constant: AnyValue(value: className))
+    let constantIndex = unit.defineConstant(constant: AnyValue(value: StringObject(virtual: unit.curLexParser.virtual, value: className)))
     unit.emitLoadConstant(constantIndex: constantIndex)
 
     
@@ -186,6 +196,7 @@ func compileClassDefinition(unit: CompilerUnit) {
     
     unit.enclosingClassBK = nil
     leaveScope(unit: unit)
+    PLDebugPrint("build class `\(className)` end")
 }
 
 /// 编译函数定义

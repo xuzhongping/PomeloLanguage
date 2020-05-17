@@ -10,19 +10,22 @@ import Cocoa
 
 /// 取反
 public func nativeObjectNot(virtual: Virtual, stack: inout [AnyValue], argsStart: Index) -> Bool {
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: false))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: false))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 判断Object是否相等
 public func nativeObjectEqual(virtual: Virtual, stack: inout [AnyValue], argsStart: Index) -> Bool {
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: stack[argsStart] == stack[argsStart + 1]))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: stack[argsStart] == stack[argsStart + 1]))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
 /// 原生方法: 判断Object是否不相等
 public func nativeObjectNotEqual(virtual: Virtual, stack: inout [AnyValue], argsStart: Index) -> Bool {
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: !(stack[argsStart] == stack[argsStart + 1])))
+    let retValue = AnyValue(value: BoolObject(virtual: virtual, value: !(stack[argsStart] == stack[argsStart + 1])))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
@@ -38,19 +41,20 @@ public func nativeObjectIs(virtual: Virtual, stack:inout [AnyValue], argsStart: 
 
     while thisCls != nil {
         if thisCls == baseCls {
-            stack[argsStart] = AnyValue(value: true)
+            stack[argsStart] = AnyValue(value: BoolObject(virtual: virtual, value: true))
             return true
         }
         thisCls = thisCls?.superClass
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: false))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: BoolObject(virtual: virtual, value: false)))
     return true
 }
 
 /// 原生方法: 获取Object的类名
 public func nativeObjectGetClassName(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
     let cls = stack[argsStart].getClass(virtual: virtual)
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: cls.name))
+    let retValue = AnyValue(value: StringObject(virtual: virtual, value: cls.name))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
@@ -64,7 +68,8 @@ public func nativeObjectGetClass(virtual: Virtual, stack:inout [AnyValue], argsS
 /// 原生方法: 获取Class的name
 public func nativeClassGetName(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
     let cls = stack[argsStart]
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: cls.getClass(virtual: virtual).name))
+    let retValue = AnyValue(value: StringObject(virtual: virtual, value: cls.getClass(virtual: virtual).name))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
     return true
 }
 
@@ -90,7 +95,8 @@ private func RET_VALUE(stack:inout [AnyValue], argsStart: Index, ret: AnyValue) 
 /// 原生方法: 返回Bool值的字符串形式
 public func nativeBoolToString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
     guard let value = stack[argsStart].toBoolObject() else {
-        RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: "false"))
+        let retValue = AnyValue(value: StringObject(virtual: virtual, value: "false"))
+        RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
         return true
     }
     let retValue = AnyValue(value: StringObject(virtual: virtual, value: value.value ? "true" : "false"))
@@ -102,7 +108,8 @@ public func nativeBoolToString(virtual: Virtual, stack:inout [AnyValue], argsSta
 /// 原生方法: Bool值取反
 public func nativeBoolNot(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
     guard let value = stack[argsStart].toBoolObject() else {
-        RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: true))
+        let retValue = AnyValue(value: BoolObject(virtual: virtual, value: true))
+        RET_VALUE(stack: &stack, argsStart: argsStart, ret: retValue)
         return true
     }
     let retValue = AnyValue(value: BoolObject(virtual: virtual, value: !value.value))
@@ -198,9 +205,9 @@ public func nativeThreadIsDone(virtual: Virtual, stack:inout [AnyValue], argsSta
         return false
     }
     if thread.usedFrameNum == 0 || thread.errorObject != nil {
-        RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: true))
+        RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: BoolObject(virtual: virtual, value: true)))
     } else {
-        RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: false))
+        RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: BoolObject(virtual: virtual, value: false)))
     }
     return true
 }
@@ -218,13 +225,13 @@ public func nativeFnNew(virtual: Virtual, stack:inout [AnyValue], argsStart: Ind
 
 /// 原生方法: null取非
 public func nativeNullNot(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: true))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: BoolObject(virtual: virtual, value: true)))
     return true
 }
 
 /// 原生方法: null的字符串化
 public func nativeNullToString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: "null"))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: StringObject(virtual: virtual, value: "null")))
     return true
 }
 
@@ -247,7 +254,7 @@ public func nativeNumFromString(virtual: Virtual, stack:inout [AnyValue], argsSt
 
 /// 原生方法: 返回圆周率
 public func nativeNumPi(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: Double.pi))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: NumObject(virtual: virtual, value: Double.pi)))
     return true
 }
 
@@ -676,7 +683,7 @@ public func nativeNumNotEqual(virtual: Virtual, stack:inout [AnyValue], argsStar
     guard let right = stack[argsStart + 1].toNumObject() else {
         return true
     }
-    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: left != right))
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: AnyValue(value: BoolObject(virtual: virtual, value: left.value != right.value)))
     return true
 }
 

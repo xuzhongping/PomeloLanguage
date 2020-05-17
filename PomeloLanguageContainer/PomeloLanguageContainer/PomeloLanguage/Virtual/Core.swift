@@ -203,14 +203,15 @@ public func getCoreModule(virtual: Virtual) -> ModuleObject? {
 
 /// 加载一个模块
 public func loadModule(virtual: Virtual, name: String, code: String)  -> ThreadObject? {
+    guard let coreModule = getCoreModule(virtual: virtual) else {
+        fatalError("core module is null")
+    }
+    
     var module = getModule(virtual: virtual, name: name)
-
     if module == nil {
         module = ModuleObject(name: name, virtual: virtual)
         virtual.allModules[name] = AnyValue(value: module)
-        guard let coreModule = getCoreModule(virtual: virtual) else {
-            fatalError("core module is null")
-        }
+        
         for i in 0..<coreModule.moduleVarNames.count {
             let name = coreModule.moduleVarNames[i]
             let value = coreModule.moduleVarValues[i]
@@ -220,7 +221,6 @@ public func loadModule(virtual: Virtual, name: String, code: String)  -> ThreadO
     
     let fnObj = compileModule(virtual: virtual, module: module!, code: code)
     let closureObj = ClosureObject(virtual: virtual, fn: fnObj)
-    
     return ThreadObject(virtual: virtual, closure: closureObj)
 }
 
@@ -236,20 +236,17 @@ public func executeModule(virtual: Virtual, name: String, code: String) -> Virtu
 
 /// 编译Module(一个Pomelo脚本文件)
 public func compileModule(virtual: Virtual, module: ModuleObject, code: String) -> FnObject {
-    guard let name = module.name else {
-        fatalError()
-    }
+    PLDebugPrint("")
+    PLDebugPrint("build module `\(module.name)` start")
     let lexParser = LexParser(virtual: virtual,
-                              moduleName: name,
+                              moduleName: module.name,
                               module: module,
-                              file: name,
+                              file: module.name,
                               code: code)
 
-    let moduleUnit = CompilerUnit(lexParser: lexParser,
-                                  enclosingUnit: nil,
-                                  isMethod: false)
-    lexParser.nextToken()
+    let moduleUnit = CompilerUnit(lexParser: lexParser, enclosingUnit: nil, isMethod: false)
     
+    lexParser.nextToken()
     while !lexParser.matchCurToken(expected: .eof) {
         compileProgram(unit: moduleUnit)
     }
@@ -268,7 +265,7 @@ public func compileModule(virtual: Virtual, module: ModuleObject, code: String) 
             fatalError("module variable '\(moduleVarName)' not defined!")
         }
     }
-    
+    PLDebugPrint("build module `\(module.name)` end")
     return endCompile(unit: moduleUnit)
 }
 
@@ -305,6 +302,7 @@ public func switchThread(virtual: Virtual, nextThread: ThreadObject, stack:inout
     }
     nextThread.caller = virtual.thread
     if nextThread.usedFrameNum == 0 {
+        //TODO: 需要增加ErrorObject类型
         virtual.thread?.errorObject = AnyValue(value: "a finished thread can`t be switched to!")
         return false
     }

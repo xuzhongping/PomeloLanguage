@@ -104,7 +104,7 @@ public class Virtual: NSObject {
         allModules = [:]
         allMethodNames = []
         super.init()
-//        buildCore(virtual: self)
+        buildCore(virtual: self)
     }
     
     /// 为closure在thread中创建运行时栈
@@ -322,9 +322,9 @@ public class Virtual: NSObject {
             case .PUSH_NULL:
                 push(value: AnyValue(value: nil))
             case .PUSH_FALSE:
-                push(value: AnyValue(value: false))
+                push(value: AnyValue(value: BoolObject(virtual: self, value: false)))
             case .PUSH_TRUE:
-                push(value: AnyValue(value: true))
+                push(value: AnyValue(value: BoolObject(virtual: self, value: true)))
             case .STORE_LOCAL_VAR:
                 guard let byte = readByte() else {
                     fatalError()

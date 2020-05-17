@@ -35,7 +35,7 @@ func compileImport(unit: CompilerUnit) {
         unit.curLexParser.nextToken()
     }
     
-    let moduleNameIndex = unit.defineConstant(constant: AnyValue(value: moduleName))
+    let moduleNameIndex = unit.defineConstant(constant: AnyValue(value: StringObject(virtual: unit.curLexParser.virtual, value: moduleName)))
     
     guard let systemModuleVarIndex = unit.curLexParser.curModule.moduleVarNames.firstIndex(of: "System") else {
         fatalError()
@@ -58,7 +58,7 @@ func compileImport(unit: CompilerUnit) {
             fatalError()
         }
         let varIndex = unit.declareVariable(name: varName)
-        let varNameIndex = unit.defineConstant(constant: AnyValue(value: varName))
+        let varNameIndex = unit.defineConstant(constant: AnyValue(value: StringObject(virtual: unit.curLexParser.virtual, value: varName)))
         
         unit.emitLoadVariable(variable: Variable(type: .module, index: systemModuleVarIndex))
         writeShortByteCode(unit: unit, code: .LOAD_CONSTANT, operand: moduleNameIndex)

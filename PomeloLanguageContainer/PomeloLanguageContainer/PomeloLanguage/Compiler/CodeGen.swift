@@ -137,9 +137,9 @@ public func emitLoadOrStoreVariable(unit: CompilerUnit, assign: Bool, variable: 
     if assign && unit.curLexParser.matchCurToken(expected: .assign) {
         expression(unit: unit, rbp: .lowest)
         // 上一步会将=右边表达式的值存在栈顶
-        emitStoreVariable(unit: unit, variable: variable)
+        unit.emitStoreVariable(variable: variable)
     } else {
-        emitLoadVariable(unit: unit, variable: variable)
+        unit.emitLoadVariable(variable: variable)
     }
 }
 
@@ -148,7 +148,7 @@ public func emitLoadThis(unit: CompilerUnit)  {
     guard let thisVariable = unit.findVariable(name: "this") else {
         fatalError()
     }
-    emitLoadVariable(unit: unit, variable: thisVariable)
+    unit.emitLoadVariable(variable: thisVariable)
 }
 
 /// 生成getter或一般method调用指令
@@ -224,7 +224,14 @@ public func compileLiteral(unit: CompilerUnit, assign: Bool) {
     guard let value = unit.curLexParser.preToken.value else {
         fatalError()
     }
-    emitLoadConstant(unit: unit, constant: AnyValue(value: value))
+    if let strValue = value as? String {
+        let index = unit.defineConstant(constant: AnyValue(value: StringObject(virtual: unit.curLexParser.virtual, value: strValue)))
+        unit.emitLoadConstant(constantIndex: index)
+    }
+    if let numValue = value as? Double {
+        let index = unit.defineConstant(constant: AnyValue(value: NumObject(virtual: unit.curLexParser.virtual, value: numValue)))
+        unit.emitLoadConstant(constantIndex: index)
+    }
 }
 
 
@@ -354,7 +361,7 @@ public func compileId(unit: CompilerUnit, assign: Bool) {
         // 函数闭包加载到栈
         let variable = Variable(type: .module, index: index!)
                 
-        emitLoadVariable(unit: unit, variable: variable)
+        unit.emitLoadVariable(variable: variable)
         
         let signature = Signature(type: .method, name: "call", argNum: 0)
         
@@ -589,7 +596,7 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
     if token.type == .comma {
         fatalError("'var' only support declaring a variable.")
     }
-    
+    PLDebugPrint("build var `\(name)` start")
     // 在类中
     // unit.enclosingClassBK说明正在编译类，而unit.enclosingUnit为空说明未进入类方法，所以是在定义域
     if let enclosingClassBK = unit.enclosingClassBK, unit.enclosingUnit == nil {
@@ -651,6 +658,7 @@ public func compileVarDefinition(unit: CompilerUnit, isStatic: Bool)  {
     // 如果是局部变量，在上面expression已经入栈，如果是模块变量，在下面emitStoreVariable定义
     let index = unit.declareVariable(name: name)
     unit.emitDefineVariable(index: index)
+    PLDebugPrint("build var `\(name)` end")
 }
 
 /// 结束当前编译单元的编译工作

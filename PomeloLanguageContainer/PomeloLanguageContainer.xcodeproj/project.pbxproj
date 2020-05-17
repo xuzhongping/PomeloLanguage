@@ -51,6 +51,7 @@
 		EDD97F5D246FE65C00BF635B /* StringObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97F5C246FE65C00BF635B /* StringObject.swift */; };
 		EDD97F5F246FE67300BF635B /* BoolObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97F5E246FE67300BF635B /* BoolObject.swift */; };
 		EDDA910F24703C2B00D53FD2 /* LexParserTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDA910E24703C2B00D53FD2 /* LexParserTest.swift */; };
+		EDDA91112471244400D53FD2 /* Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDDA91102471244400D53FD2 /* Debug.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -121,6 +122,7 @@
 		EDD97F5C246FE65C00BF635B /* StringObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringObject.swift; sourceTree = "<group>"; };
 		EDD97F5E246FE67300BF635B /* BoolObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolObject.swift; sourceTree = "<group>"; };
 		EDDA910E24703C2B00D53FD2 /* LexParserTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexParserTest.swift; sourceTree = "<group>"; };
+		EDDA91102471244400D53FD2 /* Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Debug.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -263,6 +265,7 @@
 				C03794FC242CFD2100A5F27F /* Alias.swift */,
 				C03794FD242CFD2100A5F27F /* Extension.swift */,
 				ED81C2A4242FAC640066CC67 /* Basic.swift */,
+				EDDA91102471244400D53FD2 /* Debug.swift */,
 			);
 			path = Util;
 			sourceTree = "<group>";
@@ -447,6 +450,7 @@
 				C0379509242CFD2100A5F27F /* Pomelo.swift in Sources */,
 				C0379501242CFD2100A5F27F /* ThreadObject.swift in Sources */,
 				C0379514242CFD2100A5F27F /* Extension.swift in Sources */,
+				EDDA91112471244400D53FD2 /* Debug.swift in Sources */,
 				ED81C2A9243109E00066CC67 /* CodeGen.swift in Sources */,
 				ED031C4224621DF1005A75EF /* VariableAccess.swift in Sources */,
 				C0379502242CFD2100A5F27F /* ListObject.swift in Sources */,

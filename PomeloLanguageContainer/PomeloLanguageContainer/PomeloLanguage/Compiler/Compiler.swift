@@ -338,49 +338,49 @@ extension CompilerUnit {
 
 
 
-/// 生成加载变量到栈的指令
-public func emitLoadVariable(unit: CompilerUnit, variable: Variable) {
-    switch variable.type {
-    case .local:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.LOAD_LOCAL_VAR,
-                      operand: variable.index)
-    case .upvalue:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.LOAD_UPVALUE,
-                      operand: variable.index)
-    case .module:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.LOAD_MODULE_VAR,
-                      operand: variable.index)
-    }
-}
+///// 生成加载变量到栈的指令
+//public func emitLoadVariable(unit: CompilerUnit, variable: Variable) {
+//    switch variable.type {
+//    case .local:
+//        writeByteCode(unit: unit,
+//                      code: OP_CODE.LOAD_LOCAL_VAR,
+//                      operand: variable.index)
+//    case .upvalue:
+//        writeByteCode(unit: unit,
+//                      code: OP_CODE.LOAD_UPVALUE,
+//                      operand: variable.index)
+//    case .module:
+//        writeByteCode(unit: unit,
+//                      code: OP_CODE.LOAD_MODULE_VAR,
+//                      operand: variable.index)
+//    }
+//}
 
-/// 生成从栈顶弹出数据到变量中存储的指令
-public func emitStoreVariable(unit: CompilerUnit, variable: Variable) {
-    switch variable.type {
-    case .local:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.STORE_LOCAL_VAR,
-                      operand: variable.index)
-    case .upvalue:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.STORE_UPVALUE,
-                      operand: variable.index)
-    case .module:
-        writeByteCode(unit: unit,
-                      code: OP_CODE.STORE_MODULE_VAR,
-                      operand: variable.index)
-    }
-}
+///// 生成从栈顶弹出数据到变量中存储的指令
+//public func emitStoreVariable(unit: CompilerUnit, variable: Variable) {
+//    switch variable.type {
+//    case .local:
+//        writeByteCode(unit: unit,
+//                      code: OP_CODE.STORE_LOCAL_VAR,
+//                      operand: variable.index)
+//    case .upvalue:
+//        writeByteCode(unit: unit,
+//                      code: OP_CODE.STORE_UPVALUE,
+//                      operand: variable.index)
+//    case .module:
+//        writeByteCode(unit: unit,
+//                      code: OP_CODE.STORE_MODULE_VAR,
+//                      operand: variable.index)
+//    }
+//}
 
-/// 生成加载常量的指令
-public func emitLoadConstant(unit: CompilerUnit, constant: AnyValue) {
-    let index = unit.defineConstant(constant: constant)
-    writeShortByteCode(unit: unit,
-                       code: .LOAD_CONSTANT,
-                       operand: index)
-}
+///// 生成加载常量的指令
+//public func emitLoadConstant(unit: CompilerUnit, constant: AnyValue) {
+//    let index = unit.defineConstant(constant: constant)
+//    writeShortByteCode(unit: unit,
+//                       code: .LOAD_CONSTANT,
+//                       operand: index)
+//}
 
 
 
