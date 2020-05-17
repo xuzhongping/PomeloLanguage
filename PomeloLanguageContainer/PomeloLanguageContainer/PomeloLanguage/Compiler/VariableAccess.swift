@@ -16,9 +16,11 @@ extension ModuleObject {
             fatalError("length of identifier '\(name)' should be more than \(maxIdLength)")
         }
         
+        if let index = moduleVarNames.firstIndex(of: name) {
+            return index
+        }
         moduleVarNames.append(name)
         moduleVarValues.append(AnyValue.placeholder)
-        
         return moduleVarNames.lastIndex
     }
     
@@ -81,9 +83,12 @@ extension CompilerUnit {
     /// 查找局部变量
     /// 从内层向外层查
     public func findLocalVar(name: String) -> Index {
-        return localVars.reversed().firstIndex { (localVar) -> Bool in
-            localVar.name == name
-            } ?? Index.notFound
+        for i in localVars.enumerated().reversed() {
+            if i.element.name == name {
+                return i.offset
+            }
+        }
+        return Index.notFound
     }
     
     /// 销毁作用域scopeDepth之内的局部变量

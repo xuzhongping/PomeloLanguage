@@ -230,7 +230,7 @@ public class Virtual: NSObject {
             opCode = OP_CODE(rawValue: byte)
         }
         
-        func invokeMethod(index: Index, cls: ClassObject, argsNum: Int) -> Virtual.result? {
+        func invokeMethod(index: Index, cls: ClassObject, argsIndex: Index, argsNum: Int) -> Virtual.result? {
             if index > cls.methods.count {
                 fatalError()
             }
@@ -242,7 +242,7 @@ public class Virtual: NSObject {
                 guard let imp = method.nativeImp else {
                     fatalError()
                 }
-                if imp(self, &curThread.stack, index) {
+                if imp(self, &curThread.stack, argsIndex) {
                     curThread.esp -= argsNum - 1 // -1 防止回收args[0]返回值
                 } else {
                     storeFrame()
@@ -382,7 +382,7 @@ public class Virtual: NSObject {
                 
                 let classObject = curThread.stack[argsIndex].getClass(virtual: self)
                 
-                if let result = invokeMethod(index: index, cls: classObject, argsNum: Int(argNum)) {
+                if let result = invokeMethod(index: index, cls: classObject, argsIndex: argsIndex, argsNum: Int(argNum)) {
                     return result
                 }
             case .SUPER0,
@@ -416,7 +416,7 @@ public class Virtual: NSObject {
                     fatalError()
                 }
                 
-                if let result = invokeMethod(index: index, cls: classObject, argsNum: Int(argNum)) {
+                if let result = invokeMethod(index: index, cls: classObject, argsIndex: constIndex, argsNum: Int(argNum)) {
                     return result
                 }
                 
@@ -657,7 +657,9 @@ public class Virtual: NSObject {
                 drop()
                 
                 validateSuperClass(name: className, superClass: superClass, fieldNum: Int(filedNum))
+
                 let classObject = ClassObject(virtual: self, name: className, fieldNum: Int(filedNum), superClass: superClass)
+                
                 thread.stack[stackStartIndex] = AnyValue(value: classObject)
             case .INSTANCE_METHOD,
                  .STATIC_METHOD:
@@ -678,7 +680,7 @@ public class Virtual: NSObject {
                 bindMethodAndPatch(virtual: self, opCode: opCode, methodIndex: methodNameIndex, cls: classObject, method: methodObject)
             
             case .END:
-                return .success
+                fatalError()
             }
         }
     }

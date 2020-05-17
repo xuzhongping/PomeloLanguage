@@ -428,7 +428,7 @@ extension LexParser {
             str.append(character)
             advance()
         }
-        curToken.value = Int(str)
+        curToken.value = Double(str)
     }
     
     /// 解析10进制数字
@@ -445,12 +445,12 @@ extension LexParser {
             advance()
         }
         guard let character = self.curChar, character != "\0" else {
-            curToken.value = Int(str)
+            curToken.value = Double(str)
             return
         }
         
         guard character == "." && (lookNextChar()?.isDigit ?? false) else {
-            curToken.value = Int(str)
+            curToken.value = Double(str)
             return
         }
         
@@ -470,7 +470,7 @@ extension LexParser {
             str.append(character)
             advance()
         }
-        curToken.value = Int(str)
+        curToken.value = Double(str)
     }
     /// 解析数字
     private func parseNum() {

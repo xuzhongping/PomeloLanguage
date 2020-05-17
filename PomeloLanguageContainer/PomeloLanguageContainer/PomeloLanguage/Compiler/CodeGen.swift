@@ -224,13 +224,16 @@ public func compileLiteral(unit: CompilerUnit, assign: Bool) {
     guard let value = unit.curLexParser.preToken.value else {
         fatalError()
     }
-    if let strValue = value as? String {
+    if value is String {
+        let strValue = value as! String
         let index = unit.defineConstant(constant: AnyValue(value: StringObject(virtual: unit.curLexParser.virtual, value: strValue)))
         unit.emitLoadConstant(constantIndex: index)
-    }
-    if let numValue = value as? Double {
+    } else if value is Double {
+        let numValue = value as! Double
         let index = unit.defineConstant(constant: AnyValue(value: NumObject(virtual: unit.curLexParser.virtual, value: numValue)))
         unit.emitLoadConstant(constantIndex: index)
+    } else {
+        fatalError()
     }
 }
 
@@ -406,7 +409,7 @@ public func compileId(unit: CompilerUnit, assign: Bool) {
     
     /// 处理为静态域
     if let classBK = unit.getEnclosingClassBK() {
-        let name = "Cls\(classBK.name) \(value)"
+        let name = "Cls \(classBK.name) \(value)"
         if let variable = unit.findVariable(name: name) {
             emitLoadOrStoreVariable(unit: unit,
                                     assign: assign,

@@ -159,13 +159,13 @@ public func buildCore(virtual: Virtual) {
         fatalError()
     }
     virtual.systemClass = systemClassObject
-    systemClassObject.bindNativeMethod(virtual: virtual, selector: "clock", imp: nativeSystemClock(virtual:stack:argsStart:))
-    systemClassObject.bindNativeMethod(virtual: virtual, selector: "importModule(_)", imp: nativeSystemImportModule(virtual:stack:argsStart:))
-    systemClassObject.bindNativeMethod(virtual: virtual, selector: "getModuleVariable(_,_)", imp: nativeSystemGetModuleVariable(virtual:stack:argsStart:))
-    systemClassObject.bindNativeMethod(virtual: virtual, selector: "writeString(_)", imp: nativeSystemWriteString(virtual:stack:argsStart:))
+    systemClassObject.header.cls?.bindNativeMethod(virtual: virtual, selector: "clock", imp: nativeSystemClock(virtual:stack:argsStart:))
+    systemClassObject.header.cls?.bindNativeMethod(virtual: virtual, selector: "importModule(_)", imp: nativeSystemImportModule(virtual:stack:argsStart:))
+    systemClassObject.header.cls?.bindNativeMethod(virtual: virtual, selector: "getModuleVariable(_,_)", imp: nativeSystemGetModuleVariable(virtual:stack:argsStart:))
+    systemClassObject.header.cls?.bindNativeMethod(virtual: virtual, selector: "writeString_(_)", imp: nativeSystemWriteString(virtual:stack:argsStart:))
     
     
-    return
+    
     guard let stringClassObject = getClassFromModule(module: coreModule, name: "String") else {
         fatalError()
     }
@@ -186,7 +186,7 @@ public func buildCore(virtual: Virtual) {
        fatalError()
     }
     virtual.listClass = listClassObject
-    
+    return
 }
 
 /// 获取一个模块

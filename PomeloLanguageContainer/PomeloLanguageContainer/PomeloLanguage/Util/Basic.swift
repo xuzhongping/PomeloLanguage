@@ -187,7 +187,7 @@ extension AnyValue {
         case is NumObject:
             return virtual.numClass
         case is ClassObject:
-            return virtual.classOfClass
+            return toClassObject()!.header.cls!
         case is InstanceObject:
             return toInstanceObject()!.header.cls!
         case is ListObject:

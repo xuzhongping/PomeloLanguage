@@ -45,7 +45,8 @@ public class ClassObject: BaseObject {
         self.init(rawClass: virtual, name: name, fieldNum: fieldNum)
         
         // 先创建类的meta类
-        let metaClass = ClassObject(rawClass: virtual, name: name, fieldNum: 0)
+        let metaClass = ClassObject(rawClass: virtual, name: "Meta\(name)", fieldNum: 0)
+        
         // 设置meta类的类为classOfClass
         metaClass.header.cls = virtual.classOfClass
         

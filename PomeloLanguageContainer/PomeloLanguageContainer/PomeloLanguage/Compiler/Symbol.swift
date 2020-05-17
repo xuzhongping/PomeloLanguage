@@ -310,7 +310,7 @@ public func idMethodSignature(unit: CompilerUnit, signature: Signature) {
         return
     }
     
-    processArgList(unit: unit, signature: signature)
+    processParaList(unit: unit, signature: signature)
     unit.curLexParser.consumeCurToken(expected: .rightParen, message: "方法参数后必须跟)")
 }
 

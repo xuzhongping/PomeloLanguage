@@ -5,9 +5,7 @@
 //  Created by xuzhongping on 2020/3/16.
 //  Copyright © 2020 徐仲平. All rights reserved.
 //
-
 import Cocoa
-
 public enum OP_CODE: Byte {
     case LOAD_CONSTANT = 0
     case PUSH_NULL

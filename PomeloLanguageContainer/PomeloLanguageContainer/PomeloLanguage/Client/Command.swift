@@ -33,7 +33,7 @@ class Command: NSObject {
 //            }
 //
 //        }
-        Pomelo.run(code: "")
+        Pomelo.run(code: "System.print(1)")
     }
     
     
