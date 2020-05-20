@@ -47,6 +47,11 @@
 		EDC2C5672468478100D82E61 /* sample.po in Resources */ = {isa = PBXBuildFile; fileRef = ED84C60F2444C16F00A453DC /* sample.po */; };
 		EDC2C5692468482F00D82E61 /* core.po in Resources */ = {isa = PBXBuildFile; fileRef = EDC2C5682468482E00D82E61 /* core.po */; };
 		EDC2C56B246848EA00D82E61 /* Loader.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC2C56A246848EA00D82E61 /* Loader.swift */; };
+		EDD97C0924757A3A00E936C1 /* CompileContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97C0824757A3A00E936C1 /* CompileContext.swift */; };
+		EDD97C0D24757F8E00E936C1 /* ClassMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97C0C24757F8E00E936C1 /* ClassMeta.swift */; };
+		EDD97C0F2475801600E936C1 /* ISA.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97C0E2475801600E936C1 /* ISA.swift */; };
+		EDD97C11247581E100E936C1 /* InstanceMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97C10247581E100E936C1 /* InstanceMeta.swift */; };
+		EDD97C132475850700E936C1 /* ModuleMeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97C122475850700E936C1 /* ModuleMeta.swift */; };
 		EDD97F57246FD22200BF635B /* Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97F56246FD22200BF635B /* Command.swift */; };
 		EDD97F5D246FE65C00BF635B /* StringObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97F5C246FE65C00BF635B /* StringObject.swift */; };
 		EDD97F5F246FE67300BF635B /* BoolObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD97F5E246FE67300BF635B /* BoolObject.swift */; };
@@ -118,6 +123,11 @@
 		EDC1DECB244B219300FAEC97 /* Virtual.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
 		EDC2C5682468482E00D82E61 /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = core.po; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		EDC2C56A246848EA00D82E61 /* Loader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Loader.swift; sourceTree = "<group>"; };
+		EDD97C0824757A3A00E936C1 /* CompileContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompileContext.swift; sourceTree = "<group>"; };
+		EDD97C0C24757F8E00E936C1 /* ClassMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassMeta.swift; sourceTree = "<group>"; };
+		EDD97C0E2475801600E936C1 /* ISA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ISA.swift; sourceTree = "<group>"; };
+		EDD97C10247581E100E936C1 /* InstanceMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstanceMeta.swift; sourceTree = "<group>"; };
+		EDD97C122475850700E936C1 /* ModuleMeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleMeta.swift; sourceTree = "<group>"; };
 		EDD97F56246FD22200BF635B /* Command.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Command.swift; sourceTree = "<group>"; };
 		EDD97F5C246FE65C00BF635B /* StringObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringObject.swift; sourceTree = "<group>"; };
 		EDD97F5E246FE67300BF635B /* BoolObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoolObject.swift; sourceTree = "<group>"; };
@@ -173,6 +183,7 @@
 		C03794B5242CFCF500A5F27F /* PomeloLanguageContainer */ = {
 			isa = PBXGroup;
 			children = (
+				EDD97C0A24757E5F00E936C1 /* PoLang */,
 				C0379515242CFD2C00A5F27F /* PomeloLanguage */,
 				C03794B6242CFCF500A5F27F /* AppDelegate.swift */,
 				C03794B8242CFCF500A5F27F /* ViewController.swift */,
@@ -293,6 +304,26 @@
 				EDC2C56A246848EA00D82E61 /* Loader.swift */,
 			);
 			path = Inc;
+			sourceTree = "<group>";
+		};
+		EDD97C0A24757E5F00E936C1 /* PoLang */ = {
+			isa = PBXGroup;
+			children = (
+				EDD97C0B24757EBC00E936C1 /* Metas */,
+				EDD97C0824757A3A00E936C1 /* CompileContext.swift */,
+			);
+			path = PoLang;
+			sourceTree = "<group>";
+		};
+		EDD97C0B24757EBC00E936C1 /* Metas */ = {
+			isa = PBXGroup;
+			children = (
+				EDD97C0C24757F8E00E936C1 /* ClassMeta.swift */,
+				EDD97C10247581E100E936C1 /* InstanceMeta.swift */,
+				EDD97C0E2475801600E936C1 /* ISA.swift */,
+				EDD97C122475850700E936C1 /* ModuleMeta.swift */,
+			);
+			path = Metas;
 			sourceTree = "<group>";
 		};
 		EDD97F55246FD1F200BF635B /* Client */ = {
@@ -456,19 +487,24 @@
 				C0379502242CFD2100A5F27F /* ListObject.swift in Sources */,
 				C03794B9242CFCF500A5F27F /* ViewController.swift in Sources */,
 				EDD97F5D246FE65C00BF635B /* StringObject.swift in Sources */,
+				EDD97C0D24757F8E00E936C1 /* ClassMeta.swift in Sources */,
 				ED0A0C40246A09F000F663D0 /* NumObject.swift in Sources */,
 				C03794B7242CFCF500A5F27F /* AppDelegate.swift in Sources */,
 				EDD97F5F246FE67300BF635B /* BoolObject.swift in Sources */,
 				C03794FF242CFD2100A5F27F /* MapObject.swift in Sources */,
 				EDD97F57246FD22200BF635B /* Command.swift in Sources */,
+				EDD97C11247581E100E936C1 /* InstanceMeta.swift in Sources */,
 				C0379500242CFD2100A5F27F /* RangeObject.swift in Sources */,
+				EDD97C132475850700E936C1 /* ModuleMeta.swift in Sources */,
 				C0379510242CFD2100A5F27F /* Constant.swift in Sources */,
+				EDD97C0924757A3A00E936C1 /* CompileContext.swift in Sources */,
 				C0379513242CFD2100A5F27F /* Alias.swift in Sources */,
 				C0379511242CFD2100A5F27F /* Unicode.swift in Sources */,
 				C0379506242CFD2100A5F27F /* FunctionObject.swift in Sources */,
 				ED7B78AC24421D4D00DB2F2D /* CodeGenObject.swift in Sources */,
 				EDC2C56B246848EA00D82E61 /* Loader.swift in Sources */,
 				ED81C2A5242FAC640066CC67 /* Basic.swift in Sources */,
+				EDD97C0F2475801600E936C1 /* ISA.swift in Sources */,
 				C037950C242CFD2100A5F27F /* Core.swift in Sources */,
 				C037950F242CFD2100A5F27F /* LexParser.swift in Sources */,
 				C037950A242CFD2100A5F27F /* OpCode.swift in Sources */,

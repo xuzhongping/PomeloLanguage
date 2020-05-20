@@ -28,5 +28,19 @@ class LexParserTest: XCTestCase {
             lexParser.nextToken()
         }
     }
+    
+    func testLexParseCommand() {
+        let code = "System.print(1)"
+        let lexParser = LexParser(virtual: Virtual(), moduleName: "core", module: ModuleObject(name: "core", virtual: Virtual()), file: nil, code: code)
+        lexParser.nextToken()
+        while true {
+            guard lexParser.curToken.type != .eof else {
+                print("end")
+                break
+            }
+            print("\(lexParser.curToken.type):\(String(describing: lexParser.curToken.value))")
+            lexParser.nextToken()
+        }
+    }
 
 }

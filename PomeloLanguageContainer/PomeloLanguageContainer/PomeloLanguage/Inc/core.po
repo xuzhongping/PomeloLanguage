@@ -31,11 +31,11 @@ class System {
 
    static writeObject_(obj) {
       var str = obj.toString
-      if (str is String) {
+#      if (str.is(String)) {
          writeString_(str)
-      } else {
-         writeString_("[invalid toString]")
-      }
+#      } else {
+#         writeString_("[invalid toString]")
+#      }
    }
 }
 
@@ -60,24 +60,24 @@ class Sequence {
    }
 
    contains(element) {
-      for item (this) if (element == item) return true
+#      for item (this) if (element == item) return true
       return false
    }
 
    count {
       var result = 0
-      for element (this) result = result + 1
+#      for element (this) result = result + 1
       return result
    }
 
    count(f) {
       var result = 0
-      for element (this) if (f.call(element)) result = result + 1
+#      for element (this) if (f.call(element)) result = result + 1
       return result
    }
 
    each(f) {
-      for element (this) f.call(element)
+#      for element (this) f.call(element)
    }
 
    isEmpty {
@@ -93,7 +93,7 @@ class Sequence {
    }
 
    reduce(acc, f) {
-      for element (this) acc = f.call(acc, element)
+#      for element (this) acc = f.call(acc, element)
       return acc
    }
 
@@ -108,11 +108,11 @@ class Sequence {
    join(sep) {
       var first = true
       var result = ""
-      for element (this) {
-         if (!first) result = result + sep
-         first = false
-         result = result + element.toString
-      }
+#      for element (this) {
+#         if (!first) result = result + sep
+#         first = false
+#         result = result + element.toString
+#      }
       return result
    }
 
@@ -122,7 +122,7 @@ class Sequence {
 
    toList {
       var result = List.new()
-      for element (this) result.add(element)
+#      for element (this) result.add(element)
       return result
    }
 }
@@ -171,7 +171,7 @@ class String < Sequence {
    }
 
    *(count) {
-      if (!(count is num) || !count.isInteger || count < 0)
+      if (!(count.is(num)) || !count.isInteger || count < 0)
          Thread.abort("Count must be a non-negative integer.")
       var result = ""
       for i (0..(count - 1)) result = result + this

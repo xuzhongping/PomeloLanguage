@@ -795,7 +795,15 @@ public func nativeSystemWriteString(virtual: Virtual, stack:inout [AnyValue], ar
     if string.value.count == 0 {
         fatalError("string isn`t terminated!")
     }
-    print(string)
+    print(string.value)
     RET_VALUE(stack: &stack, argsStart: argsStart, ret: stack[argsStart + 1])
+    return true
+}
+
+
+//MARK: String
+/// 原生方法: string的字符串化
+public func nativeStringToString(virtual: Virtual, stack:inout [AnyValue], argsStart: Index) -> Bool {
+    RET_VALUE(stack: &stack, argsStart: argsStart, ret: stack[argsStart])
     return true
 }

@@ -49,6 +49,7 @@ public func writeShortOperand(unit: CompilerUnit, operand: Int) -> Index {
 public func writeByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) -> Index {
     writeOpCode(unit: unit, code: code)
     writeByteOperand(unit: unit, operand: operand)
+    PLDebugPrint("write2: \(code) \(operand)")
     return unit.fn.byteStream.lastIndex
 }
 
@@ -56,6 +57,7 @@ public func writeByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) -> In
 @discardableResult
 public func writeShortByteCode(unit: CompilerUnit, code: OP_CODE, operand: Int) -> Index {
     writeOpCode(unit: unit, code: code)
+    PLDebugPrint("write1: \(code) \(operand)")
     return writeShortOperand(unit: unit, operand: operand)
 }
 

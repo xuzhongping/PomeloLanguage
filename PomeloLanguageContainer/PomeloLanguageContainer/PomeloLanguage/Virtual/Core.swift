@@ -106,6 +106,7 @@ public func buildCore(virtual: Virtual) {
     guard let nullClassObject = getClassFromModule(module: coreModule, name: "Null") else {
         fatalError()
     }
+    virtual.nullClass = nullClassObject
     nullClassObject.bindNativeMethod(virtual: virtual, selector: "!", imp: nativeNullNot(virtual:stack:argsStart:))
     nullClassObject.bindNativeMethod(virtual: virtual, selector: "toString", imp: nativeNullToString(virtual:stack:argsStart:))
     
@@ -170,6 +171,7 @@ public func buildCore(virtual: Virtual) {
         fatalError()
     }
     virtual.stringClass = stringClassObject
+    virtual.stringClass.bindNativeMethod(virtual: virtual, selector: "toString", imp: nativeStringToString(virtual:stack:argsStart:))
     
     guard let mapClassObject = getClassFromModule(module: coreModule, name: "Map") else {
         fatalError()

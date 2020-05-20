@@ -114,7 +114,9 @@ public class Virtual: NSObject {
     
     /// 关闭栈中lastIndex以上的upvalue
     public func closedUpvalue(thread: ThreadObject, lastIndex: Int) {
- 
+        guard lastIndex <= thread.openUpvalues.count else {
+            return
+        }
         for i in lastIndex..<thread.openUpvalues.count {
             let upvalue = thread.openUpvalues[i]
             if let localVarIndex = upvalue.localVarIndex {
@@ -143,6 +145,7 @@ public class Virtual: NSObject {
     
     /// 执行指令
     public func executeInstruction(thread: ThreadObject) -> Virtual.result {
+        PLDebugPrint("start execute...")
         var curThread = thread
         self.thread = thread
         
