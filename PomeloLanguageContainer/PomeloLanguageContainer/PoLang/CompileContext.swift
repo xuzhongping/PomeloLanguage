@@ -10,25 +10,25 @@ import Cocoa
 
 public class CompileContext: NSObject {
     public var lexParser: LexParser!
-    public var module: ModuleObject!
+    public var module: ModuleInfo!
     
-    public var allModules: [String: ModuleObject] = [:]
+    public var allModules: [String: ModuleInfo] = [:]
 
-    public var classOfClass: ClassObject!
-    public var objectClass: ClassObject!
-    public var stringClass: ClassObject!
-    public var mapClass: ClassObject!
-    public var rangeClass: ClassObject!
-    public var listClass: ClassObject!
-    public var nullClass: ClassObject!
-    public var boolClass: ClassObject!
-    public var numClass: ClassObject!
-    public var fnClass: ClassObject!
-    public var threadClass: ClassObject!
-    public var moduleClass: ClassObject!
-    public var systemClass: ClassObject!
+    public var classOfClass: ClassInfo!
+    public var objectClass: ClassInfo!
+    public var stringClass: ClassInfo!
+    public var mapClass: ClassInfo!
+    public var rangeClass: ClassInfo!
+    public var listClass: ClassInfo!
+    public var nullClass: ClassInfo!
+    public var boolClass: ClassInfo!
+    public var numClass: ClassInfo!
+    public var closureClass: ClassInfo!
+    public var threadClass: ClassInfo!
+    public var moduleClass: ClassInfo!
+    public var systemClass: ClassInfo!
     
-    public convenience init(lexParser: LexParser, module: ModuleObject) {
+    public convenience init(lexParser: LexParser, module: ModuleInfo) {
         self.init()
         self.lexParser = lexParser
         self.module = module

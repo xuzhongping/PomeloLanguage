@@ -8,9 +8,10 @@
 
 import Cocoa
 
-public class ClassMeta: NSObject {
+public class ClassInfo: NSObject {
     public var isa: ISA
-    public var superCls: ClassMeta?
+    
+    public var superCls: ClassInfo?
     public var name: String
     
     public var fieldNum: Int

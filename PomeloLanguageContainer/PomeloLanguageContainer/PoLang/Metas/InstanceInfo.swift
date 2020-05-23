@@ -8,10 +8,10 @@
 
 import Cocoa
 
-class InstanceMeta: NSObject {
+public class InstanceInfo: NSObject {
     public var isa: ISA
     public var field: [AnyValue]
-    public init(cls: ClassMeta, isa: ISA) {
+    public init(cls: ClassInfo, isa: ISA) {
         self.isa = ISA(type: .instance, cls: cls)
         self.field = []
     }

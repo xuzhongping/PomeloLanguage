@@ -8,7 +8,7 @@
 
 import Cocoa
 
-public class ModuleMeta: NSObject {
+public class ModuleInfo: NSObject {
     var name: String
     public var moduleVarNames: [String]
     public var moduleVarValues: [AnyValue]

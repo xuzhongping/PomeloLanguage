@@ -29,8 +29,8 @@ public class ISA: NSObject {
     }
     
     public var type: ClassType
-    public var cls: ClassMeta?
-    init(type: ClassType, cls: ClassMeta?) {
+    public var cls: ClassInfo?
+    init(type: ClassType, cls: ClassInfo?) {
         self.type = type
         self.cls = cls
         super.init()
