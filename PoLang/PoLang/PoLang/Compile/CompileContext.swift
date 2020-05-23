@@ -35,4 +35,29 @@ public class CompileContext: NSObject {
         self.lexParser = lexParser
         self.module = module
     }
+    
+    public func loadModule(name: ModuleName, code: String) -> ModuleInfo {
+        if let module = allModules[name] {
+            return module
+        }
+        let module = ModuleInfo(name: name, code: code)
+        
+        let coreModule = loadCoreModule()
+        
+        for item in coreModule.moduleVarNames {
+            
+        }
+        
+        allModules[name] = module
+        return module
+    }
+    
+    public func loadCoreModule() -> ModuleInfo {
+        if let module = allModules[ModuleName.core] {
+            return module
+        }
+        let module = ModuleInfo(name: ModuleName.core, code: "")
+        allModules[ModuleName.core] = module
+        return module
+    }
 }

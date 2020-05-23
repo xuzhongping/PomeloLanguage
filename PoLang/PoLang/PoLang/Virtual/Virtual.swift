@@ -10,9 +10,19 @@ import Cocoa
 
 public class Virtual: NSObject {
     
-    private var context: CompileContext
+    enum Result {
+        case success
+        case fail
+    }
     
-    init(context: CompileContext) {
-        self.context = context
+    public var context: CompileContext
+    
+    override init() {
+        self.context = CompileContext()
+    }
+    
+    @discardableResult
+    func execute(fn: FnInfo) -> Result {
+        return .success
     }
 }

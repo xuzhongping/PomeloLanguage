@@ -12,7 +12,7 @@ public class ModuleInfo: NSObject {
     var name: String
     public var moduleVarNames: [String]
     public var moduleVarValues: [Value]
-    public init(name: String) {
+    public init(name: String, code: String) {
         self.name = name
         self.moduleVarNames = []
         self.moduleVarValues = []
