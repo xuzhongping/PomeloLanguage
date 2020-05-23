@@ -9,6 +9,6 @@
 import Cocoa
 
 
-public func compileModule(module: ModuleInfo) -> FnInfo? {
+public func compileModule(context: RuntimeContext, module: ModuleInfo) -> FnInfo? {
     return nil
 }

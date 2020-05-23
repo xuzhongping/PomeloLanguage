@@ -8,7 +8,7 @@
 
 import Cocoa
 
-public class CompileContext: NSObject {
+public class RuntimeContext: NSObject {
     public var lexParser: LexParser!
     public var module: ModuleInfo!
     

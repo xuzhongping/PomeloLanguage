@@ -146,7 +146,7 @@ extension Value {
 }
 
 extension Value {
-    public func getClass(context: CompileContext) -> ClassInfo {
+    public func getClass(context: RuntimeContext) -> ClassInfo {
         switch value {
         case is String:
             return context.stringClass

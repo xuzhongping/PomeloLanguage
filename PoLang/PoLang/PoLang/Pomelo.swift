@@ -11,26 +11,30 @@ import Cocoa
 class Pomelo: NSObject {
     private var virtual: Virtual
     
+    private var context: RuntimeContext
+    
     override init() {
         
-        virtual = Virtual()
+        context = RuntimeContext()
         
-        let coreModule = virtual.context.loadCoreModule()
+        let coreModule = context.loadCoreModule()
         
-        guard let coreFn = compileModule(module: coreModule) else {
+        guard let coreFn = compileModule(context: context, module: coreModule) else {
             fatalError("core module compile fail!")
         }
         
-        virtual.execute(fn: coreFn)
+        virtual = Virtual()
+        
+        virtual.execute(context: context, fn: coreFn)
     }
     
     func runModule(name: ModuleName, code: String) {
         let module  = virtual.context.loadModule(name: name, code: code)
         
-        guard let coreFn = compileModule(module: module) else {
+        guard let fn = compileModule(context: context, module: module) else {
             fatalError("\(name) module compile fail!")
         }
         
-        virtual.execute(fn: coreFn)
+        virtual.execute(context: context, fn: fn)
     }
 }
