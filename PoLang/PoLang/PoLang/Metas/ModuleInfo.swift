@@ -11,7 +11,7 @@ import Cocoa
 public class ModuleInfo: NSObject {
     var name: String
     public var moduleVarNames: [String]
-    public var moduleVarValues: [AnyValue]
+    public var moduleVarValues: [Value]
     public init(name: String) {
         self.name = name
         self.moduleVarNames = []

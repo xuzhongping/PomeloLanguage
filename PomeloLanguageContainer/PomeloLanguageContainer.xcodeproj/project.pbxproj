@@ -318,7 +318,8 @@
 				EDD97C0B24757EBC00E936C1 /* Metas */,
 				EDD97C0824757A3A00E936C1 /* CompileContext.swift */,
 			);
-			path = PoLang;
+			name = PoLang;
+			path = ../../PoLang/PoLang/PoLang;
 			sourceTree = "<group>";
 		};
 		EDD97C0B24757EBC00E936C1 /* Metas */ = {

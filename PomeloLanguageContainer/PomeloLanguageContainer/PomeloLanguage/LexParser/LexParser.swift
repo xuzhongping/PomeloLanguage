@@ -117,14 +117,6 @@ public class LexMetaInfo {
 
 public class LexParser: NSObject {
     
-    
-    
-    public var virtual: Virtual
-    /// 当前正在编译的模块
-    public var curModule: ModuleObject
-    /// 当前编译单元
-    public var curCompileUnit: CompilerUnit?
-    
     public var line: Int = 1
     
     private var file: String?
@@ -140,9 +132,7 @@ public class LexParser: NSObject {
     
     private var expn: Int = 0
     
-    init(virtual: Virtual, moduleName: String, module: ModuleObject, file: String?, code: String) {
-        self.virtual = virtual
-        self.curModule = module
+    init(moduleName: String, file: String?, code: String) {
         self.file = file
         self.code = code
         self.preToken = Token()

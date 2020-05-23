@@ -23,10 +23,12 @@ public class CompileContext: NSObject {
     public var nullClass: ClassInfo!
     public var boolClass: ClassInfo!
     public var numClass: ClassInfo!
+    public var systemClass: ClassInfo!
+    
     public var closureClass: ClassInfo!
     public var threadClass: ClassInfo!
     public var moduleClass: ClassInfo!
-    public var systemClass: ClassInfo!
+    
     
     public convenience init(lexParser: LexParser, module: ModuleInfo) {
         self.init()

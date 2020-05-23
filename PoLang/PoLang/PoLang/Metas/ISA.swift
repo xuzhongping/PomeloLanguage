@@ -23,7 +23,6 @@ public class ISA: NSObject {
         case class_
         case instance
         
-        case fun
         case closure
         case thread
     }

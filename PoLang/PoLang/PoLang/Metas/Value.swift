@@ -164,7 +164,7 @@ extension Value {
             return context.threadClass
         case is ClosureInfo:
             return context.closureClass
-        case is ModuleObject:
+        case is ModuleInfo:
             return context.moduleClass
         case is ClassInfo:
             return toClass!.isa.cls!

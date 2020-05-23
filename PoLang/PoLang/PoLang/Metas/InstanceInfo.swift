@@ -10,7 +10,7 @@ import Cocoa
 
 public class InstanceInfo: NSObject {
     public var isa: ISA
-    public var field: [AnyValue]
+    public var field: [Value]
     public init(cls: ClassInfo, isa: ISA) {
         self.isa = ISA(type: .instance, cls: cls)
         self.field = []
