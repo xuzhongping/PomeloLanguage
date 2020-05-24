@@ -9,17 +9,20 @@
 import Cocoa
 
 public class FnInfo: NSObject {
-    public var bytes: [Byte]
-    public var consts: [Value]
-    public var stackCapacity: Int
-    public var argNum: Int
-    public var maxStackSize: Int
-    public init(stackCapacity: Int) {
+    var bytes: [Byte]
+    var consts: [Value]
+    var stackCapacity: Int
+    var argNum: Int
+    var upvalueNum: Int
+    var maxStackSize: Int
+    
+    init(stackCapacity: Int) {
         self.bytes = []
         self.consts = []
         self.stackCapacity = stackCapacity
         self.argNum = 0
         self.maxStackSize = 0
+        self.upvalueNum = 0
     }
 }
 

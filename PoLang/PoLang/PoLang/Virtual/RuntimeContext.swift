@@ -12,6 +12,7 @@ public class RuntimeContext: NSObject {
     public var lexParser: LexParser!
     public var module: ModuleInfo!
     
+    
     public var allModules: [String: ModuleInfo] = [:]
 
     public var classOfClass: ClassInfo!

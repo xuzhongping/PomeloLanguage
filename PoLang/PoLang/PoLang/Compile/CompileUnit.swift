@@ -131,19 +131,138 @@ public class CompileUnit: NSObject {
         self.fn = FnInfo(stackCapacity: localVars.count)
         super.init()
     }
+}
+
+public extension CompileUnit {
+    func declareLocalVar(name: String) -> Index {
+        guard localVars.count < Limit.localVarNum else {
+            fatalError("局部变量数量超出限制:\(name)!")
+        }
+        
+        for localVar in localVars.reversed() {
+            guard localVar.scopeDepth >= scopeDepth else {
+                break
+            }
+            guard localVar.name != name else {
+                fatalError("变量重复定义:\(name)")
+            }
+        }
+        
+        let localVar = LocalVar(name: name)
+        localVar.scopeDepth = scopeDepth
+        localVars.append(localVar)
+        return localVars.lastIndex
+    }
     
+    func findLocalVar(name: String) -> Index? {
+        for i in localVars.enumerated().reversed() {
+            if i.element.name == name {
+                return i.offset
+            }
+        }
+        return nil
+    }
+    
+    func destroyLocalVar(scopeDepth: ScopeDepth) {
+        
+    }
+}
+
+public extension CompileUnit {
+    func addUpvalue(isEnclosingLocalVar: Bool, index: Index) -> Index {
+        let upvalueIndex = upvalues.firstIndex { (upvalue) -> Bool in
+            upvalue.index == index && upvalue.isEnclosingLocalVar == isEnclosingLocalVar
+        }
+        
+        if upvalueIndex != nil {
+            return upvalueIndex!
+        }
+        
+        upvalues.append(Upvalue(index: index, isEnclosingLocalVar: isEnclosingLocalVar))
+        return upvalues.lastIndex
+    }
+    
+    func findUpvalue(name: String) -> Index? {
+        guard let enclosingUnit = enclosingUnit else {
+            return nil
+        }
+        
+        if let lvIndex = enclosingUnit.findLocalVar(name: name) {
+            enclosingUnit.localVars[lvIndex].isUpvalue = true
+            return addUpvalue(isEnclosingLocalVar: true, index: lvIndex)
+        }
+        
+        if let uvIndex = enclosingUnit.findUpvalue(name: name) {
+            return addUpvalue(isEnclosingLocalVar: false, index: uvIndex)
+        }
+        return nil
+    }
+}
+
+public extension CompileUnit {
+    func declareVariable(name: String) -> Index {
+        if scopeDepth == .module {
+            return context.module!.declareModuleVar(name)
+        }
+        return declareLocalVar(name: name)
+    }
+    
+    func emitDefineVariable(index: Index) {
+        if scopeDepth == .module {
+            writeShortByteCode(code: .STORE_MODULE_VAR, operand: index)
+            writeOpCode(code: .POP)
+        }
+    }
+}
+
+public extension CompileUnit {
+    /// 生成加载变量到栈的指令
+    func emitLoadVariable(variable: Variable) {
+        switch variable.type {
+        case .local:
+            writeByteCode(code: OP_CODE.LOAD_LOCAL_VAR, operand: variable.index)
+        case .upvalue:
+            writeByteCode(code: OP_CODE.LOAD_UPVALUE, operand: variable.index)
+        case .module:
+            writeShortByteCode(code: OP_CODE.LOAD_MODULE_VAR, operand: variable.index)
+        }
+    }
+
+    /// 生成从栈顶弹出数据到变量中存储的指令
+    func emitStoreVariable(variable: Variable) {
+        switch variable.type {
+        case .local:
+            writeByteCode(code: OP_CODE.STORE_LOCAL_VAR, operand: variable.index)
+        case .upvalue:
+            writeByteCode(code: OP_CODE.STORE_UPVALUE, operand: variable.index)
+        case .module:
+            writeShortByteCode(code: OP_CODE.STORE_MODULE_VAR, operand: variable.index)
+        }
+    }
+    
+    /// 从局部变量和upvalue中查找符号name
+    func findVariable(name: String) -> Variable? {
+        if let index = findLocalVar(name: name) {
+            return Variable(type: .local, index: index)
+        }
+        
+        if let index = findUpvalue(name: name) {
+            return Variable(type: .upvalue, index: index)
+        }
+        return nil
+    }
 }
 
 extension CompileUnit {
     @discardableResult
-    private func writeByte(byte: Byte) -> Index {
+    public func writeByte(byte: Byte) -> Index {
         fn.bytes.append(byte)
         return fn.bytes.lastIndex
      }
 
     /// 写入操作码
     @discardableResult
-    private func writeOpCode(code: OP_CODE) -> Index {
+    public func writeOpCode(code: OP_CODE) -> Index {
         writeByte(byte: code.rawValue)
         stackSlotNum += OP_CODE_SLOTS_USED[Int(code.rawValue)]
         fn.maxStackSize = max(fn.maxStackSize, stackSlotNum)
@@ -152,13 +271,13 @@ extension CompileUnit {
 
     /// 写入1字节的操作数
     @discardableResult
-    public func writeByteOperand(operand: Int) -> Index {
+    private func writeByteOperand(operand: Int) -> Index {
         return writeByte(byte: Byte(operand))
     }
 
     /// 写入2字节操作数
     @discardableResult
-    public func writeShortOperand(operand: Int) -> Index {
+    private func writeShortOperand(operand: Int) -> Index {
         writeByte(byte: Byte((operand >> 8) & 0xff))
         return writeByte(byte: Byte(operand & 0xff))
     }
@@ -180,4 +299,17 @@ extension CompileUnit {
         return writeShortOperand(operand: operand)
     }
 
+}
+
+public extension CompileUnit {
+    /// 定义常量
+    func defineConst(value: Value) -> Index {
+        fn.consts.append(value)
+        return fn.consts.lastIndex
+    }
+        
+    /// 生成加载常量的指令
+    func emitLoadConst(index: Index) {
+        writeShortByteCode(code: .LOAD_CONSTANT, operand: index)
+    }
 }
