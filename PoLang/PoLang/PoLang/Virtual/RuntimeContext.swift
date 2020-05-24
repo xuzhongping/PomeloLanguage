@@ -36,19 +36,12 @@ public class RuntimeContext: NSObject {
         self.module = module
     }
     
-    public func loadModule(name: ModuleName, code: String) -> ModuleInfo {
+    public func loadModule(name: ModuleName) -> ModuleInfo {
         if let module = allModules[name] {
             return module
         }
-        let module = ModuleInfo(name: name, code: code)
-        
-        let coreModule = loadCoreModule()
-        
-        for item in coreModule.moduleVarNames {
-            
-        }
-        
-        allModules[name] = module
+                
+        allModules[name] = ModuleInfo(name: name)
         return module
     }
     
@@ -56,7 +49,8 @@ public class RuntimeContext: NSObject {
         if let module = allModules[ModuleName.core] {
             return module
         }
-        let module = ModuleInfo(name: ModuleName.core, code: "")
+        
+        let module = ModuleInfo(name: ModuleName.core)
         allModules[ModuleName.core] = module
         return module
     }

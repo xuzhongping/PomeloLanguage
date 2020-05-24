@@ -48,7 +48,7 @@ extension Character {
 extension Index {
     public static var notFound: Index { -1 }
 
-    public static var repeatDefine: Index { -1 }
+    public static var repeatDefine: Index { -2 }
 }
 
 extension Array {

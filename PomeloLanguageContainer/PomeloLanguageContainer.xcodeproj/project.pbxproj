@@ -127,7 +127,7 @@
 		ED81C2A8243109E00066CC67 /* CodeGen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGen.swift; sourceTree = "<group>"; };
 		ED84C60F2444C16F00A453DC /* sample.po */ = {isa = PBXFileReference; lastKnownFileType = text; name = sample.po; path = PomeloLanguageContainer/PomeloLanguage/inc/sample.po; sourceTree = SOURCE_ROOT; };
 		EDC1DECB244B219300FAEC97 /* Virtual.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Virtual.swift; sourceTree = "<group>"; };
-		EDC2C5682468482E00D82E61 /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = core.po; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		EDC2C5682468482E00D82E61 /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = core.po; sourceTree = "<group>"; };
 		EDC2C56A246848EA00D82E61 /* Loader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Loader.swift; sourceTree = "<group>"; };
 		EDD97C0824757A3A00E936C1 /* CompileContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompileContext.swift; sourceTree = "<group>"; };
 		EDD97C0C24757F8E00E936C1 /* ClassInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassInfo.swift; sourceTree = "<group>"; };

@@ -13,11 +13,13 @@ public class FnInfo: NSObject {
     public var consts: [Value]
     public var stackCapacity: Int
     public var argNum: Int
+    public var maxStackSize: Int
     public init(stackCapacity: Int) {
         self.bytes = []
         self.consts = []
         self.stackCapacity = stackCapacity
         self.argNum = 0
+        self.maxStackSize = 0
     }
 }
 

@@ -119,7 +119,6 @@ public class LexParser: NSObject {
     
     public var line: Int = 1
     
-    private var file: String?
     private var code: String
     
     public var preToken: Token
@@ -132,8 +131,7 @@ public class LexParser: NSObject {
     
     private var expn: Int = 0
     
-    init(moduleName: String, file: String?, code: String) {
-        self.file = file
+    init(code: String) {
         self.code = code
         self.preToken = Token()
         self.curToken = Token()

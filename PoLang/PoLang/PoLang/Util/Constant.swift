@@ -10,44 +10,61 @@ import Cocoa
 
 
 
+
 public typealias ModuleName = String
 
-extension ModuleName {
-    public static var core: ModuleName { "Core" }
+public extension ModuleName {
+    static var core: ModuleName { "Core" }
+    static var command: ModuleName { "Command" }
 }
 
 
 public typealias ClassName = String
 
-extension ClassName {
-    public static var object: ClassName { "Object" }
+public extension ClassName {
+    static var object: ClassName { "Object" }
     
-    public static var metaObject: ClassName { "MetaObject" }
+    static var metaObject: ClassName { "MetaObject" }
     
-    public static var cls: ClassName { "Class" }
+    static var cls: ClassName { "Class" }
     
-    public static var string: ClassName { "String" }
+    static var string: ClassName { "String" }
     
-    public static var map: ClassName { "Map" }
+    static var map: ClassName { "Map" }
     
-    public static var range: ClassName { "Range" }
+    static var range: ClassName { "Range" }
     
-    public static var list: ClassName { "List" }
+    static var list: ClassName { "List" }
     
-    public static var null: ClassName { "Null" }
+    static var null: ClassName { "Null" }
     
-    public static var bool: ClassName { "Bool" }
+    static var bool: ClassName { "Bool" }
     
-    public static var num: ClassName { "Num" }
+    static var num: ClassName { "Num" }
     
-    public static var fn: ClassName { "Fn" }
+    static var fn: ClassName { "Fn" }
     
-    public static var thread: ClassName { "Thread" }
+    static var thread: ClassName { "Thread" }
     
-    public static var module: ClassName { "Module" }
+    static var module: ClassName { "Module" }
     
-    public static var system: ClassName { "System" }
+    static var system: ClassName { "System" }
 }
 
 
+public typealias Env = String
+public extension Env {
+    static var coreModulePath: String? { Bundle.main.path(forResource: "core", ofType: "po") }
+}
 
+
+public typealias Limit = Int
+public extension Limit {
+    static let localVarNum = 128
+    static let upvalueNum = 128
+    static let idLength = 128
+    static let methodNameLength = 128
+    static let argNum = 16
+    static let sigNum = 128
+    static let fieldNum = 128
+}

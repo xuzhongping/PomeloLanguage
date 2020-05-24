@@ -8,7 +8,10 @@
 
 import Cocoa
 
-class Pomelo: NSObject {
+public class Pomelo: NSObject {
+    
+    static var version: String { "0.0.1" }
+    
     private var virtual: Virtual
     
     private var context: RuntimeContext
@@ -19,8 +22,20 @@ class Pomelo: NSObject {
         
         let coreModule = context.loadCoreModule()
         
-        guard let coreFn = compileModule(context: context, module: coreModule) else {
-            fatalError("core module compile fail!")
+        guard let path = Env.coreModulePath else {
+            fatalError("核心模块加载失败")
+        }
+        
+        guard let handle = FileHandle(forReadingAtPath: path) else {
+            fatalError("核心模块加载失败")
+        }
+        
+        guard let code = String(data: handle.readDataToEndOfFile(), encoding: .utf8) else {
+            fatalError("核心模块加载失败")
+        }
+        
+        guard let coreFn = compileModule(context: context, module: coreModule, code: code) else {
+            fatalError("核心模块编译失败!")
         }
         
         virtual = Virtual()
@@ -28,10 +43,10 @@ class Pomelo: NSObject {
         virtual.execute(context: context, fn: coreFn)
     }
     
-    func runModule(name: ModuleName, code: String) {
-        let module  = virtual.context.loadModule(name: name, code: code)
+    func run(name: ModuleName, code: String) {
+        let module  = context.loadModule(name: name)
         
-        guard let fn = compileModule(context: context, module: module) else {
+        guard let fn = compileModule(context: context, module: module, code: code) else {
             fatalError("\(name) module compile fail!")
         }
         

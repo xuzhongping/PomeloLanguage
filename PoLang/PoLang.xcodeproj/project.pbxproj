@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C02D6060247A7A32000308DF /* core.po in Resources */ = {isa = PBXBuildFile; fileRef = C02D605F247A7A32000308DF /* core.po */; };
+		C02D6062247A8352000308DF /* CompileUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02D6061247A8352000308DF /* CompileUnit.swift */; };
+		C02D6064247A84CC000308DF /* Symbol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02D6063247A84CC000308DF /* Symbol.swift */; };
+		C02D6066247ABAC0000308DF /* ByteCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02D6065247ABAC0000308DF /* ByteCode.swift */; };
 		C03CEC9624797B29003A3C62 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03CEC9524797B29003A3C62 /* AppDelegate.swift */; };
 		C03CEC9824797B29003A3C62 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03CEC9724797B29003A3C62 /* ViewController.swift */; };
 		C03CEC9A24797B2C003A3C62 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C03CEC9924797B2C003A3C62 /* Assets.xcassets */; };
@@ -72,6 +76,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C02D605F247A7A32000308DF /* core.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = core.po; path = ../../../../PomeloLanguageContainer/PomeloLanguageContainer/PomeloLanguage/Inc/core.po; sourceTree = "<group>"; };
+		C02D6061247A8352000308DF /* CompileUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompileUnit.swift; sourceTree = "<group>"; };
+		C02D6063247A84CC000308DF /* Symbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Symbol.swift; sourceTree = "<group>"; };
+		C02D6065247ABAC0000308DF /* ByteCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteCode.swift; sourceTree = "<group>"; };
 		C03CEC9224797B29003A3C62 /* PoLang.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PoLang.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C03CEC9524797B29003A3C62 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C03CEC9724797B29003A3C62 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -131,6 +139,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C02D605B247A7A27000308DF /* Inc */ = {
+			isa = PBXGroup;
+			children = (
+				C02D605F247A7A32000308DF /* core.po */,
+			);
+			path = Inc;
+			sourceTree = "<group>";
+		};
 		C03CEC8924797B29003A3C62 = {
 			isa = PBXGroup;
 			children = (
@@ -211,6 +227,7 @@
 		C03CECD724797B66003A3C62 /* PoLang */ = {
 			isa = PBXGroup;
 			children = (
+				C02D605B247A7A27000308DF /* Inc */,
 				C03CED002479802B003A3C62 /* Compile */,
 				C03CECFB24797DE3003A3C62 /* Client */,
 				C03CECE924797C78003A3C62 /* Virtual */,
@@ -264,6 +281,9 @@
 			isa = PBXGroup;
 			children = (
 				C0D754A524798313009F1319 /* Compile.swift */,
+				C02D6061247A8352000308DF /* CompileUnit.swift */,
+				C02D6063247A84CC000308DF /* Symbol.swift */,
+				C02D6065247ABAC0000308DF /* ByteCode.swift */,
 			);
 			path = Compile;
 			sourceTree = "<group>";
@@ -402,6 +422,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C02D6060247A7A32000308DF /* core.po in Resources */,
 				C03CEC9A24797B2C003A3C62 /* Assets.xcassets in Resources */,
 				C03CEC9D24797B2C003A3C62 /* Main.storyboard in Resources */,
 			);
@@ -437,6 +458,7 @@
 				C03CECFA24797D56003A3C62 /* FunctionInfo.swift in Sources */,
 				C03CECE324797BDF003A3C62 /* Extension.swift in Sources */,
 				C03CECE424797BDF003A3C62 /* Debug.swift in Sources */,
+				C02D6062247A8352000308DF /* CompileUnit.swift in Sources */,
 				C03CECFD24797E05003A3C62 /* Client.swift in Sources */,
 				C03CECEC24797CC6003A3C62 /* RuntimeContext.swift in Sources */,
 				C03CECE224797BDF003A3C62 /* Alias.swift in Sources */,
@@ -444,8 +466,10 @@
 				C03CEC9824797B29003A3C62 /* ViewController.swift in Sources */,
 				C03CEC9624797B29003A3C62 /* AppDelegate.swift in Sources */,
 				C03CECF724797D56003A3C62 /* ModuleInfo.swift in Sources */,
+				C02D6064247A84CC000308DF /* Symbol.swift in Sources */,
 				C03CECF524797D56003A3C62 /* InstanceInfo.swift in Sources */,
 				C0D754A624798313009F1319 /* Compile.swift in Sources */,
+				C02D6066247ABAC0000308DF /* ByteCode.swift in Sources */,
 				C03CECE124797BDF003A3C62 /* Unicode.swift in Sources */,
 				C03CECF924797D56003A3C62 /* ThreadInfo.swift in Sources */,
 			);

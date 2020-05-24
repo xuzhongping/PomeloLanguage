@@ -15,12 +15,6 @@ public class Virtual: NSObject {
         case fail
     }
     
-    public var context: RuntimeContext
-    
-    override init() {
-        self.context = RuntimeContext()
-    }
-    
     @discardableResult
     func execute(context: RuntimeContext, fn: FnInfo) -> Result {
         return .success
