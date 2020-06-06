@@ -11,7 +11,7 @@ import Cocoa
 public class RuntimeContext: NSObject {
     public var lexParser: LexParser!
     public var module: ModuleInfo!
-    
+    public var compileUnit: CompileUnit!
     
     public var allModules: [String: ModuleInfo] = [:]
 

@@ -25,8 +25,7 @@ public func compileModule(context: RuntimeContext, module: ModuleInfo, code: Str
     moduleUnit.writeOpCode(code: .PUSH_NULL)
     moduleUnit.writeOpCode(code: .RETURN)
     
-    
-    return nil
+    return endCompile(unit: moduleUnit)
 }
 
 public func compileProgram(unit: CompileUnit) {
@@ -78,7 +77,6 @@ public func endCompile(unit: CompileUnit) -> FnInfo {
 }
 
 
-
 // MARK: - Private methods
 private func copyFromCoreModule(context: RuntimeContext, module: ModuleInfo) {
     guard module.name != ModuleName.core else {
@@ -90,5 +88,6 @@ private func copyFromCoreModule(context: RuntimeContext, module: ModuleInfo) {
         module.defineModuleVar(coreModule.moduleVarNames[i], coreModule.moduleVarValues[i])
     }
 }
+
 
 

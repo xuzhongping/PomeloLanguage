@@ -35,6 +35,7 @@
 		C03CECFD24797E05003A3C62 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03CECFC24797E05003A3C62 /* Client.swift */; };
 		C03CECFF24797F17003A3C62 /* Pomelo.swift in Sources */ = {isa = PBXBuildFile; fileRef = C03CECFE24797F17003A3C62 /* Pomelo.swift */; };
 		C0D754A624798313009F1319 /* Compile.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D754A524798313009F1319 /* Compile.swift */; };
+		ED9D3A83248BE7B4001EE0E9 /* CompileObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9D3A82248BE7B4001EE0E9 /* CompileObject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +113,7 @@
 		C03CECFC24797E05003A3C62 /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		C03CECFE24797F17003A3C62 /* Pomelo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pomelo.swift; sourceTree = "<group>"; };
 		C0D754A524798313009F1319 /* Compile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compile.swift; sourceTree = "<group>"; };
+		ED9D3A82248BE7B4001EE0E9 /* CompileObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompileObject.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -284,6 +286,7 @@
 				C02D6061247A8352000308DF /* CompileUnit.swift */,
 				C02D6063247A84CC000308DF /* Symbol.swift */,
 				C02D6065247ABAC0000308DF /* ByteCode.swift */,
+				ED9D3A82248BE7B4001EE0E9 /* CompileObject.swift */,
 			);
 			path = Compile;
 			sourceTree = "<group>";
@@ -455,6 +458,7 @@
 				C03CECF824797D56003A3C62 /* Value.swift in Sources */,
 				C03CECE824797BFB003A3C62 /* LexParser.swift in Sources */,
 				C03CECE524797BDF003A3C62 /* Constant.swift in Sources */,
+				ED9D3A83248BE7B4001EE0E9 /* CompileObject.swift in Sources */,
 				C03CECFA24797D56003A3C62 /* FunctionInfo.swift in Sources */,
 				C03CECE324797BDF003A3C62 /* Extension.swift in Sources */,
 				C03CECE424797BDF003A3C62 /* Debug.swift in Sources */,
